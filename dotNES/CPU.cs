@@ -130,6 +130,8 @@ namespace dotNES
                     WriteAddress(SP--, (byte)(PC & 0xF0));
                     PC = nPC;
                     break;
+                case 0xEA: // NOP
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X"));
             }
