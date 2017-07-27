@@ -220,6 +220,15 @@ namespace dotNES
                     flags.Negative = (val & 0x80) > 0;
                     flags.Overflow = (val & 0x40) > 0;
                     break;
+                case 0x08: // PHP
+                    WriteAddress(SP--, P);
+                    break;
+                case 0x28: // PLP
+                    P = ReadAddress(++SP);
+                    break;
+                case 0x68: // PLA
+                    A = ReadAddress(++SP);
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
