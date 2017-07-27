@@ -68,12 +68,19 @@ namespace dotNES
             Y = 0;
             S = 0xFD;
             P = 0x34;
+            PC = 0xC000;
         }
 
         public void Reset()
         {
             S -= 3;
             flags.IRQ = true;
+        }
+
+        public void Execute()
+        {
+            int instruction = emulator.Mapper.ReadAddress(PC);
+            Console.WriteLine($"{PC.ToString("X")}\t{instruction.ToString("X")}");
         }
 
         public byte ReadAddress(ushort addr)

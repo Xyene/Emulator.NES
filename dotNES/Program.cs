@@ -16,6 +16,7 @@ namespace dotNES
             //Application.Run(new Form1());
             Emulator emu = new Emulator();
             Console.WriteLine(emu.Cartridge);
+            emu.CPU.Execute();
         }
     }
 }

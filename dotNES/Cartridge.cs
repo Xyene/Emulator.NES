@@ -28,7 +28,7 @@ namespace dotNES
             PRGRAMSize = raw[8] * 0x2000;
 
             bool hasTrainer = (raw[6] & 0x2) > 0;
-            PRGROMOffset = hasTrainer ? 512 : 0;
+            PRGROMOffset = 16 + (hasTrainer ? 512 : 0);
 
             MapperNumber = (raw[6] >> 4) | (raw[7] & 0xF0);
         }

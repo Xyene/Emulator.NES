@@ -56,6 +56,7 @@
     </Compile>
     <Compile Include="IAddressable.cs" />
     <Compile Include="Memory.cs" />
+    <Compile Include="NROM.cs" />
     <Compile Include="PPU.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -20,7 +20,11 @@ namespace dotNES
                 case 0x9000:
                 case 0xA000:
                 case 0xB000:
-                    return emulator.Cartridge.raw[emulator.Cartridge.PRGROMOffset + (addr - 0x8000)];
+                case 0xC000:
+                case 0xD000:
+                case 0xE000:
+                case 0xF000:
+                    return emulator.Cartridge.raw[emulator.Cartridge.PRGROMOffset + ((addr & 0xBFFF) - 0x8000)];
                 case 0x6000:
                 case 0x7000:
                 default:
