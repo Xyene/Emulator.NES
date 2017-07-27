@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 10; i++)
                 _Execute();
         }
 
@@ -131,6 +131,27 @@ namespace dotNES
                     PC = nPC;
                     break;
                 case 0xEA: // NOP
+                    break;
+                case 0x18: // CLC
+                    flags.Carry = false;
+                    break;
+                case 0x38: // SEC
+                    flags.Carry = true;
+                    break;
+                case 0x58: // CLI
+                    flags.InterruptsDisabled = false;
+                    break;
+                case 0x78: // SEI
+                    flags.InterruptsDisabled = true;
+                    break;
+                case 0xB8: // CLV
+                    flags.Overflow = false;
+                    break;
+                case 0xD8: // CLD
+                    flags.DecimalMode = false;
+                    break;
+                case 0xF8: // SED
+                    flags.DecimalMode = true;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X"));
