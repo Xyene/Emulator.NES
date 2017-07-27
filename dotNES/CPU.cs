@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 15; i++)
                 _Execute();
         }
 
@@ -152,6 +152,11 @@ namespace dotNES
                     break;
                 case 0xF8: // SED
                     flags.DecimalMode = true;
+                    break;
+                case 0xB0: // BCS
+                    nPC = PC + NextByte() + 1;
+                    if (flags.Carry)
+                        PC = nPC;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X"));
