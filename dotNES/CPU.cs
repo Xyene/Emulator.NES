@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 70; i++)
+            for (int i = 0; i < 80; i++)
                 _Execute();
         }
 
@@ -142,9 +142,12 @@ namespace dotNES
                     break;
                 case 0x20: // JSR
                     int nPC = NextByte() | (NextByte() << 8);
-                    WriteAddress(SP--, (byte)(PC & 0x0F));
-                    WriteAddress(SP--, (byte)(PC & 0xF0));
+                    WriteAddress(SP--, (byte)(PC & 0xFF));
+                    WriteAddress(SP--, (byte)(PC >> 8));
                     PC = nPC;
+                    break;
+                case 0x60: // RTS
+                    PC = ReadAddress(SP++) | (ReadAddress(SP++) << 8);
                     break;
                 case 0xEA: // NOP
                     break;
@@ -265,6 +268,7 @@ namespace dotNES
 
         public void WriteAddress(ushort addr, byte val)
         {
+            // Console.WriteLine($"Write to {addr.ToString("X")} = {val}");
             switch (addr & 0xF000)
             {
                 case 0x0000:
