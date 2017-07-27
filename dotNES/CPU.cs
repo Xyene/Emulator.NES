@@ -189,6 +189,11 @@ namespace dotNES
                     if (!flags.Zero)
                         PC = nPC;
                     break;
+                case 0x70: // BVS
+                    nPC = PC + NextByte() + 1;
+                    if (flags.Overflow)
+                        PC = nPC;
+                    break;
                 case 0x24: // BIT
                     // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator.
                     // The S and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
