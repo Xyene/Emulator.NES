@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APU.cs" />
+    <Compile Include="Cartridge.cs" />
     <Compile Include="CPU.cs" />
     <Compile Include="Emulator.cs" />
     <Compile Include="Form1.cs">

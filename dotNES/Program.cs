@@ -11,9 +11,11 @@ namespace dotNES
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            //Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new Form1());
+            Emulator emu = new Emulator();
+            Console.WriteLine(emu.Cartridge);
         }
     }
 }
