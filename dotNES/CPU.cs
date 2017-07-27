@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 30; i++)
                 _Execute();
         }
 
@@ -109,12 +109,22 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("X")} X:{X.ToString("X")} Y:{Y.ToString("X")} P:{P.ToString("X")} SP:{SP.ToString("X")} CYC:\t{cycle}");
+            Console.WriteLine($"{(PC - 1).ToString("X4")}\t{instruction.ToString("X2")}\t\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")} CYC:\t{cycle}");
 
             switch (instruction)
             {
                 case 0x4C: // JMP
                     PC = NextByte() | (NextByte() << 8);
+                    break;
+                case 0xA9: // LDA
+                    A = NextByte();
+                    flags.Zero = A == 0;
+                    flags.Negative = (A & 0x80) > 0;
+                    break;
+                case 0xA0: // LDY
+                    Y = NextByte();
+                    flags.Zero = Y == 0;
+                    flags.Negative = (Y & 0x80) > 0;
                     break;
                 case 0xA2: // LDX
                     X = NextByte();
@@ -158,8 +168,18 @@ namespace dotNES
                     if (flags.Carry)
                         PC = nPC;
                     break;
+                case 0x90: // BCS
+                    nPC = PC + NextByte() + 1;
+                    if (!flags.Carry)
+                        PC = nPC;
+                    break;
+                case 0xF0: // BEQ
+                    nPC = PC + NextByte() + 1;
+                    if (flags.Zero)
+                        PC = nPC;
+                    break;
                 default:
-                    throw new ArgumentException(instruction.ToString("X"));
+                    throw new ArgumentException(instruction.ToString("X2"));
             }
         }
 
