@@ -9,7 +9,7 @@ namespace dotNES
     class CPU : IAddressable
     {
         private Emulator emulator;
-        private byte[] ram = new byte[1 << 11];
+        private byte[] ram = new byte[0x800];
 
         public CPU(Emulator emulator)
         {
