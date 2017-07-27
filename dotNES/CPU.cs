@@ -106,6 +106,34 @@ namespace dotNES
             return emulator.Mapper.ReadAddress((ushort)PC++);
         }
 
+        private void Push(byte what)
+        {
+            SP--;
+            WriteAddress(SP, what);
+        }
+
+        private byte Pop()
+        {
+            byte val = ReadAddress(SP);
+            SP++;
+            return val;
+        }
+
+        private void PushWord(int what)
+        {
+            SP -= 2;
+
+            WriteAddress(SP, (byte) (what & 0x00FF));
+            WriteAddress((ushort) (SP + 1), (byte) ((what & 0xFF00) >> 8));
+        }
+
+        private int PopWord()
+        {
+            int val = ReadAddress(SP) | ((ReadAddress((ushort) (SP + 1)) << 8));
+            SP += 2;
+            return val;
+        }
+
         public void _Execute()
         {
             int instruction = NextByte();
@@ -142,12 +170,11 @@ namespace dotNES
                     break;
                 case 0x20: // JSR
                     int nPC = NextByte() | (NextByte() << 8);
-                    WriteAddress(SP--, (byte)(PC & 0xFF));
-                    WriteAddress(SP--, (byte)(PC >> 8));
+                    PushWord(PC);
                     PC = nPC;
                     break;
                 case 0x60: // RTS
-                    PC = ReadAddress(SP++) | (ReadAddress(SP++) << 8);
+                    PC = PopWord();
                     break;
                 case 0xEA: // NOP
                     break;
@@ -221,13 +248,32 @@ namespace dotNES
                     flags.Overflow = (val & 0x40) > 0;
                     break;
                 case 0x08: // PHP
-                    WriteAddress(SP--, P);
+                    bool irq = flags.IRQ;
+                    flags.IRQ = true;
+                    Push(P);
+                    flags.IRQ = irq;
                     break;
                 case 0x28: // PLP
-                    P = ReadAddress(++SP);
+                    P = Pop();
+                    flags.Negative = (P & 0x80) > 0;
+                    flags.Zero = P == 0;
                     break;
                 case 0x68: // PLA
-                    A = ReadAddress(++SP);
+                    A = Pop();
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x29: // AND
+                    A = (byte) (A & NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0xC9: // CMP
+                    int M = NextByte();
+                    int res = A - M;
+                    flags.Zero = res == 0;
+                    flags.Negative = res < 0;
+                    flags.Carry = A <= M;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
