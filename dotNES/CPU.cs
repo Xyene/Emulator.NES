@@ -8,12 +8,64 @@ namespace dotNES
 {
     class CPU : IAddressable
     {
+        public class CPUFlags
+        {
+            public bool Negative;
+            public bool Overflow;
+            public bool IRQ;
+            public bool DecimalMode;
+            public bool InterruptsDisabled;
+            public bool Zero;
+            public bool Carry;
+        }
+
         private Emulator emulator;
         private byte[] ram = new byte[0x800];
+        public byte A { get; private set; }
+        public byte X { get; private set; }
+        public byte Y { get; private set; }
+        public byte S { get; private set; }
+        public ushort PC { get; private set; }
+
+        public readonly CPUFlags flags = new CPUFlags();
+
+        public byte P
+        {
+            get
+            {
+                return (byte)((Convert.ToByte(flags.Carry) << 0) |
+                                (Convert.ToByte(flags.Zero) << 1) |
+                                (Convert.ToByte(flags.InterruptsDisabled) << 2) |
+                                (Convert.ToByte(flags.DecimalMode) << 3) |
+                                (Convert.ToByte(flags.IRQ) << 4) |
+                                (1 << 5) |
+                                (Convert.ToByte(flags.Overflow) << 6) |
+                                (Convert.ToByte(flags.Negative) << 7));
+            }
+            set
+            {
+                flags.Carry = (value & 0x1) > 0;
+                flags.Zero = (value & 0x2) > 0;
+                flags.InterruptsDisabled = (value & 0x4) > 0;
+                flags.DecimalMode = (value & 0x8) > 0;
+                flags.IRQ = (value & 0x10) > 0;
+                flags.Overflow = (value & 0x20) > 0;
+                flags.Negative = (value & 0x40) > 0;
+            }
+        }
 
         public CPU(Emulator emulator)
         {
             this.emulator = emulator;
+        }
+
+        public void Reset()
+        {
+            A = 0;
+            X = 0;
+            Y = 0;
+            S = 0xFD;
+            P = 0x34;
         }
 
         public byte ReadAddress(ushort addr)
@@ -44,7 +96,8 @@ namespace dotNES
                     int reg = (addr & 0x7) - 0x2000;
                     return emulator.PPU.ReadRegister(reg);
                 case 0x4000:
-                    if (addr <= 0x401F) {
+                    if (addr <= 0x401F)
+                    {
                         reg = addr - 0x4000;
                         return ReadRegister(reg);
                     }
