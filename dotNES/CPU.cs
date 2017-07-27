@@ -26,6 +26,7 @@ namespace dotNES
         public byte Y { get; private set; }
         public byte S { get; private set; }
         public ushort PC { get; private set; }
+        public long cycle { get; private set; }
 
         public readonly CPUFlags flags = new CPUFlags();
 
@@ -57,15 +58,22 @@ namespace dotNES
         public CPU(Emulator emulator)
         {
             this.emulator = emulator;
+            Initialize();
         }
 
-        public void Reset()
+        public void Initialize()
         {
             A = 0;
             X = 0;
             Y = 0;
             S = 0xFD;
             P = 0x34;
+        }
+
+        public void Reset()
+        {
+            S -= 3;
+            flags.IRQ = true;
         }
 
         public byte ReadAddress(ushort addr)
