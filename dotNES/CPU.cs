@@ -80,7 +80,7 @@ namespace dotNES
         public void Execute()
         {
             int instruction = emulator.Mapper.ReadAddress(PC);
-            Console.WriteLine($"{PC.ToString("X")}\t{instruction.ToString("X")}");
+            Console.WriteLine($"{PC.ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("00")} X:{X.ToString("00")} Y:{Y.ToString("00")} P:{P.ToString("00")} SP:{S.ToString("X")} CYC:\t{cycle}");
         }
 
         public byte ReadAddress(ushort addr)
