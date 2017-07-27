@@ -134,6 +134,12 @@ namespace dotNES
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
                     break;
+                case 0x84: // STX
+                    WriteAddress(NextByte(), Y);
+                    break;
+                case 0x85: // STA
+                    WriteAddress(NextByte(), A);
+                    break;
                 case 0x20: // JSR
                     int nPC = NextByte() | (NextByte() << 8);
                     WriteAddress(SP--, (byte)(PC & 0x0F));
@@ -168,7 +174,7 @@ namespace dotNES
                     if (flags.Carry)
                         PC = nPC;
                     break;
-                case 0x90: // BCS
+                case 0x90: // BCC
                     nPC = PC + NextByte() + 1;
                     if (!flags.Carry)
                         PC = nPC;
@@ -178,7 +184,7 @@ namespace dotNES
                     if (flags.Zero)
                         PC = nPC;
                     break;
-                case 0xD0: // BEQ
+                case 0xD0: // BNE
                     nPC = PC + NextByte() + 1;
                     if (!flags.Zero)
                         PC = nPC;
