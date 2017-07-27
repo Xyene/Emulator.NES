@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < 70; i++)
                 _Execute();
         }
 
@@ -192,6 +192,21 @@ namespace dotNES
                 case 0x70: // BVS
                     nPC = PC + NextByte() + 1;
                     if (flags.Overflow)
+                        PC = nPC;
+                    break;
+                case 0x50: // BVC
+                    nPC = PC + NextByte() + 1;
+                    if (!flags.Overflow)
+                        PC = nPC;
+                    break;
+                case 0x10: // BPL
+                    nPC = PC + NextByte() + 1;
+                    if (!flags.Negative)
+                        PC = nPC;
+                    break;
+                case 0x30: // BMI
+                    nPC = PC + NextByte() + 1;
+                    if (flags.Negative)
                         PC = nPC;
                     break;
                 case 0x24: // BIT
