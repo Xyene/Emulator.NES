@@ -189,6 +189,14 @@ namespace dotNES
                     if (!flags.Zero)
                         PC = nPC;
                     break;
+                case 0x24: // BIT
+                    // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator.
+                    // The S and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
+                    byte val = ReadAddress(NextByte());
+                    flags.Zero = (val & A) == 0;
+                    flags.Negative = (val & 0x80) > 0;
+                    flags.Overflow = (val & 0x40) > 0;
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
