@@ -50,12 +50,41 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    break;
+                    return emulator.Mapper.ReadAddress(addr);
             }
-            return 0;
+            throw new ArgumentOutOfRangeException();
         }
 
         public void WriteAddress(ushort addr, byte val)
+        {
+            switch (addr & 0xF000)
+            {
+                case 0x0000:
+                case 0x1000:
+                    // Wrap every 7FFh bytes
+                    ram[addr & 0x07FF] = val;
+                    return;
+                case 0x2000:
+                case 0x3000:
+                    // Wrap every 7h bytes
+                    int reg = (addr & 0x7) - 0x2000;
+                    emulator.PPU.WriteRegister(reg, val);
+                    return;
+                case 0x4000:
+                    if (addr <= 0x401F)
+                    {
+                        reg = addr - 0x4000;
+                        WriteRegister(reg, val);
+                        return;
+                    }
+                    goto default;
+                default:
+                    emulator.Mapper.WriteAddress(addr, val);
+                    return;
+            }
+        }
+
+        public void WriteRegister(int reg, byte val)
         {
             throw new NotImplementedException();
         }

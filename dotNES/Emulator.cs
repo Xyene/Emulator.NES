@@ -12,10 +12,13 @@ namespace dotNES
         {
             this.CPU = new CPU(this);
             this.PPU = new PPU(this);
+            this.Mapper = new Memory(this);
         }
 
         public CPU CPU { get; }
 
-        public PPU PPU { get;  }
+        public PPU PPU { get; }
+
+        public Memory Mapper { get; }
     }
 }
