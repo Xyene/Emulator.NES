@@ -25,7 +25,7 @@ namespace dotNES
         public byte X { get; private set; }
         public byte Y { get; private set; }
         public byte S { get; private set; }
-        public ushort PC { get; private set; }
+        public int PC { get; private set; }
         public long cycle { get; private set; }
 
         public readonly CPUFlags flags = new CPUFlags();
@@ -79,8 +79,34 @@ namespace dotNES
 
         public void Execute()
         {
-            int instruction = emulator.Mapper.ReadAddress(PC);
-            Console.WriteLine($"{PC.ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("00")} X:{X.ToString("00")} Y:{Y.ToString("00")} P:{P.ToString("00")} SP:{S.ToString("X")} CYC:\t{cycle}");
+            for (int i = 0; i < 5; i++)
+                _Execute();
+        }
+
+        private byte NextByte()
+        {
+            return emulator.Mapper.ReadAddress((ushort)PC++);
+        }
+
+        public void _Execute()
+        {
+            int instruction = NextByte();
+            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("00")} X:{X.ToString("00")} Y:{Y.ToString("00")} P:{P.ToString("00")} SP:{S.ToString("X")} CYC:\t{cycle}");
+
+            switch (instruction)
+            {
+                case 0x4C: // JMP
+                    PC = NextByte() | (NextByte() << 8);
+                    break;
+                case 0xA2: // LDX
+                    X = NextByte();
+                    break;
+                case 0x86: // STX
+                    WriteAddress(NextByte(), X);
+                    break;
+                default:
+                    throw new ArgumentException(instruction.ToString("X"));
+            }
         }
 
         public byte ReadAddress(ushort addr)
