@@ -30,6 +30,23 @@ namespace dotNES
 
         public readonly CPUFlags flags = new CPUFlags();
 
+        /**
+         * 7  bit  0
+         * ---- ----
+         * NVss DIZC
+         * |||| ||||
+         * |||| |||+- Carry: 1 if last addition or shift resulted in a carry, or if
+         * |||| |||     last subtraction resulted in no borrow
+         * |||| ||+-- Zero: 1 if last operation resulted in a 0 value
+         * |||| |+--- Interrupt: Interrupt inhibit
+         * |||| |       (0: /IRQ and /NMI get through; 1: only /NMI gets through)
+         * |||| +---- Decimal: 1 to make ADC and SBC use binary-coded decimal arithmetic
+         * ||||         (ignored on second-source 6502 like that in the NES)
+         * ||++------ s: No effect, used by the stack copy, see note below
+         * |+-------- Overflow: 1 if last ADC or SBC resulted in signed overflow,
+         * |            or D6 from last BIT
+         * +--------- Negative: Set to bit 7 of the last operation
+         */
         public byte P
         {
             get
@@ -50,8 +67,8 @@ namespace dotNES
                 flags.InterruptsDisabled = (value & 0x4) > 0;
                 flags.DecimalMode = (value & 0x8) > 0;
                 flags.IRQ = (value & 0x10) > 0;
-                flags.Overflow = (value & 0x20) > 0;
-                flags.Negative = (value & 0x40) > 0;
+                flags.Overflow = (value & 0x40) > 0;
+                flags.Negative = (value & 0x80) > 0;
             }
         }
 
@@ -67,7 +84,8 @@ namespace dotNES
             X = 0;
             Y = 0;
             S = 0xFD;
-            P = 0x34;
+            P = 0x24;
+
             PC = 0xC000;
         }
 
@@ -91,7 +109,7 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("00")} X:{X.ToString("00")} Y:{Y.ToString("00")} P:{P.ToString("00")} SP:{S.ToString("X")} CYC:\t{cycle}");
+            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("X")} X:{X.ToString("X")} Y:{Y.ToString("X")} P:{P.ToString("X")} SP:{S.ToString("X")} CYC:\t{cycle}");
 
             switch (instruction)
             {
