@@ -24,7 +24,7 @@ namespace dotNES
         public byte A { get; private set; }
         public byte X { get; private set; }
         public byte Y { get; private set; }
-        public byte S { get; private set; }
+        public byte SP { get; private set; }
         public int PC { get; private set; }
         public long cycle { get; private set; }
 
@@ -83,7 +83,7 @@ namespace dotNES
             A = 0;
             X = 0;
             Y = 0;
-            S = 0xFD;
+            SP = 0xFD;
             P = 0x24;
 
             PC = 0xC000;
@@ -91,13 +91,13 @@ namespace dotNES
 
         public void Reset()
         {
-            S -= 3;
+            SP -= 3;
             flags.IRQ = true;
         }
 
         public void Execute()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 7; i++)
                 _Execute();
         }
 
@@ -109,7 +109,7 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("X")} X:{X.ToString("X")} Y:{Y.ToString("X")} P:{P.ToString("X")} SP:{S.ToString("X")} CYC:\t{cycle}");
+            Console.WriteLine($"{(PC - 1).ToString("X")}\t{instruction.ToString("X")}\t\t\t\tA:{A.ToString("X")} X:{X.ToString("X")} Y:{Y.ToString("X")} P:{P.ToString("X")} SP:{SP.ToString("X")} CYC:\t{cycle}");
 
             switch (instruction)
             {
@@ -123,6 +123,12 @@ namespace dotNES
                     break;
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
+                    break;
+                case 0x20: // JSR
+                    int nPC = NextByte() | (NextByte() << 8);
+                    WriteAddress(SP--, (byte)(PC & 0x0F));
+                    WriteAddress(SP--, (byte)(PC & 0xF0));
+                    PC = nPC;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X"));
