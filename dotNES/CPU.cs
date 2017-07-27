@@ -52,6 +52,7 @@ namespace dotNES
                 default:
                     return emulator.Mapper.ReadAddress(addr);
             }
+
             throw new ArgumentOutOfRangeException();
         }
 
