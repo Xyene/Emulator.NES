@@ -118,6 +118,8 @@ namespace dotNES
                     break;
                 case 0xA2: // LDX
                     X = NextByte();
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
                     break;
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
