@@ -95,12 +95,6 @@ namespace dotNES
             flags.IRQ = true;
         }
 
-        public void Execute()
-        {
-            for (int i = 0; i < 80; i++)
-                _Execute();
-        }
-
         private byte NextByte()
         {
             return emulator.Mapper.ReadAddress((ushort)PC++);
@@ -123,15 +117,21 @@ namespace dotNES
         {
             SP -= 2;
 
-            WriteAddress(SP, (byte) (what & 0x00FF));
-            WriteAddress((ushort) (SP + 1), (byte) ((what & 0xFF00) >> 8));
+            WriteAddress(SP, (byte)(what & 0x00FF));
+            WriteAddress((ushort)(SP + 1), (byte)((what & 0xFF00) >> 8));
         }
 
         private int PopWord()
         {
-            int val = ReadAddress(SP) | ((ReadAddress((ushort) (SP + 1)) << 8));
+            int val = ReadAddress(SP) | ((ReadAddress((ushort)(SP + 1)) << 8));
             SP += 2;
             return val;
+        }
+
+        public void Execute()
+        {
+            for (int i = 0; i < 120; i++)
+                _Execute();
         }
 
         public void _Execute()
@@ -162,7 +162,7 @@ namespace dotNES
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
                     break;
-                case 0x84: // STX
+                case 0x84: // STY
                     WriteAddress(NextByte(), Y);
                     break;
                 case 0x85: // STA
@@ -253,10 +253,12 @@ namespace dotNES
                     Push(P);
                     flags.IRQ = irq;
                     break;
+                case 0x48: // PHA
+                    Push(A);
+                    break;
                 case 0x28: // PLP
                     P = Pop();
-                    flags.Negative = (P & 0x80) > 0;
-                    flags.Zero = P == 0;
+                    flags.IRQ = false;
                     break;
                 case 0x68: // PLA
                     A = Pop();
@@ -264,7 +266,7 @@ namespace dotNES
                     flags.Zero = A == 0;
                     break;
                 case 0x29: // AND
-                    A = (byte) (A & NextByte());
+                    A = (byte)(A & NextByte());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
