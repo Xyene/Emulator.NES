@@ -97,7 +97,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 40; i++)
                 _Execute();
         }
 
@@ -176,6 +176,11 @@ namespace dotNES
                 case 0xF0: // BEQ
                     nPC = PC + NextByte() + 1;
                     if (flags.Zero)
+                        PC = nPC;
+                    break;
+                case 0xD0: // BEQ
+                    nPC = PC + NextByte() + 1;
+                    if (!flags.Zero)
                         PC = nPC;
                     break;
                 default:
