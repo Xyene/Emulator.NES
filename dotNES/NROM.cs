@@ -12,8 +12,9 @@ namespace dotNES
         {
         }
 
-        public override byte ReadAddress(ushort addr)
+        public override byte ReadAddress(int addr)
         {
+            addr &= 0xFFFF;
             switch (addr & 0xF000)
             {
                 case 0x8000:
@@ -30,7 +31,7 @@ namespace dotNES
             }
         }
 
-        public override void WriteAddress(ushort addr, byte val)
+        public override void WriteAddress(int addr, byte val)
         {
             throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
         }

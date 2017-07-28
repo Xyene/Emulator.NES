@@ -36,13 +36,15 @@ namespace dotNES
             throw new NotImplementedException();
         }
 
-        public byte ReadAddress(ushort addr)
+        public byte ReadAddress(int addr)
         {
+            addr &= 0xFFFF;
             throw new NotImplementedException();
         }
 
-        public void WriteAddress(ushort addr, byte val)
+        public void WriteAddress(int addr, byte val)
         {
+            addr &= 0xFFFF;
             throw new NotImplementedException();
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace dotNES
 {
-    class CPU : IAddressable
+    partial class CPU : IAddressable
     {
         public class CPUFlags
         {
@@ -105,30 +105,6 @@ namespace dotNES
             return (ushort)((NextByte()) | (NextByte() << 8));
         }
 
-        private void Push(byte what)
-        {
-            WriteAddress((ushort) (0x100 + SP), what);
-            SP--;
-        }
-
-        private byte Pop()
-        {
-            SP++;
-            byte val = ReadAddress((ushort) (0x100 + SP));
-            return val;
-        }
-
-        private void PushWord(int what)
-        {
-            Push((byte) (what >> 8));
-            Push((byte) (what & 0xFF));
-        }
-
-        private int PopWord()
-        {
-            return Pop() | (Pop() << 8);
-        }
-
         public void Execute()
         {
             for (int i = 0; i < 1100; i++)
@@ -154,34 +130,25 @@ namespace dotNES
                     PC = NextByte() | (NextByte() << 8);
                     break;
                 case 0xA9: // LDA
-                    A = NextByte();
-                    flags.Zero = A == 0;
-                    flags.Negative = (A & 0x80) > 0;
+                    LDA(NextByte());
                     break;
-                case 0xA0: // LDY
-                    Y = NextByte();
-                    flags.Zero = Y == 0;
-                    flags.Negative = (Y & 0x80) > 0;
-                    break;
-                case 0xA2: // LDX
-                    X = NextByte();
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
-                    break;
-                case 0xAE: // LDX
-                    X = ReadAddress(NextWord());
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
-                    break;
-                case 0xAC: // LDY
-                    Y = ReadAddress(NextWord());
-                    flags.Zero = Y == 0;
-                    flags.Negative = (Y & 0x80) > 0;
+                case 0xA5: // LDA
+                    LDA(ReadAddress(NextByte()));
                     break;
                 case 0xAD: // LDA
-                    A = ReadAddress(NextWord());
-                    flags.Zero = A == 0;
-                    flags.Negative = (A & 0x80) > 0;
+                    LDA(ReadAddress(NextWord()));
+                    break;
+                case 0xA0: // LDY
+                    LDY(NextByte());
+                    break;
+                case 0xA2: // LDX
+                    LDX(NextByte());
+                    break;
+                case 0xAE: // LDX
+                    LDX(ReadAddress(NextWord()));
+                    break;
+                case 0xAC: // LDY
+                    LDY(ReadAddress(NextWord()));
                     break;
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
@@ -194,6 +161,9 @@ namespace dotNES
                     break;
                 case 0x85: // STA
                     WriteAddress(NextByte(), A);
+                    break;
+                case 0x8D: // STA
+                    WriteAddress(NextWord(), A);
                     break;
                 case 0x20: // JSR
                     int nPC = NextByte() | (NextByte() << 8);
@@ -434,24 +404,16 @@ namespace dotNES
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
-                case 0xA5: // LDA
-                    A = ReadAddress(NextByte());
-                    flags.Zero = A == 0;
-                    flags.Negative = (A & 0x80) > 0;
+                case 0xA1: // LDA ind
+                    int off = (NextByte() + X) & 0xFF;
+                    A = ReadAddress(ReadAddress(off) | (ReadAddress(off + 1) << 8));
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
         }
 
-        private void LDA(int addr)
-        {
-            A = ReadAddress((ushort) addr);
-            flags.Zero = A == 0;
-            flags.Negative = (A & 0x80) > 0;
-        }
-
-        public byte ReadAddress(ushort addr)
+        public byte ReadAddress(int addr)
         {
             /*
              * Address range 	Size 	Device
@@ -492,8 +454,9 @@ namespace dotNES
             throw new ArgumentOutOfRangeException();
         }
 
-        public void WriteAddress(ushort addr, byte val)
+        public void WriteAddress(int addr, byte val)
         {
+            addr &= 0xFFFF;
             // Console.WriteLine($"Write to {addr.ToString("X")} = {val}");
             switch (addr & 0xF000)
             {

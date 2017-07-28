@@ -15,8 +15,8 @@ namespace dotNES
             this.emulator = emulator;
         }
 
-        public abstract byte ReadAddress(ushort addr);
+        public abstract byte ReadAddress(int addr);
 
-        public abstract void WriteAddress(ushort addr, byte val);
+        public abstract void WriteAddress(int addr, byte val);
     }
 }
