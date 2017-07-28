@@ -107,7 +107,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 2200; i++)
                 _Execute();
             //            byte w;
             //            ushort x = 0x6000;
@@ -437,6 +437,21 @@ namespace dotNES
                     break;
                 case 0xC4: // CPY
                     CMP(Y, ReadAddress(NextByte()));
+                    break;
+                case 0x46: // LSR
+                    LSR(NextByte());
+                    break;
+                case 0x06: // ASL
+                    ASL(NextByte());
+                    break;
+                case 0x66: // ROR
+                    ROR(NextByte());
+                    break;
+                case 0x26: // ROL
+                    ROL(NextByte());
+                    break;
+                case 0xE6: // INC
+                    INC(NextByte());
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
