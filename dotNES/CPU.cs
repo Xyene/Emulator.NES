@@ -197,11 +197,11 @@ namespace dotNES
                     break;
                 case 0x20: // JSR
                     int nPC = NextByte() | (NextByte() << 8);
-                    PushWord(PC);
+                    PushWord(PC - 1);
                     PC = nPC;
                     break;
                 case 0x60: // RTS
-                    PC = PopWord();
+                    PC = PopWord() + 1;
                     break;
                 case 0xEA: // NOP
                     break;
