@@ -107,7 +107,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 1400; i++)
+            for (int i = 0; i < 1700; i++)
                 _Execute();
             //            byte w;
             //            ushort x = 0x6000;
@@ -141,8 +141,14 @@ namespace dotNES
                 case 0xA0: // LDY
                     LDY(NextByte());
                     break;
+                case 0xA4: // LDY
+                    LDY(ReadAddress(NextByte()));
+                    break;
                 case 0xA2: // LDX
                     LDX(NextByte());
+                    break;
+                case 0xA6: // LDX
+                    LDX(ReadAddress(NextByte()));
                     break;
                 case 0xAE: // LDX
                     LDX(ReadAddress(NextWord()));
@@ -413,6 +419,11 @@ namespace dotNES
                     break;
                 case 0xE1: // SBC ind
                     ADC((byte)~ReadAddress(IndirectAddress()));
+                    break;
+                case 0x05: // ORA
+                    A |= ReadAddress(NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
