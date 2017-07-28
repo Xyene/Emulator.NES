@@ -130,7 +130,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 120; i++)
+            for (int i = 0; i < 300; i++)
                 _Execute();
         }
 
@@ -269,6 +269,25 @@ namespace dotNES
                     A = (byte)(A & NextByte());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
+                    break;
+                case 0x09: // OR
+                    A = (byte)(A | NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x49: // EOR
+                    A = (byte)(A ^ NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x69: // ADC
+                    val = NextByte();
+                    int nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
+                    flags.Overflow = nA < -128 || nA > 127;
+                    flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
+                    flags.Negative = (nA & 0x80) > 0;
+                    flags.Zero = (nA & 0xFF) == 0;
+                    A = (byte) (nA & 0xFF);
                     break;
                 case 0xC9: // CMP
                     int M = NextByte();
