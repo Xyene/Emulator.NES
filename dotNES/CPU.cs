@@ -290,11 +290,10 @@ namespace dotNES
                     A = (byte) (nA & 0xFF);
                     break;
                 case 0xC9: // CMP
-                    int M = NextByte();
-                    int res = A - M;
-                    flags.Zero = res == 0;
-                    flags.Negative = res < 0;
-                    flags.Carry = A <= M;
+                    byte M = NextByte();
+                    flags.Zero = A == M;
+                    flags.Negative = A < M;
+                    flags.Carry = A >= M;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
