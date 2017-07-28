@@ -131,7 +131,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 1100; i++)
                 _Execute();
             //            byte w;
             //            ushort x = 0x6000;
@@ -418,9 +418,37 @@ namespace dotNES
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
+                case 0x6A: // ROR
+                    bool c = flags.Carry;
+                    flags.Carry = (A & 0x1) > 0;
+                    A >>= 1;
+                    if (c) A |= 0x80;
+                    flags.Negative = c;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x2A: // ROL
+                    c = flags.Carry;
+                    flags.Carry = (A & 0x80) > 0;
+                    A <<= 1;
+                    if (c) A |= 0x1;
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0xA5: // LDA
+                    A = ReadAddress(NextByte());
+                    flags.Zero = A == 0;
+                    flags.Negative = (A & 0x80) > 0;
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
+        }
+
+        private void LDA(int addr)
+        {
+            A = ReadAddress((ushort) addr);
+            flags.Zero = A == 0;
+            flags.Negative = (A & 0x80) > 0;
         }
 
         public byte ReadAddress(ushort addr)
