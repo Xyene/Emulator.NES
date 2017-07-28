@@ -18,9 +18,9 @@ namespace dotNES
             A = (byte)(nA & 0xFF);
         }
 
-        private void CMP(byte M)
+        private void CMP(byte reg, byte M)
         {
-            int d = A - M;
+            int d = reg - M;
 
             flags.Negative = (d & 0x80) > 0 && d != 0;
             flags.Carry = d >= 0;

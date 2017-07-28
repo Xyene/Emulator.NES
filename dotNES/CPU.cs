@@ -107,7 +107,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 1700; i++)
+            for (int i = 0; i < 2000; i++)
                 _Execute();
             //            byte w;
             //            ushort x = 0x6000;
@@ -290,25 +290,13 @@ namespace dotNES
                     ADC((byte) ~NextByte());
                     break;
                 case 0xC9: // CMP
-                    CMP(NextByte());
+                    CMP(A, NextByte());
                     break;
                 case 0xC0: // CPY
-                    byte M = NextByte();
-                    int d = Y - M;
-
-                    flags.Negative = (d & 0x80) > 0 && d != 0;
-                    flags.Carry = d >= 0;
-                    flags.Zero = d == 0;
-
+                    CMP(Y, NextByte());
                     break;
                 case 0xE0: // CPX
-                    M = NextByte();
-                    d = X - M;
-
-                    flags.Negative = (d & 0x80) > 0 && d != 0;
-                    flags.Carry = d >= 0;
-                    flags.Zero = d == 0;
-
+                    CMP(X, NextByte());
                     break;
                 case 0xC8: // INY
                     Y++;
@@ -415,7 +403,7 @@ namespace dotNES
                     ADC(ReadAddress(IndirectAddress()));
                     break;
                 case 0xC1: // CMP ind
-                    CMP(ReadAddress(IndirectAddress()));
+                    CMP(A, ReadAddress(IndirectAddress()));
                     break;
                 case 0xE1: // SBC ind
                     ADC((byte)~ReadAddress(IndirectAddress()));
@@ -424,6 +412,31 @@ namespace dotNES
                     A |= ReadAddress(NextByte());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
+                    break;
+                case 0x25: // AND
+                    A &= ReadAddress(NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x45: // EOR
+                    A ^= ReadAddress(NextByte());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x65: // ADC
+                    ADC(ReadAddress(NextByte()));
+                    break;
+                case 0xE5: // SBC
+                    ADC((byte) ~ReadAddress(NextByte()));
+                    break;
+                case 0xC5: // CMP
+                    CMP(A, ReadAddress(NextByte()));
+                    break;
+                case 0xE4: // CPX
+                    CMP(X, ReadAddress(NextByte()));
+                    break;
+                case 0xC4: // CPY
+                    CMP(Y, ReadAddress(NextByte()));
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
