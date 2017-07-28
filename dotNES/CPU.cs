@@ -97,7 +97,7 @@ namespace dotNES
 
         private byte NextByte()
         {
-            return emulator.Mapper.ReadAddress((ushort)PC++);
+            return ReadAddress((ushort)PC++);
         }
 
         private ushort NextWord()
@@ -107,7 +107,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 3000; i++)
+            for (int i = 0; i < 3400; i++)
             {
                 _Execute();
                 cycle++;
@@ -126,8 +126,8 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            if (cycle >= 2000)
-                Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            // if (cycle >= 3000)
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
             {
@@ -393,34 +393,36 @@ namespace dotNES
                     flags.Zero = A == 0;
                     break;
                 case 0xA1: // LDA ind
-                    A = ReadAddress(IndirectAddress());
+                    int ind = IndirectX();
+                    byte valx = ReadAddress(ind);
+                    LDA(valx);
                     break;
                 case 0x81: // STA ind
-                    WriteAddress(IndirectAddress(), A);
+                    WriteAddress(IndirectX(), A);
                     break;
                 case 0x01: // ORA ind
-                    A |= ReadAddress(IndirectAddress());
+                    A |= ReadAddress(IndirectX());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
                 case 0x21: // AND ind
-                    A &= ReadAddress(IndirectAddress());
+                    A &= ReadAddress(IndirectX());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
                 case 0x41: // EOR ind
-                    A ^= ReadAddress(IndirectAddress());
+                    A ^= ReadAddress(IndirectX());
                     flags.Negative = (A & 0x80) > 0;
                     flags.Zero = A == 0;
                     break;
                 case 0x61: // ADC ind
-                    ADC(ReadAddress(IndirectAddress()));
+                    ADC(ReadAddress(IndirectX()));
                     break;
                 case 0xC1: // CMP ind
-                    CMP(A, ReadAddress(IndirectAddress()));
+                    CMP(A, ReadAddress(IndirectX()));
                     break;
                 case 0xE1: // SBC ind
-                    ADC((byte)~ReadAddress(IndirectAddress()));
+                    ADC((byte)~ReadAddress(IndirectX()));
                     break;
                 case 0x05: // ORA
                     A |= ReadAddress(NextByte());
@@ -510,7 +512,7 @@ namespace dotNES
                     ROR(NextWord());
                     break;
                 case 0x2E: // ROL
-                    ROR(NextWord());
+                    ROL(NextWord());
                     break;
                 case 0xEE: // INC
                     INC(NextWord());
@@ -518,18 +520,74 @@ namespace dotNES
                 case 0xCE: // DEC
                     DEC(NextWord());
                     break;
+                case 0xB1: // LDA
+                    LDA(ReadAddress(IndirectY()));
+                    break;
+                case 0x11: // ORA
+                    A |= ReadAddress(IndirectY());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x31: // AND
+                    A &= ReadAddress(IndirectY());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x51: // EOR
+                    A ^= ReadAddress(IndirectY());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0xF1: // SBC
+                    ADC((byte)~ReadAddress(IndirectY()));
+                    break;
+                case 0x71: // ADC
+                    ADC(ReadAddress(IndirectY()));
+                    break;
+                case 0x91: // STA
+                    WriteAddress(IndirectY(), A);
+                    break;
+                case 0xD1: // CMP
+                    CMP(A, ReadAddress(IndirectY()));
+                    break;
+                case 0x6C: // JMP
+                    int off = NextWord();
+                    // AN INDIRECT JUMP MUST NEVER USE A VECTOR BEGINNING ON THE LAST BYTE OF A PAGE
+                    //
+                    // If address $3000 contains $40, $30FF contains $80, and $3100 contains $50, 
+                    // the result of JMP ($30FF) will be a transfer of control to $4080 rather than
+                    // $5080 as you intended i.e. the 6502 took the low byte of the address from
+                    // $30FF and the high byte from $3000.
+                    //
+                    // http://www.6502.org/tutorials/6502opcodes.html
+                    int hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
+                    PC = ReadAddress(off) | (ReadAddress(hi) << 8);
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
         }
 
-        public int IndirectAddress()
+        public int IndirectX()
         {
             int off = (NextByte() + X) & 0xFF;
-            return ReadAddress(off) | (ReadAddress(off + 1) << 8);
+            return ReadAddress(off) | (ReadAddress((off + 1) & 0xFF) << 8);
+        }
+
+        public int IndirectY()
+        {
+            int off = NextByte() & 0xFF;
+            return ((ReadAddress(off) | (ReadAddress((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
         }
 
         public byte ReadAddress(int addr)
+        {
+            byte read = _ReadAddress(addr);
+            // Console.WriteLine($"Read from {addr.ToString("X")} = {read}");
+            return read;
+        }
+
+        private byte _ReadAddress(int addr)
         {
             /*
              * Address range 	Size 	Device
