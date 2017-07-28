@@ -130,7 +130,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 300; i++)
+            for (int i = 0; i < 350; i++)
                 _Execute();
         }
 
@@ -291,9 +291,12 @@ namespace dotNES
                     break;
                 case 0xC9: // CMP
                     byte M = NextByte();
-                    flags.Zero = A == M;
-                    flags.Negative = A < M;
-                    flags.Carry = A >= M;
+                    int d = A - M;
+
+                    flags.Negative = (d & 0x80) > 0 && d != 0;
+                    flags.Carry = d >= 0;
+                    flags.Zero = d == 0;
+
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
