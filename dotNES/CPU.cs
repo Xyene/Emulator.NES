@@ -107,8 +107,12 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 2200; i++)
+            for (int i = 0; i < 3000; i++)
+            {
                 _Execute();
+                cycle++;
+            }
+
             //            byte w;
             //            ushort x = 0x6000;
             //            string z = "";
@@ -122,7 +126,8 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            if (cycle >= 2000)
+                Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
             {
@@ -164,6 +169,9 @@ namespace dotNES
                     break;
                 case 0x84: // STY
                     WriteAddress(NextByte(), Y);
+                    break;
+                case 0x8C: // STY
+                    WriteAddress(NextWord(), Y);
                     break;
                 case 0x85: // STA
                     WriteAddress(NextByte(), A);
@@ -250,6 +258,12 @@ namespace dotNES
                     flags.Negative = (val & 0x80) > 0;
                     flags.Overflow = (val & 0x40) > 0;
                     break;
+                case 0x2C: // BIT
+                    val = ReadAddress(NextWord());
+                    flags.Zero = (val & A) == 0;
+                    flags.Negative = (val & 0x80) > 0;
+                    flags.Overflow = (val & 0x40) > 0;
+                    break;
                 case 0x08: // PHP
                     bool irq = flags.IRQ;
                     flags.IRQ = true;
@@ -287,7 +301,7 @@ namespace dotNES
                     ADC(NextByte());
                     break;
                 case 0xE9: // SBC
-                    ADC((byte) ~NextByte());
+                    ADC((byte)~NextByte());
                     break;
                 case 0xC9: // CMP
                     CMP(A, NextByte());
@@ -427,7 +441,7 @@ namespace dotNES
                     ADC(ReadAddress(NextByte()));
                     break;
                 case 0xE5: // SBC
-                    ADC((byte) ~ReadAddress(NextByte()));
+                    ADC((byte)~ReadAddress(NextByte()));
                     break;
                 case 0xC5: // CMP
                     CMP(A, ReadAddress(NextByte()));
@@ -452,6 +466,57 @@ namespace dotNES
                     break;
                 case 0xE6: // INC
                     INC(NextByte());
+                    break;
+                case 0xC6: // DEC
+                    DEC(NextByte());
+                    break;
+                case 0x0D: // ORA
+                    A |= ReadAddress(NextWord());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x2D: // AND
+                    A &= ReadAddress(NextWord());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x4D: // EOR
+                    A ^= ReadAddress(NextWord());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x6D: // ADC
+                    ADC(ReadAddress(NextWord()));
+                    break;
+                case 0xED: // SBC
+                    ADC((byte)~ReadAddress(NextWord()));
+                    break;
+                case 0xCD: // CMP
+                    CMP(A, ReadAddress(NextWord()));
+                    break;
+                case 0xEC: // CPX
+                    CMP(X, ReadAddress(NextWord()));
+                    break;
+                case 0xCC: // CPY
+                    CMP(Y, ReadAddress(NextWord()));
+                    break;
+                case 0x4E: // LSR
+                    LSR(NextWord());
+                    break;
+                case 0x0E: // ASL
+                    ASL(NextWord());
+                    break;
+                case 0x6E: // ROR
+                    ROR(NextWord());
+                    break;
+                case 0x2E: // ROL
+                    ROR(NextWord());
+                    break;
+                case 0xEE: // INC
+                    INC(NextWord());
+                    break;
+                case 0xCE: // DEC
+                    DEC(NextWord());
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));

@@ -79,5 +79,13 @@ namespace dotNES
             flags.Zero = D == 0;
             WriteAddress(addr, D);
         }
+
+        private void DEC(int addr)
+        {
+            byte D = (byte)(ReadAddress(addr) - 1);
+            flags.Negative = (D & 0x80) > 0;
+            flags.Zero = D == 0;
+            WriteAddress(addr, D);
+        }
     }
 }
