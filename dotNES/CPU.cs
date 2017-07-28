@@ -107,7 +107,7 @@ namespace dotNES
 
         public void Execute()
         {
-            for (int i = 0; i < 1100; i++)
+            for (int i = 0; i < 1400; i++)
                 _Execute();
             //            byte w;
             //            ushort x = 0x6000;
@@ -278,37 +278,17 @@ namespace dotNES
                     flags.Zero = A == 0;
                     break;
                 case 0x69: // ADC
-                    val = NextByte();
-                    int nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
-                    flags.Overflow = nA < -128 || nA > 127;
-                    flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
-                    flags.Negative = (nA & 0x80) > 0;
-                    flags.Zero = (nA & 0xFF) == 0;
-                    A = (byte)(nA & 0xFF);
+                    ADC(NextByte());
                     break;
-
                 case 0xE9: // SBC
-                    val = (byte)~NextByte();
-                    //flags.Carry = true;
-                    nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
-                    flags.Overflow = nA < -128 || nA > 127;
-                    flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
-                    flags.Negative = (nA & 0x80) > 0;
-                    flags.Zero = (nA & 0xFF) == 0;
-                    A = (byte)(nA & 0xFF);
+                    ADC((byte) ~NextByte());
                     break;
                 case 0xC9: // CMP
-                    byte M = NextByte();
-                    int d = A - M;
-
-                    flags.Negative = (d & 0x80) > 0 && d != 0;
-                    flags.Carry = d >= 0;
-                    flags.Zero = d == 0;
-
+                    CMP(NextByte());
                     break;
                 case 0xC0: // CPY
-                    M = NextByte();
-                    d = Y - M;
+                    byte M = NextByte();
+                    int d = Y - M;
 
                     flags.Negative = (d & 0x80) > 0 && d != 0;
                     flags.Carry = d >= 0;
@@ -405,12 +385,44 @@ namespace dotNES
                     flags.Zero = A == 0;
                     break;
                 case 0xA1: // LDA ind
-                    int off = (NextByte() + X) & 0xFF;
-                    A = ReadAddress(ReadAddress(off) | (ReadAddress(off + 1) << 8));
+                    A = ReadAddress(IndirectAddress());
+                    break;
+                case 0x81: // STA ind
+                    WriteAddress(IndirectAddress(), A);
+                    break;
+                case 0x01: // ORA ind
+                    A |= ReadAddress(IndirectAddress());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x21: // AND ind
+                    A &= ReadAddress(IndirectAddress());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x41: // EOR ind
+                    A ^= ReadAddress(IndirectAddress());
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x61: // ADC ind
+                    ADC(ReadAddress(IndirectAddress()));
+                    break;
+                case 0xC1: // CMP ind
+                    CMP(ReadAddress(IndirectAddress()));
+                    break;
+                case 0xE1: // SBC ind
+                    ADC((byte)~ReadAddress(IndirectAddress()));
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
+        }
+
+        public int IndirectAddress()
+        {
+            int off = (NextByte() + X) & 0xFF;
+            return ReadAddress(off) | (ReadAddress(off + 1) << 8);
         }
 
         public byte ReadAddress(int addr)

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ALU.cs" />
     <Compile Include="APU.cs" />
     <Compile Include="Cartridge.cs" />
     <Compile Include="CPU.cs" />
