@@ -8,6 +8,8 @@ namespace dotNES
 {
     class NROM : Memory
     {
+        private byte[] ram = new byte[8192];
+
         public NROM(Emulator emulator) : base(emulator)
         {
         }
@@ -17,6 +19,9 @@ namespace dotNES
             addr &= 0xFFFF;
             switch (addr & 0xF000)
             {
+                case 0x6000:
+                case 0x7000:
+                    return ram[addr - 0x6000];
                 case 0x8000:
                 case 0x9000:
                 case 0xA000:
@@ -33,7 +38,15 @@ namespace dotNES
 
         public override void WriteAddress(int addr, byte val)
         {
-            throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
+            switch (addr & 0xF000)
+            {
+                case 0x6000:
+                case 0x7000:
+                    ram[addr - 0x6000] = val;
+                    break;
+                default:
+                    throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
+            }
         }
     }
 }
