@@ -105,28 +105,10 @@ namespace dotNES
             return (ushort)((NextByte()) | (NextByte() << 8));
         }
 
-        public void Execute()
-        {
-            for (int i = 0; i < 3400; i++)
-            {
-                _Execute();
-                cycle++;
-            }
-
-            //            byte w;
-            //            ushort x = 0x6000;
-            //            string z = "";
-            //            while ((w = ReadAddress(x)) != '\0')
-            //            {
-            //                z += (char) w;
-            //            }
-            //            Console.WriteLine(">>> " + z);
-        }
-
         public void _Execute()
         {
             int instruction = NextByte();
-            // if (cycle >= 3000)
+             if (cycle >= 3000)
             Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
@@ -563,9 +545,57 @@ namespace dotNES
                     int hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
                     PC = ReadAddress(off) | (ReadAddress(hi) << 8);
                     break;
+                case 0xB9: // LDA
+                    LDA(ReadAddress(NextWord() + Y));
+                    break;
+                case 0x19: // ORA
+                    A |= ReadAddress(NextWord() + Y);
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x39: // AND
+                    A &= ReadAddress(NextWord() + Y);
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x59: // EOR
+                    A ^= ReadAddress(NextWord() + Y);
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x79: // ADC
+                    ADC(ReadAddress(NextWord() + Y));
+                    break;
+                case 0xF9: // SBC
+                    ADC((byte) ~ReadAddress(NextWord() + Y));
+                    break;
+                case 0xD9: // CMP
+                    CMP(A, ReadAddress(NextWord() + Y));
+                    break;
+                case 0x99: // STA
+                    WriteAddress(NextWord() + Y, A);
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
+        }
+
+        public void Execute()
+        {
+            for (int i = 0; i < 3700; i++)
+            {
+                _Execute();
+                cycle++;
+            }
+
+            //            byte w;
+            //            ushort x = 0x6000;
+            //            string z = "";
+            //            while ((w = ReadAddress(x)) != '\0')
+            //            {
+            //                z += (char) w;
+            //            }
+            //            Console.WriteLine(">>> " + z);
         }
 
         public int IndirectX()
