@@ -298,6 +298,24 @@ namespace dotNES
                     flags.Zero = d == 0;
 
                     break;
+                case 0xC0: // CPY
+                    M = NextByte();
+                    d = Y - M;
+
+                    flags.Negative = (d & 0x80) > 0 && d != 0;
+                    flags.Carry = d >= 0;
+                    flags.Zero = d == 0;
+
+                    break;
+                case 0xE0: // CPX
+                    M = NextByte();
+                    d = X - M;
+
+                    flags.Negative = (d & 0x80) > 0 && d != 0;
+                    flags.Carry = d >= 0;
+                    flags.Zero = d == 0;
+
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
