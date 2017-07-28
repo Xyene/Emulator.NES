@@ -402,6 +402,22 @@ namespace dotNES
                 case 0x9A: // TXS
                     SP = X;
                     break;
+                case 0x40: // RTI
+                    P = Pop();
+                    PC = PopWord();
+                    break;
+                case 0x4A: // LSR
+                    flags.Carry = (A & 0x1) > 0;
+                    A >>= 1;
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
+                case 0x0A: // ASL
+                    flags.Carry = (A & 0x80) > 0;
+                    A <<= 1;
+                    flags.Negative = (A & 0x80) > 0;
+                    flags.Zero = A == 0;
+                    break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));
             }
