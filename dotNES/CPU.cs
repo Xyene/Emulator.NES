@@ -100,44 +100,53 @@ namespace dotNES
             return emulator.Mapper.ReadAddress((ushort)PC++);
         }
 
+        private ushort NextWord()
+        {
+            return (ushort)((NextByte()) | (NextByte() << 8));
+        }
+
         private void Push(byte what)
         {
+            WriteAddress((ushort) (0x100 + SP), what);
             SP--;
-            WriteAddress(SP, what);
         }
 
         private byte Pop()
         {
-            byte val = ReadAddress(SP);
             SP++;
+            byte val = ReadAddress((ushort) (0x100 + SP));
             return val;
         }
 
         private void PushWord(int what)
         {
-            SP -= 2;
-
-            WriteAddress(SP, (byte)(what & 0x00FF));
-            WriteAddress((ushort)(SP + 1), (byte)((what & 0xFF00) >> 8));
+            Push((byte) (what >> 8));
+            Push((byte) (what & 0xFF));
         }
 
         private int PopWord()
         {
-            int val = ReadAddress(SP) | ((ReadAddress((ushort)(SP + 1)) << 8));
-            SP += 2;
-            return val;
+            return Pop() | (Pop() << 8);
         }
 
         public void Execute()
         {
-            for (int i = 0; i < 350; i++)
+            for (int i = 0; i < 1000; i++)
                 _Execute();
+            //            byte w;
+            //            ushort x = 0x6000;
+            //            string z = "";
+            //            while ((w = ReadAddress(x)) != '\0')
+            //            {
+            //                z += (char) w;
+            //            }
+            //            Console.WriteLine(">>> " + z);
         }
 
         public void _Execute()
         {
             int instruction = NextByte();
-            Console.WriteLine($"{(PC - 1).ToString("X4")}\t{instruction.ToString("X2")}\t\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")} CYC:\t{cycle}");
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
             {
@@ -159,8 +168,26 @@ namespace dotNES
                     flags.Zero = X == 0;
                     flags.Negative = (X & 0x80) > 0;
                     break;
+                case 0xAE: // LDX
+                    X = ReadAddress(NextWord());
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
+                    break;
+                case 0xAC: // LDY
+                    Y = ReadAddress(NextWord());
+                    flags.Zero = Y == 0;
+                    flags.Negative = (Y & 0x80) > 0;
+                    break;
+                case 0xAD: // LDA
+                    A = ReadAddress(NextWord());
+                    flags.Zero = A == 0;
+                    flags.Negative = (A & 0x80) > 0;
+                    break;
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
+                    break;
+                case 0x8E: // STX
+                    WriteAddress(NextWord(), X);
                     break;
                 case 0x84: // STY
                     WriteAddress(NextByte(), Y);
@@ -287,7 +314,18 @@ namespace dotNES
                     flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
                     flags.Negative = (nA & 0x80) > 0;
                     flags.Zero = (nA & 0xFF) == 0;
-                    A = (byte) (nA & 0xFF);
+                    A = (byte)(nA & 0xFF);
+                    break;
+
+                case 0xE9: // SBC
+                    val = (byte)~NextByte();
+                    //flags.Carry = true;
+                    nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
+                    flags.Overflow = nA < -128 || nA > 127;
+                    flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
+                    flags.Negative = (nA & 0x80) > 0;
+                    flags.Zero = (nA & 0xFF) == 0;
+                    A = (byte)(nA & 0xFF);
                     break;
                 case 0xC9: // CMP
                     byte M = NextByte();
@@ -315,6 +353,54 @@ namespace dotNES
                     flags.Carry = d >= 0;
                     flags.Zero = d == 0;
 
+                    break;
+                case 0xC8: // INY
+                    Y++;
+                    flags.Zero = Y == 0;
+                    flags.Negative = (Y & 0x80) > 0;
+                    break;
+                case 0x88: // DEY
+                    Y--;
+                    flags.Zero = Y == 0;
+                    flags.Negative = (Y & 0x80) > 0;
+                    break;
+                case 0xE8: // INX
+                    X++;
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
+                    break;
+                case 0xCA: // DEX
+                    X--;
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
+                    break;
+                case 0xA8: // TAY
+                    Y = A;
+                    flags.Zero = Y == 0;
+                    flags.Negative = (Y & 0x80) > 0;
+                    break;
+                case 0x98: // TYA
+                    A = Y;
+                    flags.Zero = A == 0;
+                    flags.Negative = (A & 0x80) > 0;
+                    break;
+                case 0xAA: // TAX
+                    X = A;
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
+                    break;
+                case 0x8A: // TXA
+                    A = X;
+                    flags.Zero = A == 0;
+                    flags.Negative = (A & 0x80) > 0;
+                    break;
+                case 0xBA: // TSX
+                    X = SP;
+                    flags.Zero = X == 0;
+                    flags.Negative = (X & 0x80) > 0;
+                    break;
+                case 0x9A: // TXS
+                    SP = X;
                     break;
                 default:
                     throw new ArgumentException(instruction.ToString("X2"));

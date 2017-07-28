@@ -25,16 +25,14 @@ namespace dotNES
                 case 0xE000:
                 case 0xF000:
                     return emulator.Cartridge.raw[emulator.Cartridge.PRGROMOffset + ((addr & 0xBFFF) - 0x8000)];
-                case 0x6000:
-                case 0x7000:
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException(addr.ToString("X4"));
             }
         }
 
         public override void WriteAddress(ushort addr, byte val)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
         }
     }
 }

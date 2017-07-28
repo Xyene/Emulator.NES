@@ -15,7 +15,7 @@ namespace dotNES
             //Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Form1());
             Emulator emu = new Emulator();
-            Console.WriteLine(emu.Cartridge);
+            //Console.WriteLine(emu.Cartridge);
             emu.CPU.Execute();
         }
     }
