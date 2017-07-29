@@ -641,14 +641,6 @@ namespace dotNES
                 case 0xDE: // DEC
                     DEC(NextWord() + X);
                     break;
-                case 0x04: // Sketchy NOPs
-                case 0x44:
-                case 0x64:
-                    ReadAddress(NextByte());
-                    break;
-                case 0x0C: // ???
-                    ReadAddress(NextWord());
-                    break;
                 /*case 0x00: // BRK
                     NextByte();
                     PushWord(PC);
