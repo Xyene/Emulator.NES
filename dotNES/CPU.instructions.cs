@@ -4,10 +4,10 @@
     {
         private void BIT(int addr)
         {
-                                byte val = ReadByte(addr);
-                    F.Overflow = (val & 0x40) > 0;
-                    F.Zero = (val & A) == 0;
-                    F.Negative = (val & 0x80) > 0;
+            byte val = ReadByte(addr);
+            F.Overflow = (val & 0x40) > 0;
+            F.Zero = (val & A) == 0;
+            F.Negative = (val & 0x80) > 0;
         }
 
         private void Branch(bool cond)
@@ -17,9 +17,10 @@
                 PC = nPC;
         }
 
-        private void SBC(byte val) => ADC((byte)~val);
+        private void SBC(int addr) => _ADC((byte)~ReadByte(addr));
+        private void ADC(int addr) => _ADC(ReadByte(addr));
 
-        private void ADC(byte val)
+        private void _ADC(byte val)
         {
             int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
             F.Overflow = nA < -128 || nA > 127;
@@ -27,9 +28,9 @@
             A = (byte)(nA & 0xFF);
         }
 
-        private void CMP(int reg, byte val)
+        private void CMP(int reg, int addr)
         {
-            int d = reg - val;
+            int d = reg - ReadByte(addr);
 
             F.Negative = (d & 0x80) > 0 && d != 0;
             F.Carry = d >= 0;

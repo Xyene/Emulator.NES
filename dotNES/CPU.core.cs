@@ -159,19 +159,19 @@ namespace dotNES
                     A ^= NextByte();
                     break;
                 case 0x69: // ADC
-                    ADC(NextByte());
+                    ADC(Immediate());
                     break;
                 case 0xE9: // SBC
-                    SBC(NextByte());
+                    SBC(Immediate());
                     break;
                 case 0xC9: // CMP
-                    CMP(A, NextByte());
+                    CMP(A, Immediate());
                     break;
                 case 0xC0: // CPY
-                    CMP(Y, NextByte());
+                    CMP(Y, Immediate());
                     break;
                 case 0xE0: // CPX
-                    CMP(X, NextByte());
+                    CMP(X, Immediate());
                     break;
                 case 0xC8: // INY
                     Y++;
@@ -243,13 +243,13 @@ namespace dotNES
                     A ^= ReadByte(IndirectX());
                     break;
                 case 0x61: // ADC ind
-                    ADC(ReadByte(IndirectX()));
-                    break;
-                case 0xC1: // CMP ind
-                    CMP(A, ReadByte(IndirectX()));
+                    ADC(IndirectX());
                     break;
                 case 0xE1: // SBC ind
-                    SBC(ReadByte(IndirectX()));
+                    SBC(IndirectX());
+                    break;
+                case 0xC1: // CMP ind
+                    CMP(A, IndirectX());
                     break;
                 case 0x05: // ORA
                     A |= ReadByte(NextByte());
@@ -261,19 +261,19 @@ namespace dotNES
                     A ^= ReadByte(NextByte());
                     break;
                 case 0x65: // ADC
-                    ADC(ReadByte(NextByte()));
+                    ADC(NextByte() & 0xFF);
                     break;
                 case 0xE5: // SBC
-                    SBC(ReadByte(NextByte()));
+                    SBC(NextByte() & 0xFF);
                     break;
                 case 0xC5: // CMP
-                    CMP(A, ReadByte(NextByte()));
+                    CMP(A, NextByte());
                     break;
                 case 0xE4: // CPX
-                    CMP(X, ReadByte(NextByte()));
+                    CMP(X, NextByte());
                     break;
                 case 0xC4: // CPY
-                    CMP(Y, ReadByte(NextByte()));
+                    CMP(Y, NextByte());
                     break;
                 case 0x46: // LSR
                     LSR(NextByte());
@@ -303,19 +303,19 @@ namespace dotNES
                     A ^= ReadByte(NextWord());
                     break;
                 case 0x6D: // ADC
-                    ADC(ReadByte(NextWord()));
+                    ADC(NextWord());
                     break;
                 case 0xED: // SBC
-                    SBC(ReadByte(NextWord()));
+                    SBC(NextWord());
                     break;
                 case 0xCD: // CMP
-                    CMP(A, ReadByte(NextWord()));
+                    CMP(A, NextWord());
                     break;
                 case 0xEC: // CPX
-                    CMP(X, ReadByte(NextWord()));
+                    CMP(X, NextWord());
                     break;
                 case 0xCC: // CPY
-                    CMP(Y, ReadByte(NextWord()));
+                    CMP(Y, NextWord());
                     break;
                 case 0x4E: // LSR
                     LSR(NextWord());
@@ -348,16 +348,16 @@ namespace dotNES
                     A ^= ReadByte(IndirectY());
                     break;
                 case 0xF1: // SBC
-                    SBC(ReadByte(IndirectY()));
+                    SBC(IndirectY());
                     break;
                 case 0x71: // ADC
-                    ADC(ReadByte(IndirectY()));
+                    ADC(IndirectY());
                     break;
                 case 0x91: // STA
                     WriteByte(IndirectY(), A);
                     break;
                 case 0xD1: // CMP
-                    CMP(A, ReadByte(IndirectY()));
+                    CMP(A, IndirectY());
                     break;
                 case 0x6C: // JMP
                     int off = NextWord();
@@ -385,13 +385,13 @@ namespace dotNES
                     A ^= ReadByte(NextWord() + Y);
                     break;
                 case 0x79: // ADC
-                    ADC(ReadByte(NextWord() + Y));
+                    ADC(NextWord() + Y);
                     break;
                 case 0xF9: // SBC
-                    SBC(ReadByte(NextWord() + Y));
+                    SBC(NextWord() + Y);
                     break;
                 case 0xD9: // CMP
-                    CMP(A, ReadByte(NextWord() + Y));
+                    CMP(A, NextWord() + Y);
                     break;
                 case 0x99: // STA
                     WriteByte(NextWord() + Y, A);
@@ -412,13 +412,13 @@ namespace dotNES
                     A ^= ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x75: // ADC
-                    ADC(ReadByte((NextByte() + X) & 0xFF));
+                    ADC((NextByte() + X) & 0xFF);
                     break;
                 case 0xF5: // SBC
-                    SBC(ReadByte((NextByte() + X) & 0xFF));
+                    SBC((NextByte() + X) & 0xFF);
                     break;
                 case 0xD5: // CMP
-                    CMP(A, ReadByte((NextByte() + X) & 0xFF));
+                    CMP(A, (NextByte() + X) & 0xFF);
                     break;
                 case 0xB5: // LDA
                     A = ReadByte((NextByte() + X) & 0xFF);
@@ -466,13 +466,13 @@ namespace dotNES
                     A ^= ReadByte(NextWord() + X);
                     break;
                 case 0x7D: // ADC
-                    ADC(ReadByte(NextWord() + X));
+                    ADC(NextWord() + X);
                     break;
                 case 0xFD: // SBC
-                    SBC(ReadByte(NextWord() + X));
+                    SBC(NextWord() + X);
                     break;
                 case 0xDD: // CMP
-                    CMP(A, ReadByte(NextWord() + X));
+                    CMP(A, NextWord() + X);
                     break;
                 case 0xBD: // LDA
                     A = ReadByte(NextWord() + X);
