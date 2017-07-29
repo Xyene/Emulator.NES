@@ -8,6 +8,8 @@ namespace dotNES
 {
     partial class CPU
     {
+        private void SBC(byte val) => ADC((byte)~val);
+
         private void ADC(byte val)
         {
             int nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
@@ -74,7 +76,7 @@ namespace dotNES
 
         private void INC(int addr)
         {
-            byte D = (byte) (ReadAddress(addr) + 1);
+            byte D = (byte)(ReadAddress(addr) + 1);
             flags.Negative = (D & 0x80) > 0;
             flags.Zero = D == 0;
             WriteAddress(addr, D);

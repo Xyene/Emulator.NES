@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,6 +77,8 @@ namespace dotNES
         {
             this.emulator = emulator;
             Initialize();
+            TextWriterTraceListener writer = new TextWriterTraceListener(System.Console.Out);
+            Debug.Listeners.Add(writer);
         }
 
         public void Initialize()
@@ -86,7 +89,7 @@ namespace dotNES
             SP = 0xFD;
             P = 0x24;
 
-            PC = 0x8000;
+            PC = 0xC000;
         }
 
         public void Reset()
@@ -103,6 +106,17 @@ namespace dotNES
         private ushort NextWord()
         {
             return (ushort)((NextByte()) | (NextByte() << 8));
+        }
+
+        private sbyte NextSByte() => (sbyte)NextByte();
+
+        private int Immediate() => PC++;
+
+        private void Branch(bool cond)
+        {
+            int nPC = PC + NextSByte() + 1;
+            if (cond)
+                PC = nPC;
         }
 
         public void _Execute()
@@ -193,44 +207,28 @@ namespace dotNES
                     flags.DecimalMode = true;
                     break;
                 case 0xB0: // BCS
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (flags.Carry)
-                        PC = nPC;
+                    Branch(flags.Carry);
                     break;
                 case 0x90: // BCC
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (!flags.Carry)
-                        PC = nPC;
+                    Branch(!flags.Carry);
                     break;
                 case 0xF0: // BEQ
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (flags.Zero)
-                        PC = nPC;
+                    Branch(flags.Zero);
                     break;
                 case 0xD0: // BNE
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (!flags.Zero)
-                        PC = nPC;
+                    Branch(!flags.Zero);
                     break;
                 case 0x70: // BVS
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (flags.Overflow)
-                        PC = nPC;
+                    Branch(flags.Overflow);
                     break;
                 case 0x50: // BVC
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (!flags.Overflow)
-                        PC = nPC;
+                    Branch(!flags.Overflow);
                     break;
                 case 0x10: // BPL
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (!flags.Negative)
-                        PC = nPC;
+                    Branch(!flags.Negative);
                     break;
                 case 0x30: // BMI
-                    nPC = PC + (sbyte)NextByte() + 1;
-                    if (flags.Negative)
-                        PC = nPC;
+                    Branch(flags.Negative);
                     break;
                 case 0x24: // BIT
                     // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator.
@@ -283,7 +281,7 @@ namespace dotNES
                     ADC(NextByte());
                     break;
                 case 0xE9: // SBC
-                    ADC((byte)~NextByte());
+                    SBC(NextByte());
                     break;
                 case 0xC9: // CMP
                     CMP(A, NextByte());
@@ -404,7 +402,7 @@ namespace dotNES
                     CMP(A, ReadAddress(IndirectX()));
                     break;
                 case 0xE1: // SBC ind
-                    ADC((byte)~ReadAddress(IndirectX()));
+                    SBC(ReadAddress(IndirectX()));
                     break;
                 case 0x05: // ORA
                     A |= ReadAddress(NextByte());
@@ -425,7 +423,7 @@ namespace dotNES
                     ADC(ReadAddress(NextByte()));
                     break;
                 case 0xE5: // SBC
-                    ADC((byte)~ReadAddress(NextByte()));
+                    SBC(ReadAddress(NextByte()));
                     break;
                 case 0xC5: // CMP
                     CMP(A, ReadAddress(NextByte()));
@@ -473,7 +471,7 @@ namespace dotNES
                     ADC(ReadAddress(NextWord()));
                     break;
                 case 0xED: // SBC
-                    ADC((byte)~ReadAddress(NextWord()));
+                    SBC(ReadAddress(NextWord()));
                     break;
                 case 0xCD: // CMP
                     CMP(A, ReadAddress(NextWord()));
@@ -521,7 +519,7 @@ namespace dotNES
                     flags.Zero = A == 0;
                     break;
                 case 0xF1: // SBC
-                    ADC((byte)~ReadAddress(IndirectY()));
+                    SBC(ReadAddress(IndirectY()));
                     break;
                 case 0x71: // ADC
                     ADC(ReadAddress(IndirectY()));
@@ -567,7 +565,7 @@ namespace dotNES
                     ADC(ReadAddress(NextWord() + Y));
                     break;
                 case 0xF9: // SBC
-                    ADC((byte)~ReadAddress(NextWord() + Y));
+                    SBC(ReadAddress(NextWord() + Y));
                     break;
                 case 0xD9: // CMP
                     CMP(A, ReadAddress(NextWord() + Y));
@@ -602,7 +600,7 @@ namespace dotNES
                     ADC(ReadAddress((NextByte() + X) & 0xFF));
                     break;
                 case 0xF5: // SBC
-                    ADC((byte)~ReadAddress((NextByte() + X) & 0xFF));
+                    SBC(ReadAddress((NextByte() + X) & 0xFF));
                     break;
                 case 0xD5: // CMP
                     CMP(A, ReadAddress((NextByte() + X) & 0xFF));
@@ -670,7 +668,7 @@ namespace dotNES
                     ADC(ReadAddress(NextWord() + X));
                     break;
                 case 0xFD: // SBC
-                    ADC((byte)~ReadAddress(NextWord() + X));
+                    SBC(ReadAddress(NextWord() + X));
                     break;
                 case 0xDD: // CMP
                     CMP(A, ReadAddress(NextWord() + X));
@@ -717,15 +715,6 @@ namespace dotNES
                 case 0xF4:
                     NextByte();
                     break;
-                /*
-                 * C6E4  1A       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:305
-C6E5  3A       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:311
-C6E6  5A       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:317
-C6E7  7A       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:323
-C6E8  DA       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:329
-C6E9  FA       *NOP                             A:AA X:97 Y:4E P:EF SP:F3 CYC:335
-C6EA  80 89    *NOP #$89                        A:AA X:97 Y:4E P:EF SP:F3 CYC:  0
-*/
                 case 0x1A:
                 case 0x3A:
                 case 0x5A:
@@ -758,7 +747,7 @@ C6EA  80 89    *NOP #$89                        A:AA X:97 Y:4E P:EF SP:F3 CYC:  
 
         public void Execute()
         {
-            for (int i = 0; i < 5400; i++)
+            for (int i = 0; i < 5200; i++)
             {
                 _Execute();
                 cycle++;
