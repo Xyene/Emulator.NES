@@ -25,37 +25,43 @@ namespace dotNES
         private byte[] RAM = new byte[0x800];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte _F(byte val)
+        private int _F(int val)
         {
             F.Zero = val == 0;
             F.Negative = (val & 0x80) > 0;
             return val;
         }
 
-        public byte _A, _X, _Y;
+        public int _A, _X, _Y, _SP;
 
-        public byte A
+        public int A
         {
             get { return _A; }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _A = _F(value); }
+            private set { _A = _F(value & 0xFF); }
         }
 
-        public byte X
+        public int X
         {
             get { return _X; }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _X = _F(value); }
+            private set { _X = _F(value & 0xFF); }
         }
 
-        public byte Y
+        public int Y
         {
             get { return _Y; }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _Y = _F(value); }
+            private set { _Y = _F(value & 0xFF); }
         }
 
-        public byte SP { get; private set; }
+        public int SP
+        {
+            get { return _SP; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private set { _SP = value & 0xFF; }
+        }
+
         public int PC { get; private set; }
         public long cycle { get; private set; }
 
@@ -171,7 +177,7 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-            if (cycle >= 4900)
+           // if (cycle >= 4900)
                 Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
@@ -284,10 +290,14 @@ namespace dotNES
                     // The S and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
                     byte val = ReadAddress(NextByte());
                     F.Overflow = (val & 0x40) > 0;
+                    F.Zero = (val & A) == 0;
+                    F.Negative = (val & 0x80) > 0;
                     break;
                 case 0x2C: // BIT
                     val = ReadAddress(NextWord());
                     F.Overflow = (val & 0x40) > 0;
+                    F.Zero = (val & A) == 0;
+                    F.Negative = (val & 0x80) > 0;
                     break;
                 case 0x08: // PHP
                     bool irq = F.BreakSource;
@@ -778,8 +788,9 @@ namespace dotNES
             throw new ArgumentOutOfRangeException();
         }
 
-        public void WriteAddress(int addr, byte val)
+        public void WriteAddress(int addr, int _val)
         {
+            byte val = (byte)_val;
             addr &= 0xFFFF;
             // Console.WriteLine($"Write to {addr.ToString("X")} = {val}");
             switch (addr & 0xF000)

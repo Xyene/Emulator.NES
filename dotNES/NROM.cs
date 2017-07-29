@@ -36,8 +36,9 @@ namespace dotNES
             }
         }
 
-        public override void WriteAddress(int addr, byte val)
+        public override void WriteAddress(int addr, int _val)
         {
+            byte val = (byte) _val;
             switch (addr & 0xF000)
             {
                 case 0x6000:

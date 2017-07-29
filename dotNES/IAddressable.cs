@@ -10,6 +10,6 @@ namespace dotNES
     {
         byte ReadAddress(int addr);
 
-        void WriteAddress(int addr, byte val);
+        void WriteAddress(int addr, int val);
     }
 }

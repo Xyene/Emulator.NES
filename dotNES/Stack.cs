@@ -8,23 +8,22 @@ namespace dotNES
 {
     partial class CPU
     {
-        private void Push(byte what)
+        private void Push(int what)
         {
-            WriteAddress((ushort)(0x100 + SP), what);
+            WriteAddress(0x100 + SP, what);
             SP--;
         }
 
         private byte Pop()
         {
             SP++;
-            byte val = ReadAddress((ushort)(0x100 + SP));
-            return val;
+            return ReadAddress(0x100 + SP);
         }
 
         private void PushWord(int what)
         {
-            Push((byte)(what >> 8));
-            Push((byte)(what & 0xFF));
+            Push(what >> 8);
+            Push(what & 0xFF);
         }
 
         private int PopWord()

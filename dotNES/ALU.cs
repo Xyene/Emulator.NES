@@ -18,7 +18,7 @@ namespace dotNES
             A = (byte)(nA & 0xFF);
         }
 
-        private void CMP(byte reg, byte M)
+        private void CMP(int reg, byte M)
         {
             int d = reg - M;
 

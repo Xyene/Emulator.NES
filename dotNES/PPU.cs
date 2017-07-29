@@ -42,7 +42,7 @@ namespace dotNES
             throw new NotImplementedException();
         }
 
-        public void WriteAddress(int addr, byte val)
+        public void WriteAddress(int addr, int val)
         {
             addr &= 0xFFFF;
             throw new NotImplementedException();

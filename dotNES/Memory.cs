@@ -17,6 +17,6 @@ namespace dotNES
 
         public abstract byte ReadAddress(int addr);
 
-        public abstract void WriteAddress(int addr, byte val);
+        public abstract void WriteAddress(int addr, int val);
     }
 }
