@@ -36,37 +36,34 @@ namespace dotNES
 
         public int A
         {
-            get { return _A; }
+            get => _A;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _A = _F(value & 0xFF); }
         }
 
         public int X
         {
-            get { return _X; }
+            get => _X;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _X = _F(value & 0xFF); }
         }
 
         public int Y
         {
-            get { return _Y; }
+            get => _Y;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _Y = _F(value & 0xFF); }
         }
 
         public int SP
         {
-            get { return _SP; }
+            get => _SP;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _SP = value & 0xFF; }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe static byte AsByte(bool to)
-        {
-            return *((byte*)(&to));
-        }
+        unsafe static byte AsByte(bool to) => *((byte*) &to);
 
         public int PC { get; private set; }
         public long cycle { get; private set; }
@@ -75,17 +72,14 @@ namespace dotNES
 
         public int P
         {
-            get
-            {
-                return ((AsByte(F.Carry) << 0) |
-                                (AsByte(F.Zero) << 1) |
-                                (AsByte(F.InterruptsDisabled) << 2) |
-                                (AsByte(F.DecimalMode) << 3) |
-                                (AsByte(F.BreakSource) << 4) |
-                                (1 << 5) |
-                                (AsByte(F.Overflow) << 6) |
-                                (AsByte(F.Negative) << 7));
-            }
+            get => (AsByte(F.Carry) << 0) |
+                    (AsByte(F.Zero) << 1) |
+                    (AsByte(F.InterruptsDisabled) << 2) |
+                    (AsByte(F.DecimalMode) << 3) |
+                    (AsByte(F.BreakSource) << 4) |
+                    (1 << 5) |
+                    (AsByte(F.Overflow) << 6) |
+                    (AsByte(F.Negative) << 7);
             set
             {
                 F.Carry = (value & CARRY_BIT) > 0;
@@ -106,10 +100,7 @@ namespace dotNES
         private const int OVERFLOW_BIT = 0x40;
         private const int NEGATIVE_BIT = 0x80;
 
-        public bool IsFlagSet(int flag)
-        {
-            return (P & flag) > 0;
-        }
+        public bool IsFlagSet(int flag) => (P & flag) > 0;
 
         public CPU(Emulator emulator)
         {
@@ -134,15 +125,9 @@ namespace dotNES
             F.BreakSource = true;
         }
 
-        private byte NextByte()
-        {
-            return ReadAddress((ushort)PC++);
-        }
+        private byte NextByte() => ReadAddress((ushort)PC++);
 
-        private ushort NextWord()
-        {
-            return (ushort)((NextByte()) | (NextByte() << 8));
-        }
+        private ushort NextWord() => (ushort)(NextByte() | (NextByte() << 8));
 
         private sbyte NextSByte() => (sbyte)NextByte();
 
@@ -158,8 +143,8 @@ namespace dotNES
         public void _Execute()
         {
             int instruction = NextByte();
-           // if (cycle >= 4900)
-                Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            // if (cycle >= 4900)
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
             {
