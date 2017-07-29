@@ -46,10 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ALU.cs" />
     <Compile Include="APU.cs" />
     <Compile Include="Cartridge.cs" />
+    <Compile Include="CPU.ALU.cs">
+      <DependentUpon>CPU.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CPU.core.cs">
+      <DependentUpon>CPU.cs</DependentUpon>
+    </Compile>
     <Compile Include="CPU.cs" />
+    <Compile Include="CPU.registers.cs">
+      <DependentUpon>CPU.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CPU.stack.cs">
+      <DependentUpon>CPU.cs</DependentUpon>
+    </Compile>
     <Compile Include="Emulator.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -58,13 +69,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="IAddressable.cs" />
-    <Compile Include="LDx.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="NROM.cs" />
     <Compile Include="PPU.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Stack.cs" />
+    <Compile Include="Utility.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

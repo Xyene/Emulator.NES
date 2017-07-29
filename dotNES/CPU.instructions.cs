@@ -8,6 +8,13 @@ namespace dotNES
 {
     partial class CPU
     {
+        private void Branch(bool cond)
+        {
+            int nPC = PC + NextSByte() + 1;
+            if (cond)
+                PC = nPC;
+        }
+
         private void SBC(byte val) => ADC((byte)~val);
 
         private void ADC(byte val)
@@ -55,7 +62,6 @@ namespace dotNES
             _F(D);
             WriteAddress(addr, D);
         }
-
 
         private void ROL(int addr)
         {
