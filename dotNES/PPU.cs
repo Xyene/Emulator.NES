@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNES
 {
@@ -36,13 +32,13 @@ namespace dotNES
             throw new NotImplementedException();
         }
 
-        public byte ReadAddress(int addr)
+        public byte ReadByte(int addr)
         {
             addr &= 0xFFFF;
             throw new NotImplementedException();
         }
 
-        public void WriteAddress(int addr, int val)
+        public void WriteByte(int addr, int val)
         {
             addr &= 0xFFFF;
             throw new NotImplementedException();

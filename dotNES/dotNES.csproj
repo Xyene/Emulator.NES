@@ -46,28 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APU.cs" />
     <Compile Include="Cartridge.cs" />
-    <Compile Include="CPU.ALU.cs">
-      <DependentUpon>CPU.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CPU.core.cs">
+    <Compile Include="CPU.Core.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
     <Compile Include="CPU.cs" />
-    <Compile Include="CPU.registers.cs">
+    <Compile Include="CPU.Instructions.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
-    <Compile Include="CPU.stack.cs">
+    <Compile Include="CPU.Memory.cs">
+      <DependentUpon>CPU.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CPU.Registers.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
     <Compile Include="Emulator.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="IAddressable.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="NROM.cs" />

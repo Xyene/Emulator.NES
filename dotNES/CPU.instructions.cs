@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace dotNES
+﻿namespace dotNES
 {
     partial class CPU
     {
+        private void BIT(int addr)
+        {
+                                byte val = ReadByte(addr);
+                    F.Overflow = (val & 0x40) > 0;
+                    F.Zero = (val & A) == 0;
+                    F.Negative = (val & 0x80) > 0;
+        }
+
         private void Branch(bool cond)
         {
             int nPC = PC + NextSByte() + 1;
@@ -25,9 +27,9 @@ namespace dotNES
             A = (byte)(nA & 0xFF);
         }
 
-        private void CMP(int reg, byte M)
+        private void CMP(int reg, byte val)
         {
-            int d = reg - M;
+            int d = reg - val;
 
             F.Negative = (d & 0x80) > 0 && d != 0;
             F.Carry = d >= 0;
@@ -36,56 +38,56 @@ namespace dotNES
 
         private void LSR(int addr)
         {
-            byte D = ReadAddress(addr);
+            byte D = ReadByte(addr);
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
 
         private void ASL(int addr)
         {
-            byte D = ReadAddress(addr);
+            byte D = ReadByte(addr);
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
 
         private void ROR(int addr)
         {
-            byte D = ReadAddress(addr);
+            byte D = ReadByte(addr);
             bool c = F.Carry;
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             if (c) D |= 0x80;
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
 
         private void ROL(int addr)
         {
-            byte D = ReadAddress(addr);
+            byte D = ReadByte(addr);
             bool c = F.Carry;
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             if (c) D |= 0x1;
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
 
         private void INC(int addr)
         {
-            byte D = (byte)(ReadAddress(addr) + 1);
+            byte D = (byte)(ReadByte(addr) + 1);
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
 
         private void DEC(int addr)
         {
-            byte D = (byte)(ReadAddress(addr) - 1);
+            byte D = (byte)(ReadByte(addr) - 1);
             _F(D);
-            WriteAddress(addr, D);
+            WriteByte(addr, D);
         }
     }
 }

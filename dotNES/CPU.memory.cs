@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNES
 {
     partial class CPU
     {
-        private byte NextByte() => ReadAddress((ushort)PC++);
+        private byte NextByte() => ReadByte((ushort)PC++);
 
         private ushort NextWord() => (ushort)(NextByte() | (NextByte() << 8));
 
@@ -18,14 +14,14 @@ namespace dotNES
 
         private void Push(int what)
         {
-            WriteAddress(0x100 + SP, what);
+            WriteByte(0x100 + SP, what);
             SP--;
         }
 
         private byte Pop()
         {
             SP++;
-            return ReadAddress(0x100 + SP);
+            return ReadByte(0x100 + SP);
         }
 
         private void PushWord(int what)
@@ -42,16 +38,16 @@ namespace dotNES
         public int IndirectX()
         {
             int off = (NextByte() + X) & 0xFF;
-            return ReadAddress(off) | (ReadAddress((off + 1) & 0xFF) << 8);
+            return ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
         }
 
         public int IndirectY()
         {
             int off = NextByte() & 0xFF;
-            return ((ReadAddress(off) | (ReadAddress((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
+            return ((ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
         }
 
-        public byte ReadAddress(int addr)
+        public byte ReadByte(int addr)
         {
             byte read = _ReadAddress(addr);
             // Console.WriteLine($"Read from {addr.ToString("X")} = {read}");
@@ -93,11 +89,11 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    return Emulator.Mapper.ReadAddress(addr);
+                    return Emulator.Mapper.ReadByte(addr);
             }
         }
 
-        public void WriteAddress(int addr, int _val)
+        public void WriteByte(int addr, int _val)
         {
             byte val = (byte)_val;
             addr &= 0xFFFF;
@@ -124,7 +120,7 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    Emulator.Mapper.WriteAddress(addr, val);
+                    Emulator.Mapper.WriteByte(addr, val);
                     return;
             }
         }

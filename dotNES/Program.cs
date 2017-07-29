@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace dotNES
 {
@@ -16,7 +12,11 @@ namespace dotNES
             //Application.Run(new Form1());
             Emulator emu = new Emulator();
             //Console.WriteLine(emu.Cartridge);
-            emu.CPU.Execute();
+            //for (int i = 0; i < 10000; i++)
+            //{
+                emu.CPU.Initialize();
+                emu.CPU.Execute();
+            //}
         }
     }
 }

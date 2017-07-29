@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
 namespace dotNES
 {
     partial class CPU : IAddressable
     {
-        private Emulator Emulator;
-        private byte[] RAM = new byte[0x800];
+        private readonly Emulator Emulator;
+        private readonly byte[] RAM = new byte[0x800];
 
         public long Cycle { get; private set; }
 
         public CPU(Emulator emulator)
         {
-            this.Emulator = emulator;
+            Emulator = emulator;
             Initialize();
         }
 
@@ -36,7 +30,7 @@ namespace dotNES
              {
                  z += (char) w;
              }*/
-            Console.WriteLine(">>> " + ReadAddress(0x02));
+            Console.WriteLine(">>> " + ReadByte(0x02));
         }
     }
 }

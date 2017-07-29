@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNES
 {
@@ -29,63 +25,61 @@ namespace dotNES
         {
             int instruction = NextByte();
             // if (cycle >= 4900)
-            Console.WriteLine(
-                $"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             switch (instruction)
             {
                 case 0x4C: // JMP
-                    PC = NextByte() | (NextByte() << 8);
+                    PC = NextWord();
                     break;
                 case 0xA9: // LDA
                     A = NextByte();
                     break;
                 case 0xA5: // LDA
-                    A = ReadAddress(NextByte());
+                    A = ReadByte(NextByte());
                     break;
                 case 0xAD: // LDA
-                    A = ReadAddress(NextWord());
+                    A = ReadByte(NextWord());
                     break;
                 case 0xA0: // LDY
                     Y = NextByte();
                     break;
                 case 0xA4: // LDY
-                    Y = ReadAddress(NextByte());
+                    Y = ReadByte(NextByte());
                     break;
                 case 0xA2: // LDX
                     X = NextByte();
                     break;
                 case 0xA6: // LDX
-                    X = ReadAddress(NextByte());
+                    X = ReadByte(NextByte());
                     break;
                 case 0xAE: // LDX
-                    X = ReadAddress(NextWord());
+                    X = ReadByte(NextWord());
                     break;
                 case 0xAC: // LDY
-                    Y = ReadAddress(NextWord());
+                    Y = ReadByte(NextWord());
                     break;
                 case 0x86: // STX
-                    WriteAddress(NextByte(), X);
+                    WriteByte(NextByte(), X);
                     break;
                 case 0x8E: // STX
-                    WriteAddress(NextWord(), X);
+                    WriteByte(NextWord(), X);
                     break;
                 case 0x84: // STY
-                    WriteAddress(NextByte(), Y);
+                    WriteByte(NextByte(), Y);
                     break;
                 case 0x8C: // STY
-                    WriteAddress(NextWord(), Y);
+                    WriteByte(NextWord(), Y);
                     break;
                 case 0x85: // STA
-                    WriteAddress(NextByte(), A);
+                    WriteByte(NextByte(), A);
                     break;
                 case 0x8D: // STA
-                    WriteAddress(NextWord(), A);
+                    WriteByte(NextWord(), A);
                     break;
                 case 0x20: // JSR
-                    int nPC = NextByte() | (NextByte() << 8);
-                    PushWord(PC - 1);
-                    PC = nPC;
+                    PushWord(PC + 1);
+                    PC = NextWord();
                     break;
                 case 0x60: // RTS
                     PC = PopWord() + 1;
@@ -138,27 +132,19 @@ namespace dotNES
                     Branch(F.Negative);
                     break;
                 case 0x24: // BIT
-                    // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator.
-                    // The S and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
-                    byte val = ReadAddress(NextByte());
-                    F.Overflow = (val & 0x40) > 0;
-                    F.Zero = (val & A) == 0;
-                    F.Negative = (val & 0x80) > 0;
+                    BIT(NextByte());
                     break;
                 case 0x2C: // BIT
-                    val = ReadAddress(NextWord());
-                    F.Overflow = (val & 0x40) > 0;
-                    F.Zero = (val & A) == 0;
-                    F.Negative = (val & 0x80) > 0;
+                    BIT(NextWord());
                     break;
                 case 0x08: // PHP
-                    Push(P | BREAK_SOURCE_BIT);
+                    Push(P | BreakSourceBit);
                     break;
                 case 0x48: // PHA
                     Push(A);
                     break;
                 case 0x28: // PLP
-                    P = Pop() & ~BREAK_SOURCE_BIT;
+                    P = Pop() & ~BreakSourceBit;
                     break;
                 case 0x68: // PLA
                     A = Pop();
@@ -242,52 +228,52 @@ namespace dotNES
                     if (c) A |= 0x1;
                     break;
                 case 0xA1: // LDA ind
-                    A = ReadAddress(IndirectX());
+                    A = ReadByte(IndirectX());
                     break;
                 case 0x81: // STA ind
-                    WriteAddress(IndirectX(), A);
+                    WriteByte(IndirectX(), A);
                     break;
                 case 0x01: // ORA ind
-                    A |= ReadAddress(IndirectX());
+                    A |= ReadByte(IndirectX());
                     break;
                 case 0x21: // AND ind
-                    A &= ReadAddress(IndirectX());
+                    A &= ReadByte(IndirectX());
                     break;
                 case 0x41: // EOR ind
-                    A ^= ReadAddress(IndirectX());
+                    A ^= ReadByte(IndirectX());
                     break;
                 case 0x61: // ADC ind
-                    ADC(ReadAddress(IndirectX()));
+                    ADC(ReadByte(IndirectX()));
                     break;
                 case 0xC1: // CMP ind
-                    CMP(A, ReadAddress(IndirectX()));
+                    CMP(A, ReadByte(IndirectX()));
                     break;
                 case 0xE1: // SBC ind
-                    SBC(ReadAddress(IndirectX()));
+                    SBC(ReadByte(IndirectX()));
                     break;
                 case 0x05: // ORA
-                    A |= ReadAddress(NextByte());
+                    A |= ReadByte(NextByte());
                     break;
                 case 0x25: // AND
-                    A &= ReadAddress(NextByte());
+                    A &= ReadByte(NextByte());
                     break;
                 case 0x45: // EOR
-                    A ^= ReadAddress(NextByte());
+                    A ^= ReadByte(NextByte());
                     break;
                 case 0x65: // ADC
-                    ADC(ReadAddress(NextByte()));
+                    ADC(ReadByte(NextByte()));
                     break;
                 case 0xE5: // SBC
-                    SBC(ReadAddress(NextByte()));
+                    SBC(ReadByte(NextByte()));
                     break;
                 case 0xC5: // CMP
-                    CMP(A, ReadAddress(NextByte()));
+                    CMP(A, ReadByte(NextByte()));
                     break;
                 case 0xE4: // CPX
-                    CMP(X, ReadAddress(NextByte()));
+                    CMP(X, ReadByte(NextByte()));
                     break;
                 case 0xC4: // CPY
-                    CMP(Y, ReadAddress(NextByte()));
+                    CMP(Y, ReadByte(NextByte()));
                     break;
                 case 0x46: // LSR
                     LSR(NextByte());
@@ -308,28 +294,28 @@ namespace dotNES
                     DEC(NextByte());
                     break;
                 case 0x0D: // ORA
-                    A |= ReadAddress(NextWord());
+                    A |= ReadByte(NextWord());
                     break;
                 case 0x2D: // AND
-                    A &= ReadAddress(NextWord());
+                    A &= ReadByte(NextWord());
                     break;
                 case 0x4D: // EOR
-                    A ^= ReadAddress(NextWord());
+                    A ^= ReadByte(NextWord());
                     break;
                 case 0x6D: // ADC
-                    ADC(ReadAddress(NextWord()));
+                    ADC(ReadByte(NextWord()));
                     break;
                 case 0xED: // SBC
-                    SBC(ReadAddress(NextWord()));
+                    SBC(ReadByte(NextWord()));
                     break;
                 case 0xCD: // CMP
-                    CMP(A, ReadAddress(NextWord()));
+                    CMP(A, ReadByte(NextWord()));
                     break;
                 case 0xEC: // CPX
-                    CMP(X, ReadAddress(NextWord()));
+                    CMP(X, ReadByte(NextWord()));
                     break;
                 case 0xCC: // CPY
-                    CMP(Y, ReadAddress(NextWord()));
+                    CMP(Y, ReadByte(NextWord()));
                     break;
                 case 0x4E: // LSR
                     LSR(NextWord());
@@ -350,28 +336,28 @@ namespace dotNES
                     DEC(NextWord());
                     break;
                 case 0xB1: // LDA
-                    A = ReadAddress(IndirectY());
+                    A = ReadByte(IndirectY());
                     break;
                 case 0x11: // ORA
-                    A |= ReadAddress(IndirectY());
+                    A |= ReadByte(IndirectY());
                     break;
                 case 0x31: // AND
-                    A &= ReadAddress(IndirectY());
+                    A &= ReadByte(IndirectY());
                     break;
                 case 0x51: // EOR
-                    A ^= ReadAddress(IndirectY());
+                    A ^= ReadByte(IndirectY());
                     break;
                 case 0xF1: // SBC
-                    SBC(ReadAddress(IndirectY()));
+                    SBC(ReadByte(IndirectY()));
                     break;
                 case 0x71: // ADC
-                    ADC(ReadAddress(IndirectY()));
+                    ADC(ReadByte(IndirectY()));
                     break;
                 case 0x91: // STA
-                    WriteAddress(IndirectY(), A);
+                    WriteByte(IndirectY(), A);
                     break;
                 case 0xD1: // CMP
-                    CMP(A, ReadAddress(IndirectY()));
+                    CMP(A, ReadByte(IndirectY()));
                     break;
                 case 0x6C: // JMP
                     int off = NextWord();
@@ -384,61 +370,61 @@ namespace dotNES
                     //
                     // http://www.6502.org/tutorials/6502opcodes.html
                     int hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
-                    PC = ReadAddress(off) | (ReadAddress(hi) << 8);
+                    PC = ReadByte(off) | (ReadByte(hi) << 8);
                     break;
                 case 0xB9: // LDA
-                    A = ReadAddress(NextWord() + Y);
+                    A = ReadByte(NextWord() + Y);
                     break;
                 case 0x19: // ORA
-                    A |= ReadAddress(NextWord() + Y);
+                    A |= ReadByte(NextWord() + Y);
                     break;
                 case 0x39: // AND
-                    A &= ReadAddress(NextWord() + Y);
+                    A &= ReadByte(NextWord() + Y);
                     break;
                 case 0x59: // EOR
-                    A ^= ReadAddress(NextWord() + Y);
+                    A ^= ReadByte(NextWord() + Y);
                     break;
                 case 0x79: // ADC
-                    ADC(ReadAddress(NextWord() + Y));
+                    ADC(ReadByte(NextWord() + Y));
                     break;
                 case 0xF9: // SBC
-                    SBC(ReadAddress(NextWord() + Y));
+                    SBC(ReadByte(NextWord() + Y));
                     break;
                 case 0xD9: // CMP
-                    CMP(A, ReadAddress(NextWord() + Y));
+                    CMP(A, ReadByte(NextWord() + Y));
                     break;
                 case 0x99: // STA
-                    WriteAddress(NextWord() + Y, A);
+                    WriteByte(NextWord() + Y, A);
                     break;
                 case 0xB4: // LDY
-                    Y = ReadAddress((NextByte() + X) & 0xFF);
+                    Y = ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x94: // STY
-                    WriteAddress((NextByte() + X) & 0xFF, Y);
+                    WriteByte((NextByte() + X) & 0xFF, Y);
                     break;
                 case 0x15: // ORA
-                    A |= ReadAddress((NextByte() + X) & 0xFF);
+                    A |= ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x35: // AND
-                    A &= ReadAddress((NextByte() + X) & 0xFF);
+                    A &= ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x55: // EOR
-                    A ^= ReadAddress((NextByte() + X) & 0xFF);
+                    A ^= ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x75: // ADC
-                    ADC(ReadAddress((NextByte() + X) & 0xFF));
+                    ADC(ReadByte((NextByte() + X) & 0xFF));
                     break;
                 case 0xF5: // SBC
-                    SBC(ReadAddress((NextByte() + X) & 0xFF));
+                    SBC(ReadByte((NextByte() + X) & 0xFF));
                     break;
                 case 0xD5: // CMP
-                    CMP(A, ReadAddress((NextByte() + X) & 0xFF));
+                    CMP(A, ReadByte((NextByte() + X) & 0xFF));
                     break;
                 case 0xB5: // LDA
-                    A = ReadAddress((NextByte() + X) & 0xFF);
+                    A = ReadByte((NextByte() + X) & 0xFF);
                     break;
                 case 0x95: // STA
-                    WriteAddress((NextByte() + X) & 0xFF, A);
+                    WriteByte((NextByte() + X) & 0xFF, A);
                     break;
                 case 0x56: // LSR
                     LSR((NextByte() + X) & 0xFF);
@@ -459,40 +445,40 @@ namespace dotNES
                     DEC((NextByte() + X) & 0xFF);
                     break;
                 case 0xB6: // LDX
-                    X = ReadAddress((NextByte() + Y) & 0xFF);
+                    X = ReadByte((NextByte() + Y) & 0xFF);
                     break;
                 case 0x96: // STX
-                    WriteAddress((NextByte() + Y) & 0xFF, X);
+                    WriteByte((NextByte() + Y) & 0xFF, X);
                     break;
                 case 0xBC: // LDY
-                    Y = ReadAddress(NextWord() + X);
+                    Y = ReadByte(NextWord() + X);
                     break;
                 case 0xBE: // LDX
-                    X = ReadAddress(NextWord() + Y);
+                    X = ReadByte(NextWord() + Y);
                     break;
                 case 0x1D: // ORA
-                    A |= ReadAddress(NextWord() + X);
+                    A |= ReadByte(NextWord() + X);
                     break;
                 case 0x3D: // AND
-                    A &= ReadAddress(NextWord() + X);
+                    A &= ReadByte(NextWord() + X);
                     break;
                 case 0x5D: // EOR
-                    A ^= ReadAddress(NextWord() + X);
+                    A ^= ReadByte(NextWord() + X);
                     break;
                 case 0x7D: // ADC
-                    ADC(ReadAddress(NextWord() + X));
+                    ADC(ReadByte(NextWord() + X));
                     break;
                 case 0xFD: // SBC
-                    SBC(ReadAddress(NextWord() + X));
+                    SBC(ReadByte(NextWord() + X));
                     break;
                 case 0xDD: // CMP
-                    CMP(A, ReadAddress(NextWord() + X));
+                    CMP(A, ReadByte(NextWord() + X));
                     break;
                 case 0xBD: // LDA
-                    A = ReadAddress(NextWord() + X);
+                    A = ReadByte(NextWord() + X);
                     break;
                 case 0x9D: // STA
-                    WriteAddress(NextWord() + X, A);
+                    WriteByte(NextWord() + X, A);
                     break;
                 case 0x5E: // LSR
                     LSR(NextWord() + X);

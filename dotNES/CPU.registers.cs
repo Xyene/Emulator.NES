@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static dotNES.Utility;
+﻿using System.Runtime.CompilerServices;
 
 namespace dotNES
 {
     partial class CPU
     {
-        private const int CARRY_BIT = 0x1;
-        private const int ZERO_BIT = 0x2;
-        private const int INTERRUPT_DISABLED_BIT = 0x4;
-        private const int DECIMAL_MODE_BIT = 0x8;
-        private const int BREAK_SOURCE_BIT = 0x10;
-        private const int OVERFLOW_BIT = 0x40;
-        private const int NEGATIVE_BIT = 0x80;
+        private const int CarryBit = 0x1;
+        private const int ZeroBit = 0x2;
+        private const int InterruptDisabledBit = 0x4;
+        private const int DecimalModeBit = 0x8;
+        private const int BreakSourceBit = 0x10;
+        private const int OverflowBit = 0x40;
+        private const int NegativeBit = 0x80;
 
         public class CPUFlags
         {
@@ -82,13 +76,13 @@ namespace dotNES
                    (F.Negative.AsByte() << 7);
             set
             {
-                F.Carry = (value & CARRY_BIT) > 0;
-                F.Zero = (value & ZERO_BIT) > 0;
-                F.InterruptsDisabled = (value & INTERRUPT_DISABLED_BIT) > 0;
-                F.DecimalMode = (value & DECIMAL_MODE_BIT) > 0;
-                F.BreakSource = (value & BREAK_SOURCE_BIT) > 0;
-                F.Overflow = (value & OVERFLOW_BIT) > 0;
-                F.Negative = (value & NEGATIVE_BIT) > 0;
+                F.Carry = (value & CarryBit) > 0;
+                F.Zero = (value & ZeroBit) > 0;
+                F.InterruptsDisabled = (value & InterruptDisabledBit) > 0;
+                F.DecimalMode = (value & DecimalModeBit) > 0;
+                F.BreakSource = (value & BreakSourceBit) > 0;
+                F.Overflow = (value & OverflowBit) > 0;
+                F.Negative = (value & NegativeBit) > 0;
             }
         }
     }

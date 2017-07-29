@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace dotNES
+﻿namespace dotNES
 {
     abstract class Memory : IAddressable
     {
-        protected Emulator emulator;
+        protected Emulator Emulator;
 
         public Memory(Emulator emulator)
         {
-            this.emulator = emulator;
+            this.Emulator = emulator;
         }
 
-        public abstract byte ReadAddress(int addr);
+        public abstract byte ReadByte(int addr);
 
-        public abstract void WriteAddress(int addr, int val);
+        public abstract void WriteByte(int addr, int val);
     }
 }

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace dotNES
+﻿namespace dotNES
 {
     interface IAddressable
     {
-        byte ReadAddress(int addr);
+        byte ReadByte(int addr);
 
-        void WriteAddress(int addr, int val);
+        void WriteByte(int addr, int val);
     }
 }
