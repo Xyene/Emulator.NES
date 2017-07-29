@@ -62,39 +62,22 @@ namespace dotNES
             private set { _SP = value & 0xFF; }
         }
 
-        public int PC { get; private set; }
-        public long cycle { get; private set; }
-
-        public readonly CPUFlags F = new CPUFlags();
-
-        /**
-         * 7  bit  0
-         * ---- ----
-         * NVss DIZC
-         * |||| ||||
-         * |||| |||+- Carry: 1 if last addition or shift resulted in a carry, or if
-         * |||| |||     last subtraction resulted in no borrow
-         * |||| ||+-- Zero: 1 if last operation resulted in a 0 value
-         * |||| |+--- Interrupt: Interrupt inhibit
-         * |||| |       (0: /IRQ and /NMI get through; 1: only /NMI gets through)
-         * |||| +---- Decimal: 1 to make ADC and SBC use binary-coded decimal arithmetic
-         * ||||         (ignored on second-source 6502 like that in the NES)
-         * ||++------ s: No effect, used by the stack copy, see note below
-         * |+-------- Overflow: 1 if last ADC or SBC resulted in signed overflow,
-         * |            or D6 from last BIT
-         * +--------- Negative: Set to bit 7 of the last operation
-         */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe static byte AsByte(bool to)
         {
             return *((byte*)(&to));
         }
 
-        public byte P
+        public int PC { get; private set; }
+        public long cycle { get; private set; }
+
+        public readonly CPUFlags F = new CPUFlags();
+
+        public int P
         {
             get
             {
-                return (byte)((AsByte(F.Carry) << 0) |
+                return ((AsByte(F.Carry) << 0) |
                                 (AsByte(F.Zero) << 1) |
                                 (AsByte(F.InterruptsDisabled) << 2) |
                                 (AsByte(F.DecimalMode) << 3) |
@@ -132,8 +115,6 @@ namespace dotNES
         {
             this.Emulator = emulator;
             Initialize();
-            TextWriterTraceListener writer = new TextWriterTraceListener(System.Console.Out);
-            Debug.Listeners.Add(writer);
         }
 
         public void Initialize()
@@ -300,29 +281,25 @@ namespace dotNES
                     F.Negative = (val & 0x80) > 0;
                     break;
                 case 0x08: // PHP
-                    bool irq = F.BreakSource;
-                    F.BreakSource = true;
-                    Push(P);
-                    F.BreakSource = irq;
+                    Push(P | BREAK_SOURCE_BIT);
                     break;
                 case 0x48: // PHA
                     Push(A);
                     break;
                 case 0x28: // PLP
-                    P = Pop();
-                    F.BreakSource = false;
+                    P = Pop() & ~BREAK_SOURCE_BIT;
                     break;
                 case 0x68: // PLA
                     A = Pop();
                     break;
                 case 0x29: // AND
-                    A = (byte)(A & NextByte());
+                    A &= NextByte();
                     break;
                 case 0x09: // OR
-                    A = (byte)(A | NextByte());
+                    A |= NextByte();
                     break;
                 case 0x49: // EOR
-                    A = (byte)(A ^ NextByte());
+                    A ^= NextByte();
                     break;
                 case 0x69: // ADC
                     ADC(NextByte());
@@ -672,32 +649,6 @@ namespace dotNES
                 case 0x0C: // ???
                     ReadAddress(NextWord());
                     break;
-                case 0x14:
-                case 0x34:
-                case 0x54:
-                case 0x74:
-                case 0xD4:
-                case 0xF4:
-                    NextByte();
-                    break;
-                case 0x1A:
-                case 0x3A:
-                case 0x5A:
-                case 0x7A:
-                case 0xDA:
-                case 0xFA:
-                    break;
-                case 0x80:
-                    NextByte();
-                    break;
-                case 0x1C:
-                case 0x3C:
-                case 0x5C:
-                case 0x7C:
-                case 0xDC:
-                case 0xFC:
-                    NextWord();
-                    break;
                 /*case 0x00: // BRK
                     NextByte();
                     PushWord(PC);
@@ -784,8 +735,6 @@ namespace dotNES
                 default:
                     return Emulator.Mapper.ReadAddress(addr);
             }
-
-            throw new ArgumentOutOfRangeException();
         }
 
         public void WriteAddress(int addr, int _val)
