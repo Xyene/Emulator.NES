@@ -13,23 +13,48 @@ namespace dotNES
         {
             public bool Negative;
             public bool Overflow;
-            public bool IRQ;
+            public bool BreakSource;
             public bool DecimalMode;
             public bool InterruptsDisabled;
             public bool Zero;
             public bool Carry;
         }
 
-        private Emulator emulator;
-        private byte[] ram = new byte[0x800];
-        public byte A { get; private set; }
-        public byte X { get; private set; }
-        public byte Y { get; private set; }
+        private Emulator Emulator;
+        private byte[] RAM = new byte[0x800];
+
+        private byte _F(byte val)
+        {
+            F.Zero = val == 0;
+            F.Negative = (val & 0x80) > 0;
+            return val;
+        }
+
+        public byte _A, _X, _Y;
+
+        public byte A
+        {
+            get { return _A; }
+            private set { _A = _F(value); }
+        }
+
+        public byte X
+        {
+            get { return _X; }
+            private set { _X = _F(value); }
+        }
+
+        public byte Y
+        {
+            get { return _Y; }
+            private set { _Y = _F(value); }
+        }
+
         public byte SP { get; private set; }
         public int PC { get; private set; }
         public long cycle { get; private set; }
 
-        public readonly CPUFlags flags = new CPUFlags();
+        public readonly CPUFlags F = new CPUFlags();
 
         /**
          * 7  bit  0
@@ -48,34 +73,52 @@ namespace dotNES
          * |            or D6 from last BIT
          * +--------- Negative: Set to bit 7 of the last operation
          */
+        unsafe static byte AsByte(bool to)
+        {
+            return *((byte*)(&to));
+        }
+
         public byte P
         {
             get
             {
-                return (byte)((Convert.ToByte(flags.Carry) << 0) |
-                                (Convert.ToByte(flags.Zero) << 1) |
-                                (Convert.ToByte(flags.InterruptsDisabled) << 2) |
-                                (Convert.ToByte(flags.DecimalMode) << 3) |
-                                (Convert.ToByte(flags.IRQ) << 4) |
+                return (byte)((AsByte(F.Carry) << 0) |
+                                (AsByte(F.Zero) << 1) |
+                                (AsByte(F.InterruptsDisabled) << 2) |
+                                (AsByte(F.DecimalMode) << 3) |
+                                (AsByte(F.BreakSource) << 4) |
                                 (1 << 5) |
-                                (Convert.ToByte(flags.Overflow) << 6) |
-                                (Convert.ToByte(flags.Negative) << 7));
+                                (AsByte(F.Overflow) << 6) |
+                                (AsByte(F.Negative) << 7));
             }
             set
             {
-                flags.Carry = (value & 0x1) > 0;
-                flags.Zero = (value & 0x2) > 0;
-                flags.InterruptsDisabled = (value & 0x4) > 0;
-                flags.DecimalMode = (value & 0x8) > 0;
-                flags.IRQ = (value & 0x10) > 0;
-                flags.Overflow = (value & 0x40) > 0;
-                flags.Negative = (value & 0x80) > 0;
+                F.Carry = (value & CARRY_BIT) > 0;
+                F.Zero = (value & ZERO_BIT) > 0;
+                F.InterruptsDisabled = (value & INTERRUPT_DISABLED_BIT) > 0;
+                F.DecimalMode = (value & DECIMAL_MODE_BIT) > 0;
+                F.BreakSource = (value & BREAK_SOURCE_BIT) > 0;
+                F.Overflow = (value & OVERFLOW_BIT) > 0;
+                F.Negative = (value & NEGATIVE_BIT) > 0;
             }
+        }
+
+        private const int CARRY_BIT = 0x1;
+        private const int ZERO_BIT = 0x2;
+        private const int INTERRUPT_DISABLED_BIT = 0x4;
+        private const int DECIMAL_MODE_BIT = 0x8;
+        private const int BREAK_SOURCE_BIT = 0x10;
+        private const int OVERFLOW_BIT = 0x40;
+        private const int NEGATIVE_BIT = 0x80;
+
+        public bool IsFlagSet(int flag)
+        {
+            return (P & flag) > 0;
         }
 
         public CPU(Emulator emulator)
         {
-            this.emulator = emulator;
+            this.Emulator = emulator;
             Initialize();
             TextWriterTraceListener writer = new TextWriterTraceListener(System.Console.Out);
             Debug.Listeners.Add(writer);
@@ -95,7 +138,7 @@ namespace dotNES
         public void Reset()
         {
             SP -= 3;
-            flags.IRQ = true;
+            F.BreakSource = true;
         }
 
         private byte NextByte()
@@ -186,96 +229,84 @@ namespace dotNES
                 case 0xEA: // NOP
                     break;
                 case 0x18: // CLC
-                    flags.Carry = false;
+                    F.Carry = false;
                     break;
                 case 0x38: // SEC
-                    flags.Carry = true;
+                    F.Carry = true;
                     break;
                 case 0x58: // CLI
-                    flags.InterruptsDisabled = false;
+                    F.InterruptsDisabled = false;
                     break;
                 case 0x78: // SEI
-                    flags.InterruptsDisabled = true;
+                    F.InterruptsDisabled = true;
                     break;
                 case 0xB8: // CLV
-                    flags.Overflow = false;
+                    F.Overflow = false;
                     break;
                 case 0xD8: // CLD
-                    flags.DecimalMode = false;
+                    F.DecimalMode = false;
                     break;
                 case 0xF8: // SED
-                    flags.DecimalMode = true;
+                    F.DecimalMode = true;
                     break;
                 case 0xB0: // BCS
-                    Branch(flags.Carry);
+                    Branch(F.Carry);
                     break;
                 case 0x90: // BCC
-                    Branch(!flags.Carry);
+                    Branch(!F.Carry);
                     break;
                 case 0xF0: // BEQ
-                    Branch(flags.Zero);
+                    Branch(F.Zero);
                     break;
                 case 0xD0: // BNE
-                    Branch(!flags.Zero);
+                    Branch(!F.Zero);
                     break;
                 case 0x70: // BVS
-                    Branch(flags.Overflow);
+                    Branch(F.Overflow);
                     break;
                 case 0x50: // BVC
-                    Branch(!flags.Overflow);
+                    Branch(!F.Overflow);
                     break;
                 case 0x10: // BPL
-                    Branch(!flags.Negative);
+                    Branch(!F.Negative);
                     break;
                 case 0x30: // BMI
-                    Branch(flags.Negative);
+                    Branch(F.Negative);
                     break;
                 case 0x24: // BIT
                     // BIT sets the Z flag as though the value in the address tested were ANDed with the accumulator.
                     // The S and V flags are set to match bits 7 and 6 respectively in the value stored at the tested address.
                     byte val = ReadAddress(NextByte());
-                    flags.Zero = (val & A) == 0;
-                    flags.Negative = (val & 0x80) > 0;
-                    flags.Overflow = (val & 0x40) > 0;
+                    F.Overflow = (val & 0x40) > 0;
                     break;
                 case 0x2C: // BIT
                     val = ReadAddress(NextWord());
-                    flags.Zero = (val & A) == 0;
-                    flags.Negative = (val & 0x80) > 0;
-                    flags.Overflow = (val & 0x40) > 0;
+                    F.Overflow = (val & 0x40) > 0;
                     break;
                 case 0x08: // PHP
-                    bool irq = flags.IRQ;
-                    flags.IRQ = true;
+                    bool irq = F.BreakSource;
+                    F.BreakSource = true;
                     Push(P);
-                    flags.IRQ = irq;
+                    F.BreakSource = irq;
                     break;
                 case 0x48: // PHA
                     Push(A);
                     break;
                 case 0x28: // PLP
                     P = Pop();
-                    flags.IRQ = false;
+                    F.BreakSource = false;
                     break;
                 case 0x68: // PLA
                     A = Pop();
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x29: // AND
                     A = (byte)(A & NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x09: // OR
                     A = (byte)(A | NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x49: // EOR
                     A = (byte)(A ^ NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x69: // ADC
                     ADC(NextByte());
@@ -294,48 +325,30 @@ namespace dotNES
                     break;
                 case 0xC8: // INY
                     Y++;
-                    flags.Zero = Y == 0;
-                    flags.Negative = (Y & 0x80) > 0;
                     break;
                 case 0x88: // DEY
                     Y--;
-                    flags.Zero = Y == 0;
-                    flags.Negative = (Y & 0x80) > 0;
                     break;
                 case 0xE8: // INX
                     X++;
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
                     break;
                 case 0xCA: // DEX
                     X--;
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
                     break;
                 case 0xA8: // TAY
                     Y = A;
-                    flags.Zero = Y == 0;
-                    flags.Negative = (Y & 0x80) > 0;
                     break;
                 case 0x98: // TYA
                     A = Y;
-                    flags.Zero = A == 0;
-                    flags.Negative = (A & 0x80) > 0;
                     break;
                 case 0xAA: // TAX
                     X = A;
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
                     break;
                 case 0x8A: // TXA
                     A = X;
-                    flags.Zero = A == 0;
-                    flags.Negative = (A & 0x80) > 0;
                     break;
                 case 0xBA: // TSX
                     X = SP;
-                    flags.Zero = X == 0;
-                    flags.Negative = (X & 0x80) > 0;
                     break;
                 case 0x9A: // TXS
                     SP = X;
@@ -345,32 +358,24 @@ namespace dotNES
                     PC = PopWord();
                     break;
                 case 0x4A: // LSR
-                    flags.Carry = (A & 0x1) > 0;
+                    F.Carry = (A & 0x1) > 0;
                     A >>= 1;
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x0A: // ASL
-                    flags.Carry = (A & 0x80) > 0;
+                    F.Carry = (A & 0x80) > 0;
                     A <<= 1;
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x6A: // ROR
-                    bool c = flags.Carry;
-                    flags.Carry = (A & 0x1) > 0;
+                    bool c = F.Carry;
+                    F.Carry = (A & 0x1) > 0;
                     A >>= 1;
                     if (c) A |= 0x80;
-                    flags.Negative = c;
-                    flags.Zero = A == 0;
                     break;
                 case 0x2A: // ROL
-                    c = flags.Carry;
-                    flags.Carry = (A & 0x80) > 0;
+                    c = F.Carry;
+                    F.Carry = (A & 0x80) > 0;
                     A <<= 1;
                     if (c) A |= 0x1;
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0xA1: // LDA ind
                     int ind = IndirectX();
@@ -382,18 +387,12 @@ namespace dotNES
                     break;
                 case 0x01: // ORA ind
                     A |= ReadAddress(IndirectX());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x21: // AND ind
                     A &= ReadAddress(IndirectX());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x41: // EOR ind
                     A ^= ReadAddress(IndirectX());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x61: // ADC ind
                     ADC(ReadAddress(IndirectX()));
@@ -406,18 +405,12 @@ namespace dotNES
                     break;
                 case 0x05: // ORA
                     A |= ReadAddress(NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x25: // AND
                     A &= ReadAddress(NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x45: // EOR
                     A ^= ReadAddress(NextByte());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x65: // ADC
                     ADC(ReadAddress(NextByte()));
@@ -454,18 +447,12 @@ namespace dotNES
                     break;
                 case 0x0D: // ORA
                     A |= ReadAddress(NextWord());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x2D: // AND
                     A &= ReadAddress(NextWord());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x4D: // EOR
                     A ^= ReadAddress(NextWord());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x6D: // ADC
                     ADC(ReadAddress(NextWord()));
@@ -505,18 +492,12 @@ namespace dotNES
                     break;
                 case 0x11: // ORA
                     A |= ReadAddress(IndirectY());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x31: // AND
                     A &= ReadAddress(IndirectY());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x51: // EOR
                     A ^= ReadAddress(IndirectY());
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0xF1: // SBC
                     SBC(ReadAddress(IndirectY()));
@@ -548,18 +529,12 @@ namespace dotNES
                     break;
                 case 0x19: // ORA
                     A |= ReadAddress(NextWord() + Y);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x39: // AND
                     A &= ReadAddress(NextWord() + Y);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x59: // EOR
                     A ^= ReadAddress(NextWord() + Y);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x79: // ADC
                     ADC(ReadAddress(NextWord() + Y));
@@ -575,26 +550,18 @@ namespace dotNES
                     break;
                 case 0xB4: // LDY
                     Y = ReadAddress((NextByte() + X) & 0xFF);
-                    flags.Negative = (Y & 0x80) > 0;
-                    flags.Zero = Y == 0;
                     break;
                 case 0x94: // STY
                     WriteAddress((NextByte() + X) & 0xFF, Y);
                     break;
                 case 0x15: // ORA
                     A |= ReadAddress((NextByte() + X) & 0xFF);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x35: // AND
                     A &= ReadAddress((NextByte() + X) & 0xFF);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x55: // EOR
                     A ^= ReadAddress((NextByte() + X) & 0xFF);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x75: // ADC
                     ADC(ReadAddress((NextByte() + X) & 0xFF));
@@ -607,8 +574,6 @@ namespace dotNES
                     break;
                 case 0xB5: // LDA
                     A = ReadAddress((NextByte() + X) & 0xFF);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x95: // STA
                     WriteAddress((NextByte() + X) & 0xFF, A);
@@ -633,36 +598,24 @@ namespace dotNES
                     break;
                 case 0xB6: // LDX
                     X = ReadAddress((NextByte() + Y) & 0xFF);
-                    flags.Negative = (X & 0x80) > 0;
-                    flags.Zero = X == 0;
                     break;
                 case 0x96: // STX
                     WriteAddress((NextByte() + Y) & 0xFF, X);
                     break;
                 case 0xBC: // LDY
                     Y = ReadAddress(NextWord() + X);
-                    flags.Negative = (Y & 0x80) > 0;
-                    flags.Zero = Y == 0;
                     break;
                 case 0xBE: // LDX
                     X = ReadAddress(NextWord() + Y);
-                    flags.Negative = (X & 0x80) > 0;
-                    flags.Zero = X == 0;
                     break;
                 case 0x1D: // ORA
                     A |= ReadAddress(NextWord() + X);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x3D: // AND
                     A &= ReadAddress(NextWord() + X);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x5D: // EOR
                     A ^= ReadAddress(NextWord() + X);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x7D: // ADC
                     ADC(ReadAddress(NextWord() + X));
@@ -675,8 +628,6 @@ namespace dotNES
                     break;
                 case 0xBD: // LDA
                     A = ReadAddress(NextWord() + X);
-                    flags.Negative = (A & 0x80) > 0;
-                    flags.Zero = A == 0;
                     break;
                 case 0x9D: // STA
                     WriteAddress(NextWord() + X, A);
@@ -803,12 +754,12 @@ namespace dotNES
                 case 0x0000:
                 case 0x1000:
                     // Wrap every 7FFh bytes
-                    return ram[addr & 0x07FF];
+                    return RAM[addr & 0x07FF];
                 case 0x2000:
                 case 0x3000:
                     // Wrap every 7h bytes
                     int reg = (addr & 0x7) - 0x2000;
-                    return emulator.PPU.ReadRegister(reg);
+                    return Emulator.PPU.ReadRegister(reg);
                 case 0x4000:
                     if (addr <= 0x401F)
                     {
@@ -817,7 +768,7 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    return emulator.Mapper.ReadAddress(addr);
+                    return Emulator.Mapper.ReadAddress(addr);
             }
 
             throw new ArgumentOutOfRangeException();
@@ -832,13 +783,13 @@ namespace dotNES
                 case 0x0000:
                 case 0x1000:
                     // Wrap every 7FFh bytes
-                    ram[addr & 0x07FF] = val;
+                    RAM[addr & 0x07FF] = val;
                     return;
                 case 0x2000:
                 case 0x3000:
                     // Wrap every 7h bytes
                     int reg = (addr & 0x7) - 0x2000;
-                    emulator.PPU.WriteRegister(reg, val);
+                    Emulator.PPU.WriteRegister(reg, val);
                     return;
                 case 0x4000:
                     if (addr <= 0x401F)
@@ -849,7 +800,7 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    emulator.Mapper.WriteAddress(addr, val);
+                    Emulator.Mapper.WriteAddress(addr, val);
                     return;
             }
         }

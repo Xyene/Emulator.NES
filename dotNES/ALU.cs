@@ -12,11 +12,11 @@ namespace dotNES
 
         private void ADC(byte val)
         {
-            int nA = (sbyte)A + (sbyte)val + (sbyte)(flags.Carry ? 1 : 0);
-            flags.Overflow = nA < -128 || nA > 127;
-            flags.Carry = (A + val + (flags.Carry ? 1 : 0)) > 0xFF;
-            flags.Negative = (nA & 0x80) > 0;
-            flags.Zero = (nA & 0xFF) == 0;
+            int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
+            F.Overflow = nA < -128 || nA > 127;
+            F.Carry = (A + val + (F.Carry ? 1 : 0)) > 0xFF;
+            F.Negative = (nA & 0x80) > 0;
+            F.Zero = (nA & 0xFF) == 0;
             A = (byte)(nA & 0xFF);
         }
 
@@ -24,40 +24,40 @@ namespace dotNES
         {
             int d = reg - M;
 
-            flags.Negative = (d & 0x80) > 0 && d != 0;
-            flags.Carry = d >= 0;
-            flags.Zero = d == 0;
+            F.Negative = (d & 0x80) > 0 && d != 0;
+            F.Carry = d >= 0;
+            F.Zero = d == 0;
         }
 
         private void LSR(int addr)
         {
             byte D = ReadAddress(addr);
-            flags.Carry = (D & 0x1) > 0;
+            F.Carry = (D & 0x1) > 0;
             D >>= 1;
-            flags.Negative = (D & 0x80) > 0;
-            flags.Zero = D == 0;
+            F.Negative = (D & 0x80) > 0;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
 
         private void ASL(int addr)
         {
             byte D = ReadAddress(addr);
-            flags.Carry = (D & 0x80) > 0;
+            F.Carry = (D & 0x80) > 0;
             D <<= 1;
-            flags.Negative = (D & 0x80) > 0;
-            flags.Zero = D == 0;
+            F.Negative = (D & 0x80) > 0;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
 
         private void ROR(int addr)
         {
             byte D = ReadAddress(addr);
-            bool c = flags.Carry;
-            flags.Carry = (D & 0x1) > 0;
+            bool c = F.Carry;
+            F.Carry = (D & 0x1) > 0;
             D >>= 1;
             if (c) D |= 0x80;
-            flags.Negative = c;
-            flags.Zero = D == 0;
+            F.Negative = c;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
 
@@ -65,28 +65,28 @@ namespace dotNES
         private void ROL(int addr)
         {
             byte D = ReadAddress(addr);
-            bool c = flags.Carry;
-            flags.Carry = (D & 0x80) > 0;
+            bool c = F.Carry;
+            F.Carry = (D & 0x80) > 0;
             D <<= 1;
             if (c) D |= 0x1;
-            flags.Negative = (D & 0x80) > 0;
-            flags.Zero = D == 0;
+            F.Negative = (D & 0x80) > 0;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
 
         private void INC(int addr)
         {
             byte D = (byte)(ReadAddress(addr) + 1);
-            flags.Negative = (D & 0x80) > 0;
-            flags.Zero = D == 0;
+            F.Negative = (D & 0x80) > 0;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
 
         private void DEC(int addr)
         {
             byte D = (byte)(ReadAddress(addr) - 1);
-            flags.Negative = (D & 0x80) > 0;
-            flags.Zero = D == 0;
+            F.Negative = (D & 0x80) > 0;
+            F.Zero = D == 0;
             WriteAddress(addr, D);
         }
     }
