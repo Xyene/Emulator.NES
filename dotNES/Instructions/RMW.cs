@@ -8,5 +8,12 @@ namespace dotNES
 {
     partial class CPU
     {
+        private void ExecuteRMW(int instruction)
+        {
+            switch (instruction)
+            {
+
+            }
+        }
     }
 }

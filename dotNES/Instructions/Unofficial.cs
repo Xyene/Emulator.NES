@@ -8,5 +8,12 @@ namespace dotNES
 {
     partial class CPU
     {
+        private void ExecuteUnofficial(int instruction)
+        {
+            switch (instruction)
+            {
+
+            }
+        }
     }
 }

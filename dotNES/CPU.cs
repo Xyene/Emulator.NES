@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,7 @@ namespace dotNES
         private Emulator Emulator;
         private byte[] RAM = new byte[0x800];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private byte _F(byte val)
         {
             F.Zero = val == 0;
@@ -35,18 +37,21 @@ namespace dotNES
         public byte A
         {
             get { return _A; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _A = _F(value); }
         }
 
         public byte X
         {
             get { return _X; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _X = _F(value); }
         }
 
         public byte Y
         {
             get { return _Y; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _Y = _F(value); }
         }
 
@@ -73,6 +78,7 @@ namespace dotNES
          * |            or D6 from last BIT
          * +--------- Negative: Set to bit 7 of the last operation
          */
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe static byte AsByte(bool to)
         {
             return *((byte*)(&to));
@@ -174,31 +180,31 @@ namespace dotNES
                     PC = NextByte() | (NextByte() << 8);
                     break;
                 case 0xA9: // LDA
-                    LDA(NextByte());
+                    A = NextByte();
                     break;
                 case 0xA5: // LDA
-                    LDA(ReadAddress(NextByte()));
+                    A = ReadAddress(NextByte());
                     break;
                 case 0xAD: // LDA
-                    LDA(ReadAddress(NextWord()));
+                    A = ReadAddress(NextWord());
                     break;
                 case 0xA0: // LDY
-                    LDY(NextByte());
+                    Y = NextByte();
                     break;
                 case 0xA4: // LDY
-                    LDY(ReadAddress(NextByte()));
+                    Y = ReadAddress(NextByte());
                     break;
                 case 0xA2: // LDX
-                    LDX(NextByte());
+                    X = NextByte();
                     break;
                 case 0xA6: // LDX
-                    LDX(ReadAddress(NextByte()));
+                    X = ReadAddress(NextByte());
                     break;
                 case 0xAE: // LDX
-                    LDX(ReadAddress(NextWord()));
+                    X = ReadAddress(NextWord());
                     break;
                 case 0xAC: // LDY
-                    LDY(ReadAddress(NextWord()));
+                    Y = ReadAddress(NextWord());
                     break;
                 case 0x86: // STX
                     WriteAddress(NextByte(), X);
@@ -378,9 +384,7 @@ namespace dotNES
                     if (c) A |= 0x1;
                     break;
                 case 0xA1: // LDA ind
-                    int ind = IndirectX();
-                    byte valx = ReadAddress(ind);
-                    LDA(valx);
+                    A = ReadAddress(IndirectX());
                     break;
                 case 0x81: // STA ind
                     WriteAddress(IndirectX(), A);
@@ -488,7 +492,7 @@ namespace dotNES
                     DEC(NextWord());
                     break;
                 case 0xB1: // LDA
-                    LDA(ReadAddress(IndirectY()));
+                    A = ReadAddress(IndirectY());
                     break;
                 case 0x11: // ORA
                     A |= ReadAddress(IndirectY());
@@ -525,7 +529,7 @@ namespace dotNES
                     PC = ReadAddress(off) | (ReadAddress(hi) << 8);
                     break;
                 case 0xB9: // LDA
-                    LDA(ReadAddress(NextWord() + Y));
+                    A = ReadAddress(NextWord() + Y);
                     break;
                 case 0x19: // ORA
                     A |= ReadAddress(NextWord() + Y);

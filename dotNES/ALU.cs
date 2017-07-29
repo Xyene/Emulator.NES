@@ -15,8 +15,6 @@ namespace dotNES
             int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
             F.Overflow = nA < -128 || nA > 127;
             F.Carry = (A + val + (F.Carry ? 1 : 0)) > 0xFF;
-            F.Negative = (nA & 0x80) > 0;
-            F.Zero = (nA & 0xFF) == 0;
             A = (byte)(nA & 0xFF);
         }
 
@@ -34,8 +32,7 @@ namespace dotNES
             byte D = ReadAddress(addr);
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
-            F.Negative = (D & 0x80) > 0;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
 
@@ -44,8 +41,7 @@ namespace dotNES
             byte D = ReadAddress(addr);
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
-            F.Negative = (D & 0x80) > 0;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
 
@@ -56,8 +52,7 @@ namespace dotNES
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             if (c) D |= 0x80;
-            F.Negative = c;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
 
@@ -69,24 +64,21 @@ namespace dotNES
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             if (c) D |= 0x1;
-            F.Negative = (D & 0x80) > 0;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
 
         private void INC(int addr)
         {
             byte D = (byte)(ReadAddress(addr) + 1);
-            F.Negative = (D & 0x80) > 0;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
 
         private void DEC(int addr)
         {
             byte D = (byte)(ReadAddress(addr) - 1);
-            F.Negative = (D & 0x80) > 0;
-            F.Zero = D == 0;
+            _F(D);
             WriteAddress(addr, D);
         }
     }
