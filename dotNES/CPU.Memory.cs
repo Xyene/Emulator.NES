@@ -4,13 +4,21 @@ namespace dotNES
 {
     partial class CPU
     {
-        private byte NextByte() => ReadByte((ushort)PC++);
+        private int NextByte() => ReadByte((ushort)PC++) & 0xFF;
 
-        private ushort NextWord() => (ushort)(NextByte() | (NextByte() << 8));
+        private int NextWord() => (NextByte() | (NextByte() << 8));
 
         private sbyte NextSByte() => (sbyte)NextByte();
 
         private int Immediate() => PC++;
+
+        private int ZeroPageX() => (NextByte() + X) & 0xFF;
+
+        private int ZeroPageY() => (NextByte() + Y) & 0xFF;
+
+        private int AbsoluteY() => NextWord() + Y;
+
+        private int AbsoluteX() => NextWord() + X;
 
         private void Push(int what)
         {

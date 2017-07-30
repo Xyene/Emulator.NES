@@ -17,10 +17,23 @@
                 PC = nPC;
         }
 
-        private void SBC(int addr) => _ADC((byte)~ReadByte(addr));
-        private void ADC(int addr) => _ADC(ReadByte(addr));
+        private void LDA(int addr) => A = ReadByte(addr);
 
-        private void _ADC(byte val)
+        private void LDY(int addr) => Y = ReadByte(addr);
+
+        private void LDX(int addr) => X = ReadByte(addr);
+
+        private void ORA(int addr) => A |= ReadByte(addr);
+
+        private void AND(int addr) => A &= ReadByte(addr);
+
+        private void EOR(int addr) => A ^= ReadByte(addr);
+
+        private void SBC(int addr) => ADCImpl((byte)~ReadByte(addr));
+
+        private void ADC(int addr) => ADCImpl(ReadByte(addr));
+
+        private void ADCImpl(byte val)
         {
             int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
             F.Overflow = nA < -128 || nA > 127;
