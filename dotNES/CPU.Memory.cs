@@ -1,4 +1,5 @@
 ﻿using System;
+using static dotNES.CPU.AddressingMode;
 
 namespace dotNES
 {
@@ -29,6 +30,44 @@ namespace dotNES
                 if (loc == -1) loc = accessor(CPU);
                 CPU.WriteByte(loc, val);
             }
+        }
+
+        private void SetInstructionAddressingMode()
+        {
+            switch (opcodeAddrModes[currentInstruction])
+            {
+                case None:
+                    currentAddressor = null;
+                    break;
+                case Immediate:
+                    currentAddressor = immediateAddressor;
+                    break;
+                case ZeroPage:
+                    currentAddressor = zeroPageAddressor;
+                    break;
+                case Absolute:
+                    currentAddressor = absoluteAddressor;
+                    break;
+                case ZeroPageX:
+                    currentAddressor = zeroPageXAddressor;
+                    break;
+                case ZeroPageY:
+                    currentAddressor = zeroPageYAddressor;
+                    break;
+                case AbsoluteX:
+                    currentAddressor = absoluteXAddressor;
+                    break;
+                case AbsoluteY:
+                    currentAddressor = absoluteYAddressor;
+                    break;
+                case IndirectX:
+                    currentAddressor = indirectXAddressor;
+                    break;
+                case IndirectY:
+                    currentAddressor = indirectYAddressor;
+                    break;
+            }
+            currentAddressor?.Reset();
         }
 
         public int AddressRead() => currentAddressor.Read();
