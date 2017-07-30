@@ -5,6 +5,20 @@ namespace dotNES
 {
     partial class CPU
     {
+        public enum AddressingMode
+        {
+            None,
+            Immediate,
+            ZeroPage,
+            Absolute,
+            ZeroPageX,
+            ZeroPageY,
+            AbsoluteX,
+            AbsoluteY,
+            IndirectX,
+            IndirectY,
+        }
+
         public class Addressor
         {
             private Func<CPU, int> accessor;

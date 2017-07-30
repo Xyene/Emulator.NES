@@ -5,20 +5,6 @@ namespace dotNES
 {
     partial class CPU
     {
-        public enum AddressingMode
-        {
-            None,
-            Immediate,
-            ZeroPage,
-            Absolute,
-            ZeroPageX,
-            ZeroPageY,
-            AbsoluteX,
-            AbsoluteY,
-            IndirectX,
-            IndirectY,
-        }
-
         [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
         public class OpcodeDef : Attribute
         {
