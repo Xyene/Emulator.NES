@@ -19,75 +19,50 @@ namespace dotNES
             IndirectY,
         }
 
-        public class Addressor
+        private int _currentMemoryAddress;
+
+        private void ResetInstructionAddressingMode() => _currentMemoryAddress = -1;
+
+        private int _Address()
         {
-            private Func<CPU, int> accessor;
-            private int loc;
-            private CPU CPU;
-
-            public Addressor(CPU cpu, Func<CPU, int> accessor)
+            switch (opcodeAddressingModes[currentInstruction])
             {
-                this.CPU = cpu;
-                this.accessor = accessor;
-            }
-
-            public void Reset() => loc = -1;
-
-            public int Read()
-            {
-                if (loc == -1) loc = accessor(CPU);
-                return CPU.ReadByte(loc) & 0xFF;
-            }
-
-            public void Write(int val)
-            {
-                if (loc == -1) loc = accessor(CPU);
-                CPU.WriteByte(loc, val);
-            }
-        }
-
-        private void SetInstructionAddressingMode()
-        {
-            switch (opcodeAddrModes[currentInstruction])
-            {
-                case None:
-                    currentAddressor = null;
-                    break;
                 case Immediate:
-                    currentAddressor = immediateAddressor;
-                    break;
+                    return PC++;
                 case ZeroPage:
-                    currentAddressor = zeroPageAddressor;
-                    break;
+                    return NextByte();
                 case Absolute:
-                    currentAddressor = absoluteAddressor;
-                    break;
+                    return NextWord();
                 case ZeroPageX:
-                    currentAddressor = zeroPageXAddressor;
-                    break;
+                    return (NextByte() + X) & 0xFF;
                 case ZeroPageY:
-                    currentAddressor = zeroPageYAddressor;
-                    break;
+                    return (NextByte() + Y) & 0xFF;
                 case AbsoluteX:
-                    currentAddressor = absoluteXAddressor;
-                    break;
+                    return NextWord() + X;
                 case AbsoluteY:
-                    currentAddressor = absoluteYAddressor;
-                    break;
+                    return NextWord() + Y;
                 case IndirectX:
-                    currentAddressor = indirectXAddressor;
-                    break;
+                    int off = (NextByte() + X) & 0xFF;
+                    return ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
                 case IndirectY:
-                    currentAddressor = indirectYAddressor;
-                    break;
+                    off = NextByte() & 0xFF;
+                    return ((ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
             }
-            currentAddressor?.Reset();
+            throw new NotImplementedException();
         }
 
-        public int AddressRead() => currentAddressor.Read();
+        public int AddressRead()
+        {
+            if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
+            return ReadByte(_currentMemoryAddress) & 0xFF;
+        }
 
-        public void AddressWrite(int val) => currentAddressor.Write(val);
-
+        public void AddressWrite(int val)
+        {
+            if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
+            WriteByte(_currentMemoryAddress, val);
+        }
+        
         private int NextByte() => ReadByte((ushort)PC++) & 0xFF;
 
         private int NextWord() => (NextByte() | (NextByte() << 8));
@@ -112,10 +87,7 @@ namespace dotNES
             Push(what & 0xFF);
         }
 
-        private int PopWord()
-        {
-            return Pop() | (Pop() << 8);
-        }
+        private int PopWord() => Pop() | (Pop() << 8);
 
         public byte ReadByte(int addr)
         {
