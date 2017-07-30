@@ -59,7 +59,7 @@ namespace dotNES
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int _F(int val)
         {
-            F.Zero = val == 0;
+            F.Zero = (val & 0xFF) == 0;
             F.Negative = (val & 0x80) > 0;
             return val;
         }

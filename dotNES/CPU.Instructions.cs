@@ -2,9 +2,9 @@
 {
     partial class CPU
     {
-        private void BIT(int addr)
+        private void BIT(Addressor addr)
         {
-            byte val = ReadByte(addr);
+            int val = addr.Read();
             F.Overflow = (val & 0x40) > 0;
             F.Zero = (val & A) == 0;
             F.Negative = (val & 0x80) > 0;
@@ -17,23 +17,23 @@
                 PC = nPC;
         }
 
-        private void LDA(int addr) => A = ReadByte(addr);
+        private void LDA(Addressor addr) => A = addr.Read();
 
-        private void LDY(int addr) => Y = ReadByte(addr);
+        private void LDY(Addressor addr) => Y = addr.Read();
 
-        private void LDX(int addr) => X = ReadByte(addr);
+        private void LDX(Addressor addr) => X = addr.Read();
 
-        private void ORA(int addr) => A |= ReadByte(addr);
+        private void ORA(Addressor addr) => A |= addr.Read();
 
-        private void AND(int addr) => A &= ReadByte(addr);
+        private void AND(Addressor addr) => A &= addr.Read();
 
-        private void EOR(int addr) => A ^= ReadByte(addr);
+        private void EOR(Addressor addr) => A ^= addr.Read();
 
-        private void SBC(int addr) => ADCImpl((byte)~ReadByte(addr));
+        private void SBC(Addressor addr) => ADCImpl((byte)~addr.Read());
 
-        private void ADC(int addr) => ADCImpl(ReadByte(addr));
+        private void ADC(Addressor addr) => ADCImpl(addr.Read());
 
-        private void ADCImpl(byte val)
+        private void ADCImpl(int val)
         {
             int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
             F.Overflow = nA < -128 || nA > 127;
@@ -41,67 +41,67 @@
             A = (byte)(nA & 0xFF);
         }
 
-        private void CMP(int reg, int addr)
+        private void CMP(int reg, Addressor addr)
         {
-            int d = reg - ReadByte(addr);
+            int d = reg - addr.Read();
 
             F.Negative = (d & 0x80) > 0 && d != 0;
             F.Carry = d >= 0;
             F.Zero = d == 0;
         }
 
-        private void LSR(int addr)
+        private void LSR(Addressor addr)
         {
-            byte D = ReadByte(addr);
+            int D = addr.Read();
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
 
-        private void ASL(int addr)
+        private void ASL(Addressor addr)
         {
-            byte D = ReadByte(addr);
+            int D = addr.Read();
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
 
-        private void ROR(int addr)
+        private void ROR(Addressor addr)
         {
-            byte D = ReadByte(addr);
+            int D = addr.Read();
             bool c = F.Carry;
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             if (c) D |= 0x80;
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
 
-        private void ROL(int addr)
+        private void ROL(Addressor addr)
         {
-            byte D = ReadByte(addr);
+            int D = addr.Read();
             bool c = F.Carry;
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             if (c) D |= 0x1;
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
 
-        private void INC(int addr)
+        private void INC(Addressor addr)
         {
-            byte D = (byte)(ReadByte(addr) + 1);
+            byte D = (byte)(addr.Read() + 1);
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
 
-        private void DEC(int addr)
+        private void DEC(Addressor addr)
         {
-            byte D = (byte)(ReadByte(addr) - 1);
+            byte D = (byte)(addr.Read() - 1);
             _F(D);
-            WriteByte(addr, D);
+            addr.Write(D);
         }
     }
 }

@@ -10,15 +10,29 @@ namespace dotNES
 
         private sbyte NextSByte() => (sbyte)NextByte();
 
-        private int Immediate() => PC++;
+        interface IAddressor
+        {
+            int Read();
 
-        private int ZeroPageX() => (NextByte() + X) & 0xFF;
+            void Write(int val);
+        }
 
-        private int ZeroPageY() => (NextByte() + Y) & 0xFF;
+        class Addressor : IAddressor
+        {
+            private Func<CPU, int> accessor;
+            private int loc;
+            private CPU CPU;
 
-        private int AbsoluteY() => NextWord() + Y;
+            public Addressor(CPU cpu, Func<CPU, int> accessor)
+            {
+                this.CPU = cpu;
+                this.accessor = accessor;
+            }
 
-        private int AbsoluteX() => NextWord() + X;
+            public int Read() => CPU.ReadByte(loc = accessor(CPU)) & 0xFF;
+
+            public void Write(int val) => CPU.WriteByte(loc, val);
+        }
 
         private void Push(int what)
         {
@@ -41,18 +55,6 @@ namespace dotNES
         private int PopWord()
         {
             return Pop() | (Pop() << 8);
-        }
-
-        public int IndirectX()
-        {
-            int off = (NextByte() + X) & 0xFF;
-            return ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
-        }
-
-        public int IndirectY()
-        {
-            int off = NextByte() & 0xFF;
-            return ((ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
         }
 
         public byte ReadByte(int addr)
@@ -83,12 +85,12 @@ namespace dotNES
                 case 0x0000:
                 case 0x1000:
                     // Wrap every 7FFh bytes
-                    return RAM[addr & 0x07FF];
+                    return _ram[addr & 0x07FF];
                 case 0x2000:
                 case 0x3000:
                     // Wrap every 7h bytes
                     int reg = (addr & 0x7) - 0x2000;
-                    return Emulator.PPU.ReadRegister(reg);
+                    return _emulator.PPU.ReadRegister(reg);
                 case 0x4000:
                     if (addr <= 0x401F)
                     {
@@ -97,7 +99,7 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    return Emulator.Mapper.ReadByte(addr);
+                    return _emulator.Mapper.ReadByte(addr);
             }
         }
 
@@ -111,13 +113,13 @@ namespace dotNES
                 case 0x0000:
                 case 0x1000:
                     // Wrap every 7FFh bytes
-                    RAM[addr & 0x07FF] = val;
+                    _ram[addr & 0x07FF] = val;
                     return;
                 case 0x2000:
                 case 0x3000:
                     // Wrap every 7h bytes
                     int reg = (addr & 0x7) - 0x2000;
-                    Emulator.PPU.WriteRegister(reg, val);
+                    _emulator.PPU.WriteRegister(reg, val);
                     return;
                 case 0x4000:
                     if (addr <= 0x401F)
@@ -128,7 +130,7 @@ namespace dotNES
                     }
                     goto default;
                 default:
-                    Emulator.Mapper.WriteByte(addr, val);
+                    _emulator.Mapper.WriteByte(addr, val);
                     return;
             }
         }
