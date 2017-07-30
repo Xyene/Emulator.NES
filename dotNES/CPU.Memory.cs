@@ -8,6 +8,7 @@ namespace dotNES
         public enum AddressingMode
         {
             None,
+            Direct,
             Immediate,
             ZeroPage,
             Absolute,
@@ -53,14 +54,19 @@ namespace dotNES
 
         public int AddressRead()
         {
+            if (opcodeAddressingModes[currentInstruction] == Direct) return A;
             if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
             return ReadByte(_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(int val)
         {
-            if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
-            WriteByte(_currentMemoryAddress, val);
+            if (opcodeAddressingModes[currentInstruction] == Direct) A = val;
+            else
+            {
+                if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
+                WriteByte(_currentMemoryAddress, val);
+            }
         }
         
         private int NextByte() => ReadByte((ushort)PC++) & 0xFF;

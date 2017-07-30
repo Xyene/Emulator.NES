@@ -96,7 +96,6 @@ namespace dotNES
                 PC = NextWord();
             else if (currentInstruction == 0x6C)
             {
-
                 int off = NextWord();
                 // AN INDIRECT JUMP MUST NEVER USE A VECTOR BEGINNING ON THE LAST BYTE OF A PAGE
                 //
@@ -297,6 +296,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x4E, Mode = Absolute)]
         [OpcodeDef(Opcode = 0x56, Mode = ZeroPageX)]
         [OpcodeDef(Opcode = 0x5E, Mode = AbsoluteX)]
+        [OpcodeDef(Opcode = 0x4A, Mode = Direct)]
         private void LSR()
         {
             int D = AddressRead();
@@ -310,6 +310,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x0E, Mode = Absolute)]
         [OpcodeDef(Opcode = 0x16, Mode = ZeroPageX)]
         [OpcodeDef(Opcode = 0x1E, Mode = AbsoluteX)]
+        [OpcodeDef(Opcode = 0x0A, Mode = Direct)]
         private void ASL()
         {
             int D = AddressRead();
@@ -323,6 +324,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x6E, Mode = Absolute)]
         [OpcodeDef(Opcode = 0x76, Mode = ZeroPageX)]
         [OpcodeDef(Opcode = 0x7E, Mode = AbsoluteX)]
+        [OpcodeDef(Opcode = 0x6A, Mode = Direct)]
         private void ROR()
         {
             int D = AddressRead();
@@ -338,6 +340,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x2E, Mode = Absolute)]
         [OpcodeDef(Opcode = 0x36, Mode = ZeroPageX)]
         [OpcodeDef(Opcode = 0x3E, Mode = AbsoluteX)]
+        [OpcodeDef(Opcode = 0x2A, Mode = Direct)]
         private void ROL()
         {
             int D = AddressRead();
