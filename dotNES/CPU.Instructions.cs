@@ -141,12 +141,18 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x95, Mode = ZeroPageX)]
         [OpcodeDef(Opcode = 0x99, Mode = AbsoluteY)]
         [OpcodeDef(Opcode = 0x9D, Mode = AbsoluteX)]
+        [OpcodeDef(Opcode = 0x85, Mode = ZeroPage)]
+        [OpcodeDef(Opcode = 0x8D, Mode = Absolute)]
         private void STA() => AddressWrite(A);
 
         [OpcodeDef(Opcode = 0x96, Mode = ZeroPageY)]
+        [OpcodeDef(Opcode = 0x86, Mode = ZeroPage)]
+        [OpcodeDef(Opcode = 0x8E, Mode = Absolute)]
         private void STX() => AddressWrite(X);
 
         [OpcodeDef(Opcode = 0x94, Mode = ZeroPageX)]
+        [OpcodeDef(Opcode = 0x84, Mode = ZeroPage)]
+        [OpcodeDef(Opcode = 0x8C, Mode = Absolute)]
         private void STY() => AddressWrite(Y);
 
         [OpcodeDef(Opcode = 0x18)]
