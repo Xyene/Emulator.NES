@@ -23,43 +23,45 @@ namespace dotNES
 
         public void ExecuteSingleInstruction()
         {
-            //int A = this.A, X = this.X, Y = this.Y;
+            currentInstruction = NextByte();
 
-            int instruction = NextByte();
+            currentAddressor = instructionAddressingModes[currentInstruction];
+            currentAddressor?.Reset();
+
             // if (cycle >= 4900)
-            Console.WriteLine($"{(PC - 1).ToString("X4")}  {instruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
-            switch (instruction)
+            switch (currentInstruction)
             {
                 case 0x4C: // JMP
                     PC = NextWord();
                     break;
                 case 0xA9: // LDA
-                    LDA(Immediate);
+                    LDA();
                     break;
                 case 0xA5: // LDA
-                    LDA(ZeroPage);
+                    LDA();
                     break;
                 case 0xAD: // LDA
-                    LDA(Absolute);
+                    LDA();
                     break;
                 case 0xA0: // LDY
-                    LDY(Immediate);
+                    LDY();
                     break;
                 case 0xA4: // LDY
-                    LDY(ZeroPage);
+                    LDY();
                     break;
                 case 0xA2: // LDX
-                    LDX(Immediate);
+                    LDX();
                     break;
                 case 0xA6: // LDX
-                    LDX(ZeroPage);
+                    LDX();
                     break;
                 case 0xAE: // LDX
-                    LDX(Absolute);
+                    LDX();
                     break;
                 case 0xAC: // LDY
-                    LDY(Absolute);
+                    LDY();
                     break;
                 case 0x86: // STX
                     WriteByte(NextByte(), X);
@@ -87,57 +89,58 @@ namespace dotNES
                     PC = PopWord() + 1;
                     break;
                 case 0xEA: // NOP
+                    NOP();
                     break;
                 case 0x18: // CLC
-                    F.Carry = false;
+                    CLC();
                     break;
                 case 0x38: // SEC
-                    F.Carry = true;
+                    SEC();
                     break;
                 case 0x58: // CLI
-                    F.InterruptsDisabled = false;
+                    CLI();
                     break;
                 case 0x78: // SEI
-                    F.InterruptsDisabled = true;
+                    SEI();
                     break;
                 case 0xB8: // CLV
-                    F.Overflow = false;
+                    CLV();
                     break;
                 case 0xD8: // CLD
-                    F.DecimalMode = false;
+                    CLD();
                     break;
                 case 0xF8: // SED
-                    F.DecimalMode = true;
+                    SED();
                     break;
                 case 0xB0: // BCS
-                    Branch(F.Carry);
+                    BCS();
                     break;
                 case 0x90: // BCC
-                    Branch(!F.Carry);
+                    BCC();
                     break;
                 case 0xF0: // BEQ
-                    Branch(F.Zero);
+                    BEQ();
                     break;
                 case 0xD0: // BNE
-                    Branch(!F.Zero);
+                    BNE();
                     break;
                 case 0x70: // BVS
-                    Branch(F.Overflow);
+                    BVS();
                     break;
                 case 0x50: // BVC
-                    Branch(!F.Overflow);
+                    BVC();
                     break;
                 case 0x10: // BPL
-                    Branch(!F.Negative);
+                    BPL();
                     break;
                 case 0x30: // BMI
-                    Branch(F.Negative);
+                    BMI();
                     break;
                 case 0x24: // BIT
-                    BIT(ZeroPage);
+                    BIT();
                     break;
                 case 0x2C: // BIT
-                    BIT(Absolute);
+                    BIT();
                     break;
                 case 0x08: // PHP
                     Push(P | BreakSourceBit);
@@ -152,28 +155,28 @@ namespace dotNES
                     A = Pop();
                     break;
                 case 0x29: // AND
-                    AND(Immediate);
+                    AND();
                     break;
                 case 0x09: // OR
-                    ORA(Immediate);
+                    ORA();
                     break;
                 case 0x49: // EOR
-                    EOR(Immediate);
+                    EOR();
                     break;
                 case 0x69: // ADC
-                    ADC(Immediate);
+                    ADC();
                     break;
                 case 0xE9: // SBC
-                    SBC(Immediate);
+                    SBC();
                     break;
                 case 0xC9: // CMP
-                    CMP(A, Immediate);
+                    CMP(A);
                     break;
                 case 0xC0: // CPY
-                    CMP(Y, Immediate);
+                    CMP(Y);
                     break;
                 case 0xE0: // CPX
-                    CMP(X, Immediate);
+                    CMP(X);
                     break;
                 case 0xC8: // INY
                     Y++;
@@ -230,136 +233,136 @@ namespace dotNES
                     if (c) A |= 0x1;
                     break;
                 case 0xA1: // LDA ind
-                    LDA(IndirectX);
+                    LDA();
                     break;
                 case 0x81: // STA ind
-                    WriteByte(IndirectX, A);
+                    WriteByte(indX, A);
                     break;
                 case 0x01: // ORA ind
-                    ORA(IndirectX);
+                    ORA();
                     break;
                 case 0x21: // AND ind
-                    AND(IndirectX);
+                    AND();
                     break;
                 case 0x41: // EOR ind
-                    EOR(IndirectX);
+                    EOR();
                     break;
                 case 0x61: // ADC ind
-                    ADC(IndirectX);
+                    ADC();
                     break;
                 case 0xE1: // SBC ind
-                    SBC(IndirectX);
+                    SBC();
                     break;
                 case 0xC1: // CMP ind
-                    CMP(A, IndirectX);
+                    CMP(A);
                     break;
                 case 0x05: // ORA
-                    ORA(ZeroPage);
+                    ORA();
                     break;
                 case 0x25: // AND
-                    AND(ZeroPage);
+                    AND();
                     break;
                 case 0x45: // EOR
-                    EOR(ZeroPage);
+                    EOR();
                     break;
                 case 0x65: // ADC
-                    ADC(ZeroPage);
+                    ADC();
                     break;
                 case 0xE5: // SBC
-                    SBC(ZeroPage);
+                    SBC();
                     break;
                 case 0xC5: // CMP
-                    CMP(A, ZeroPage);
+                    CMP(A);
                     break;
                 case 0xE4: // CPX
-                    CMP(X, ZeroPage);
+                    CMP(X);
                     break;
                 case 0xC4: // CPY
-                    CMP(Y, ZeroPage);
+                    CMP(Y);
                     break;
                 case 0x46: // LSR
-                    LSR(ZeroPage);
+                    LSR();
                     break;
                 case 0x06: // ASL
-                    ASL(ZeroPage);
+                    ASL();
                     break;
                 case 0x66: // ROR
-                    ROR(ZeroPage);
+                    ROR();
                     break;
                 case 0x26: // ROL
-                    ROL(ZeroPage);
+                    ROL();
                     break;
                 case 0xE6: // INC
-                    INC(ZeroPage);
+                    INC();
                     break;
                 case 0xC6: // DEC
-                    DEC(ZeroPage);
+                    DEC();
                     break;
                 case 0x0D: // ORA
-                    ORA(Absolute);
+                    ORA();
                     break;
                 case 0x2D: // AND
-                    AND(Absolute);
+                    AND();
                     break;
                 case 0x4D: // EOR
-                    EOR(Absolute);
+                    EOR();
                     break;
                 case 0x6D: // ADC
-                    ADC(Absolute);
+                    ADC();
                     break;
                 case 0xED: // SBC
-                    SBC(Absolute);
+                    SBC();
                     break;
                 case 0xCD: // CMP
-                    CMP(A, Absolute);
+                    CMP(A);
                     break;
                 case 0xEC: // CPX
-                    CMP(X, Absolute);
+                    CMP(X);
                     break;
                 case 0xCC: // CPY
-                    CMP(Y, Absolute);
+                    CMP(Y);
                     break;
                 case 0x4E: // LSR
-                    LSR(Absolute);
+                    LSR();
                     break;
                 case 0x0E: // ASL
-                    ASL(Absolute);
+                    ASL();
                     break;
                 case 0x6E: // ROR
-                    ROR(Absolute);
+                    ROR();
                     break;
                 case 0x2E: // ROL
-                    ROL(Absolute);
+                    ROL();
                     break;
                 case 0xEE: // INC
-                    INC(Absolute);
+                    INC();
                     break;
                 case 0xCE: // DEC
-                    DEC(Absolute);
+                    DEC();
                     break;
                 case 0xB1: // LDA
-                    LDA(IndirectY);
+                    LDA();
                     break;
                 case 0x11: // ORA
-                    ORA(IndirectY);
+                    ORA();
                     break;
                 case 0x31: // AND
-                    AND(IndirectY);
+                    AND();
                     break;
                 case 0x51: // EOR
-                    EOR(IndirectY);
+                    EOR();
                     break;
                 case 0xF1: // SBC
-                    SBC(IndirectY);
+                    SBC();
                     break;
                 case 0x71: // ADC
-                    ADC(IndirectY);
+                    ADC();
                     break;
                 case 0x91: // STA
-                    WriteByte(IndirectY, A);
+                    WriteByte(indY, A);
                     break;
                 case 0xD1: // CMP
-                    CMP(A, IndirectY);
+                    CMP(A);
                     break;
                 case 0x6C: // JMP
                     int off = NextWord();
@@ -375,130 +378,130 @@ namespace dotNES
                     PC = ReadByte(off) | (ReadByte(hi) << 8);
                     break;
                 case 0xB9: // LDA
-                    LDA(AbsoluteY);
+                    LDA();
                     break;
                 case 0x19: // ORA
-                    ORA(AbsoluteY);
+                    ORA();
                     break;
                 case 0x39: // AND
-                    AND(AbsoluteY);
+                    AND();
                     break;
                 case 0x59: // EOR
-                    EOR(AbsoluteY);
+                    EOR();
                     break;
                 case 0x79: // ADC
-                    ADC(AbsoluteY);
+                    ADC();
                     break;
                 case 0xF9: // SBC
-                    SBC(AbsoluteY);
+                    SBC();
                     break;
                 case 0xD9: // CMP
-                    CMP(A, AbsoluteY);
+                    CMP(A);
                     break;
                 case 0x99: // STA
-                    WriteByte(AbsoluteY, A);
+                    WriteByte(absY, A);
                     break;
                 case 0xB4: // LDY
-                    LDY(ZeroPageX);
+                    LDY();
                     break;
                 case 0x94: // STY
-                    WriteByte(ZeroPageX, Y);
+                    WriteByte(zpgX, Y);
                     break;
                 case 0x15: // ORA
-                    ORA(ZeroPageX);
+                    ORA();
                     break;
                 case 0x35: // AND
-                    AND(ZeroPageX);
+                    AND();
                     break;
                 case 0x55: // EOR
-                    EOR(ZeroPageX);
+                    EOR();
                     break;
                 case 0x75: // ADC
-                    ADC(ZeroPageX);
+                    ADC();
                     break;
                 case 0xF5: // SBC
-                    SBC(ZeroPageX);
+                    SBC();
                     break;
                 case 0xD5: // CMP
-                    CMP(A, ZeroPageX);
+                    CMP(A);
                     break;
                 case 0xB5: // LDA
-                    LDA(ZeroPageX);
+                    LDA();
                     break;
                 case 0x95: // STA
-                    WriteByte(ZeroPageX, A);
+                    WriteByte(zpgX, A);
                     break;
                 case 0x56: // LSR
-                    LSR(ZeroPageX);
+                    LSR();
                     break;
                 case 0x16: // ASL
-                    ASL(ZeroPageX);
+                    ASL();
                     break;
                 case 0x76: // ROR
-                    ROR(ZeroPageX);
+                    ROR();
                     break;
                 case 0x36: // ROL
-                    ROL(ZeroPageX);
+                    ROL();
                     break;
                 case 0xF6: // INC
-                    INC(ZeroPageX);
+                    INC();
                     break;
                 case 0xD6: // DEC
-                    DEC(ZeroPageX);
+                    DEC();
                     break;
                 case 0xB6: // LDX
-                    LDX(ZeroPageY);
+                    LDX();
                     break;
                 case 0x96: // STX
-                    WriteByte(ZeroPageY, X);
+                    WriteByte(zpgY, X);
                     break;
                 case 0xBC: // LDY
-                    LDY(AbsoluteX);
+                    LDY();
                     break;
                 case 0xBE: // LDX
-                    LDX(AbsoluteY);
+                    LDX();
                     break;
                 case 0x1D: // ORA
-                    ORA(AbsoluteX);
+                    ORA();
                     break;
                 case 0x3D: // AND
-                    AND(AbsoluteX);
+                    AND();
                     break;
                 case 0x5D: // EOR
-                    EOR(AbsoluteX);
+                    EOR();
                     break;
                 case 0x7D: // ADC
-                    ADC(AbsoluteX);
+                    ADC();
                     break;
                 case 0xFD: // SBC
-                    SBC(AbsoluteX);
+                    SBC();
                     break;
                 case 0xDD: // CMP
-                    CMP(A, AbsoluteX);
+                    CMP(A);
                     break;
                 case 0xBD: // LDA
-                    LDA(AbsoluteX);
+                    LDA();
                     break;
                 case 0x9D: // STA
-                    WriteByte(AbsoluteX, A);
+                    WriteByte(absX, A);
                     break;
                 case 0x5E: // LSR
-                    LSR(AbsoluteX);
+                    LSR();
                     break;
                 case 0x1E: // ASL
-                    ASL(AbsoluteX);
+                    ASL();
                     break;
                 case 0x7E: // ROR
-                    ROR(AbsoluteX);
+                    ROR();
                     break;
                 case 0x3E: // ROL
-                    ROL(AbsoluteX);
+                    ROL();
                     break;
                 case 0xFE: // INC
-                    INC(AbsoluteX);
+                    INC();
                     break;
                 case 0xDE: // DEC
-                    DEC(AbsoluteX);
+                    DEC();
                     break;
                 /*case 0x00: // BRK
                     NextByte();
@@ -508,13 +511,12 @@ namespace dotNES
                     PC = ReadAddress(0xFFFE) | (ReadAddress(0xFFFF) << 8);
                     break;*/
                 default:
-                    throw new ArgumentException(instruction.ToString("X2"));
+                    throw new ArgumentException(currentInstruction.ToString("X2"));
             }
         }
 
         private void WriteByte(Addressor accessor, int val)
         {
-            accessor.Read();
             accessor.Write(val);
         }
     }

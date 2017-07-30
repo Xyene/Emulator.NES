@@ -4,20 +4,7 @@ namespace dotNES
 {
     partial class CPU
     {
-        private int NextByte() => ReadByte((ushort)PC++) & 0xFF;
-
-        private int NextWord() => (NextByte() | (NextByte() << 8));
-
-        private sbyte NextSByte() => (sbyte)NextByte();
-
-        interface IAddressor
-        {
-            int Read();
-
-            void Write(int val);
-        }
-
-        class Addressor : IAddressor
+        public class Addressor
         {
             private Func<CPU, int> accessor;
             private int loc;
@@ -29,10 +16,30 @@ namespace dotNES
                 this.accessor = accessor;
             }
 
-            public int Read() => CPU.ReadByte(loc = accessor(CPU)) & 0xFF;
+            public void Reset() => loc = -1;
 
-            public void Write(int val) => CPU.WriteByte(loc, val);
+            public int Read()
+            {
+                if (loc == -1) loc = accessor(CPU);
+                return CPU.ReadByte(loc) & 0xFF;
+            }
+
+            public void Write(int val)
+            {
+                if (loc == -1) loc = accessor(CPU);
+                CPU.WriteByte(loc, val);
+            }
         }
+
+        public int AddressRead() => currentAddressor.Read();
+
+        public void AddressWrite(int val) => currentAddressor.Write(val);
+
+        private int NextByte() => ReadByte((ushort)PC++) & 0xFF;
+
+        private int NextWord() => (NextByte() | (NextByte() << 8));
+
+        private sbyte NextSByte() => (sbyte)NextByte();
 
         private void Push(int what)
         {
