@@ -29,6 +29,11 @@ namespace dotNES
             public bool EmphasizeRed;
             public bool EmphasizeGreen;
             public bool EmphasizeBlue;
+
+            /* PPUSTATUS register */
+            public bool VBlankStarted;
+            public bool Sprite0Hit;
+            public bool SpriteOverflow;
         }
 
         public PPUFlags F = new PPUFlags();
@@ -62,6 +67,18 @@ namespace dotNES
                 F.EmphasizeGreen = (value & 0x40) > 0;
                 F.EmphasizeBlue = (value & 0x80) > 0;
             }
+        }
+
+        public int PPUSTATUS
+        {
+            get
+            {
+                return (F.VBlankStarted.AsByte() << 7) |
+                    (F.Sprite0Hit.AsByte() << 6) |
+                    (F.SpriteOverflow.AsByte() << 5) |
+                    (_lastWrittenRegister & 0x1F);
+            }
+            set { throw new NotImplementedException(); }
         }
     }
 }

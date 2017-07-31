@@ -8,8 +8,11 @@ namespace dotNES
 {
     partial class PPU
     {
+        private int _lastWrittenRegister;
+
         public void WriteRegister(int reg, byte val)
         {
+            _lastWrittenRegister = val & 0xFF;
             switch (reg)
             {
                 case 0x0000:
@@ -17,8 +20,12 @@ namespace dotNES
                     return;
                 case 0x0001:
                     PPUMASK = val;
-                    break;
+                    return;
+                case 0x0002:
+                    PPUSTATUS = val;
+                    return;
             }
+
             throw new NotImplementedException();
         }
 
@@ -31,6 +38,8 @@ namespace dotNES
                     return (byte) PPUCTRL;
                 case 0x0001:
                     return (byte) PPUMASK;
+                case 0x0002:
+                    return (byte) PPUSTATUS;
             }
             throw new NotImplementedException(reg.ToString("X2"));
         }
