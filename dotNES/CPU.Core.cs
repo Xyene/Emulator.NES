@@ -37,5 +37,10 @@ namespace dotNES
                 throw new ArgumentException(currentInstruction.ToString("X2"));
             op();
         }
+
+        public void TriggerNMI()
+        {
+
+        }
     }
 }
