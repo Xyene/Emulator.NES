@@ -133,7 +133,7 @@ namespace dotNES
                     if (addr <= 0x401F)
                     {
                         reg = addr - 0x4000;
-                        return ReadRegister(reg);
+                        return ReadIORegister(reg);
                     }
                     goto default;
                 default:
@@ -163,7 +163,7 @@ namespace dotNES
                     if (addr <= 0x401F)
                     {
                         reg = addr - 0x4000;
-                        WriteRegister(reg, val);
+                        WriteIORegister(reg, val);
                         return;
                     }
                     goto default;
@@ -171,16 +171,6 @@ namespace dotNES
                     _emulator.Mapper.WriteByte(addr, val);
                     return;
             }
-        }
-
-        public void WriteRegister(int reg, byte val)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte ReadRegister(int reg)
-        {
-            throw new NotImplementedException();
         }
     }
 }

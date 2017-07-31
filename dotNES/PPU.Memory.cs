@@ -12,6 +12,7 @@ namespace dotNES
 
         public void WriteRegister(int reg, byte val)
         {
+            reg &= 0xF;
             _lastWrittenRegister = val & 0xFF;
             switch (reg)
             {
@@ -26,7 +27,7 @@ namespace dotNES
                     return;
             }
 
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
         }
 
         public byte ReadRegister(int reg)
