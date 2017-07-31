@@ -15,7 +15,7 @@ namespace dotNES
 
         private Opcode[] opcodes = new Opcode[256];
         private string[] opcodeNames = new string[256];
-        private AddressingMode[] opcodeAddressingModes = new AddressingMode[256];
+        private OpcodeDef[] opcodeDefs = new OpcodeDef[256];
 
         public CPU(Emulator emulator)
         {
@@ -27,6 +27,7 @@ namespace dotNES
                              select new
                              {
                                  binding = (Opcode)Delegate.CreateDelegate(typeof(Opcode), this, opcode.Name),
+                                 name = opcode.Name,
                                  defs = (from d in defs select (OpcodeDef)d)
                              };
 
@@ -35,7 +36,8 @@ namespace dotNES
                 foreach (var def in opcode.defs)
                 {
                     opcodes[def.Opcode] = opcode.binding;
-                    opcodeAddressingModes[def.Opcode] = def.Mode;
+                    opcodeNames[def.Opcode] = opcode.name;
+                    this.opcodeDefs[def.Opcode] = def;
                 }
             }
 
@@ -47,7 +49,6 @@ namespace dotNES
             for (int i = 0; i < 5000; i++)
             {
                 ExecuteSingleInstruction();
-                _cycle++;
             }
 
             /* 

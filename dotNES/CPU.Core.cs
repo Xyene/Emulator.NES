@@ -25,10 +25,12 @@ namespace dotNES
         {
             currentInstruction = NextByte();
 
+            _cycle += opcodeDefs[currentInstruction].Cycles;
+
             ResetInstructionAddressingMode();
 
             // if (cycle >= 4900)
-            Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")} CYC:{_cycle}");
 
             Opcode op = opcodes[currentInstruction];
             if (op == null)

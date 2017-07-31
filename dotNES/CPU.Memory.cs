@@ -26,7 +26,7 @@ namespace dotNES
 
         private int _Address()
         {
-            switch (opcodeAddressingModes[currentInstruction])
+            switch (opcodeDefs[currentInstruction].Mode)
             {
                 case Immediate:
                     return PC++;
@@ -54,14 +54,14 @@ namespace dotNES
 
         public int AddressRead()
         {
-            if (opcodeAddressingModes[currentInstruction] == Direct) return A;
+            if (opcodeDefs[currentInstruction].Mode == Direct) return A;
             if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
             return ReadByte(_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(int val)
         {
-            if (opcodeAddressingModes[currentInstruction] == Direct) A = val;
+            if (opcodeDefs[currentInstruction].Mode == Direct) A = val;
             else
             {
                 if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
