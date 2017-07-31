@@ -15,6 +15,9 @@ namespace dotNES
                 case 0x0000:
                     PPUCTRL = val;
                     return;
+                case 0x0001:
+                    PPUMASK = val;
+                    break;
             }
             throw new NotImplementedException();
         }
@@ -25,7 +28,9 @@ namespace dotNES
             switch (reg)
             {
                 case 0x0000:
-                    return PPUCTRL;
+                    return (byte) PPUCTRL;
+                case 0x0001:
+                    return (byte) PPUMASK;
             }
             throw new NotImplementedException(reg.ToString("X2"));
         }
