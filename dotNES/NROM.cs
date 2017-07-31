@@ -26,7 +26,8 @@ namespace dotNES
                 case 0xD000:
                 case 0xE000:
                 case 0xF000:
-                    return Emulator.Cartridge.Raw[Emulator.Cartridge.PRGROMOffset + ((addr & 0xBFFF) - 0x8000)];
+                    int offset = Emulator.Cartridge.PRGROMSize == 16384 ? (addr & 0xBFFF) : addr;
+                    return Emulator.Cartridge.Raw[Emulator.Cartridge.PRGROMOffset + offset - 0x8000];
                 default:
                     throw new NotImplementedException(addr.ToString("X4"));
             }
