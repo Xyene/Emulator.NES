@@ -21,12 +21,13 @@ namespace dotNES
 
         public byte ReadRegister(int reg)
         {
+            reg &= 0xF;
             switch (reg)
             {
                 case 0x0000:
                     return PPUCTRL;
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException(reg.ToString("X2"));
         }
 
         public byte ReadByte(int addr)

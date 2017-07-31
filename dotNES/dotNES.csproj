@@ -65,6 +65,12 @@
     <Compile Include="Memory.cs" />
     <Compile Include="NROM.cs" />
     <Compile Include="PPU.cs" />
+    <Compile Include="PPU.Memory.cs">
+      <DependentUpon>PPU.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PPU.Registers.cs">
+      <DependentUpon>PPU.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />

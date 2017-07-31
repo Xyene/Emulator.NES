@@ -11,11 +11,10 @@ namespace dotNES
             //Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new Form1());
             Emulator emu = new Emulator();
-            //Console.WriteLine(emu.Cartridge);
+            Console.WriteLine(emu.Cartridge);
             //for (int i = 0; i < 10000; i++)
             //{
-                emu.CPU.Initialize();
-                emu.CPU.Execute();
+               emu.CPU.Execute();
             //}
         }
     }

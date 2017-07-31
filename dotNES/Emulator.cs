@@ -4,10 +4,10 @@
     {
         public Emulator()
         {
-            this.CPU = new CPU(this);
-            this.PPU = new PPU(this);
             this.Cartridge = new Cartridge(@"C:\Users\Tudor\Documents\visual studio 2017\Projects\dotNES\nestest.nes");
             this.Mapper = new NROM(this);
+            this.CPU = new CPU(this);
+            this.PPU = new PPU(this);
         }
 
         public CPU CPU { get; }

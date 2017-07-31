@@ -12,7 +12,7 @@ namespace dotNES
             SP = 0xFD;
             P = 0x24;
 
-            PC = 0xC000;
+            PC = ReadByte(0xFFFC) | (ReadByte(0xFFFD) << 8);
         }
 
         public void Reset()
