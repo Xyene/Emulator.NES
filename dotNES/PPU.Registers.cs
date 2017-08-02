@@ -94,16 +94,15 @@ namespace dotNES
             set { throw new NotImplementedException(); }
         }
 
+        private bool firstlatch = false;
         public int PPUADDR
         {
             get { throw new NotImplementedException(); }
             set
             {
-                int shift = F.AddressLatch ? 8 : 0;
-
-                F.BusAddress &= 0xFF00 >> shift;
-                F.BusAddress |= value << shift;
-
+                int shift = F.AddressLatch ? 0 : 8;
+                F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
+                Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")}");
                 F.AddressLatch ^= true;
             }
         }

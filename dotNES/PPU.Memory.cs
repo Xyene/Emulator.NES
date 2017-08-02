@@ -64,7 +64,7 @@ namespace dotNES
         public void WriteByte(int addr, int val)
         {
             addr &= 0xFFFF;
-            throw new NotImplementedException();
+            throw new NotImplementedException($"{addr.ToString("X4")} = {val.ToString("X2")}");
         }
     }
 }

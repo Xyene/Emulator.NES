@@ -32,7 +32,7 @@ namespace dotNES
 
             ResetInstructionAddressingMode();
 
-            Trace.WriteLine($"{_numExecuted} {ReadByte(0x2002).ToString("X4")} {(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	{opcodeNames[currentInstruction]}\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")} CYC:{_cycle}");
+            Trace.WriteLine($"{_numExecuted} {(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	{opcodeNames[currentInstruction]}\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")} CYC:{_cycle}");
 
             Opcode op = opcodes[currentInstruction];
             if (op == null)
