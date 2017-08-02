@@ -112,7 +112,8 @@ namespace dotNES
         {
             get
             {
-                byte ret = ReadByte(F.BusAddress); 
+                byte ret = ReadByte(F.BusAddress);
+                F.BusAddress += F.VRAMIncrement;
                 return ret;
             }
             set
