@@ -16,6 +16,11 @@ namespace dotNES
             //{
                emu.CPU.Execute();
             //}
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
         }
     }
 }

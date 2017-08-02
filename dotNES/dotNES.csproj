@@ -67,6 +67,9 @@
     <Compile Include="IAddressable.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="NROM.cs" />
+    <Compile Include="PPU.Core.cs">
+      <DependentUpon>PPU.cs</DependentUpon>
+    </Compile>
     <Compile Include="PPU.cs" />
     <Compile Include="PPU.Memory.cs">
       <DependentUpon>PPU.cs</DependentUpon>

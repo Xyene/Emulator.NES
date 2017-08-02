@@ -10,6 +10,8 @@ namespace dotNES
         public readonly int PRGRAMSize;
         public readonly int PRGROMOffset;
         public readonly int MapperNumber;
+        public readonly byte[] PRGROM;
+        public readonly byte[] CHRROM;
 
         public Cartridge(string filename)
         {
@@ -27,6 +29,12 @@ namespace dotNES
             PRGROMOffset = 16 + (hasTrainer ? 512 : 0);
 
             MapperNumber = (Raw[6] >> 4) | (Raw[7] & 0xF0);
+
+            PRGROM = new byte[PRGROMSize];
+            Array.Copy(Raw, PRGROMOffset, PRGROM, 0, PRGROMSize);
+
+            CHRROM = new byte[CHRROMSize];
+            Array.Copy(Raw, PRGROMOffset + PRGROMSize, CHRROM, 0, CHRROMSize);
         }
 
         public override string ToString()
