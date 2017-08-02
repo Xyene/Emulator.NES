@@ -38,6 +38,9 @@ namespace dotNES
 
             /* PPUADDR register */
             public int BusAddress;
+
+            /* PPUDATA register */
+            public int BusData;
         }
 
         public PPUFlags F = new PPUFlags();
@@ -91,8 +94,27 @@ namespace dotNES
             get { throw new NotImplementedException(); }
             set
             {
-                F.BusAddress |= value << (F.AddressLatch ? 0 : 8);
+                int shift = F.AddressLatch ? 8 : 0;
+
+                F.BusAddress &= 0xFF00 >> shift;
+                F.BusAddress |= value << shift;
+                F.BusAddress &= 0x3FFF;
+
                 F.AddressLatch ^= true;
+            }
+        }
+
+        public int PPUDATA
+        {
+            get
+            {
+                byte ret = ReadByte(F.BusAddress); 
+                return ret;
+            }
+            set
+            {
+                F.BusData = value;
+                WriteByte(F.BusAddress, value);
             }
         }
     }
