@@ -16,7 +16,7 @@ namespace dotNES
             public bool TallSpritesEnabled;
             public int PatternTableAddress;
             public int SpriteTableAddress;
-            public bool VRAMIncrementMode;
+            public int VRAMIncrement;
             public int NametableAddress;
 
             /* PPUMASK register */
@@ -37,7 +37,12 @@ namespace dotNES
             public bool AddressLatch;
 
             /* PPUADDR register */
-            public int BusAddress;
+            private int _busAddress;
+            public int BusAddress
+            {
+                get => _busAddress;
+                set => _busAddress = value & 0x3FFF;
+            }
 
             /* PPUDATA register */
             public int BusData;
@@ -55,7 +60,7 @@ namespace dotNES
                 F.TallSpritesEnabled = (value & 0x20) > 0;
                 F.PatternTableAddress = (value & 0x10) > 0 ? 0x1000 : 0x0000;
                 F.SpriteTableAddress = (value & 0x08) > 0 ? 0x1000 : 0x0000;
-                F.VRAMIncrementMode = (value & 0x04) > 0;
+                F.VRAMIncrement = (value & 0x04) > 0 ? 32 : 1;
                 F.NametableAddress = (value & 0x3) * 0x400 + 0x2000;
             }
         }
@@ -98,7 +103,6 @@ namespace dotNES
 
                 F.BusAddress &= 0xFF00 >> shift;
                 F.BusAddress |= value << shift;
-                F.BusAddress &= 0x3FFF;
 
                 F.AddressLatch ^= true;
             }
@@ -115,6 +119,7 @@ namespace dotNES
             {
                 F.BusData = value;
                 WriteByte(F.BusAddress, value);
+                F.BusAddress += F.VRAMIncrement;
             }
         }
     }
