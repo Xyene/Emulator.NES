@@ -25,6 +25,9 @@ namespace dotNES
                 case 0x0002:
                     PPUSTATUS = val;
                     return;
+                case 0x0006:
+                    PPUADDR = val;
+                    return;
             }
 
             throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
@@ -41,6 +44,8 @@ namespace dotNES
                     return (byte) PPUMASK;
                 case 0x0002:
                     return (byte) PPUSTATUS;
+                case 0x0006:
+                    return (byte) PPUADDR;
             }
             throw new NotImplementedException(reg.ToString("X2"));
         }

@@ -34,6 +34,10 @@ namespace dotNES
             public bool VBlankStarted;
             public bool Sprite0Hit;
             public bool SpriteOverflow;
+            public bool AddressLatch;
+
+            /* PPUADDR register */
+            public int BusAddress;
         }
 
         public PPUFlags F = new PPUFlags();
@@ -73,12 +77,23 @@ namespace dotNES
         {
             get
             {
+                F.AddressLatch = false;
                 return (F.VBlankStarted.AsByte() << 7) |
                     (F.Sprite0Hit.AsByte() << 6) |
                     (F.SpriteOverflow.AsByte() << 5) |
                     (_lastWrittenRegister & 0x1F);
             }
             set { throw new NotImplementedException(); }
+        }
+
+        public int PPUADDR
+        {
+            get { throw new NotImplementedException(); }
+            set
+            {
+                F.BusAddress |= value << (F.AddressLatch ? 0 : 8);
+                F.AddressLatch ^= true;
+            }
         }
     }
 }
