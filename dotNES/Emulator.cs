@@ -10,12 +10,12 @@
             this.PPU = new PPU(this);
         }
 
-        public CPU CPU { get; }
+        public readonly CPU CPU;
 
-        public PPU PPU { get; }
+        public readonly PPU PPU;
 
-        public Memory Mapper { get; }
+        public readonly Memory Mapper;
 
-        public Cartridge Cartridge { get; }
+        public readonly Cartridge Cartridge;
     }
 }

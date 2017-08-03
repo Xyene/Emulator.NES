@@ -16,14 +16,14 @@ namespace dotNES
 
         public void ProcessFrame()
         {
-            Console.WriteLine("---Frame---");
+          //  Console.WriteLine("---Frame---");
             for (int i = 0; i < ScanlineCount; i++)
                 ProcessScanline(i);
         }
 
         public void ProcessScanline(int line)
         {
-            Console.WriteLine("---Scanline---");
+            //Console.WriteLine("---Scanline---");
             for (int i = 0; i < CyclesPerLine; i++)
                 ProcessCycle(line, i);
         }
@@ -32,12 +32,12 @@ namespace dotNES
         {
             if (scanline == VBlankSetLine && cycle == 0)
             {
-                Console.WriteLine("---VBlank Set---");
+              //  Console.WriteLine("---VBlank Set---");
                 F.VBlankStarted = true;
             }
             if (scanline == VBlankClearedLine && cycle == 0)
             {
-                Console.WriteLine("---VBlank End---");
+                //Console.WriteLine("---VBlank End---");
                 F.VBlankStarted = false;
             }
 

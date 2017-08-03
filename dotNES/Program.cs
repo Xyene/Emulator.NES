@@ -14,11 +14,11 @@ namespace dotNES
             Console.WriteLine(emu.Cartridge);
             //for (int i = 0; i < 10000; i++)
             //{
-               emu.CPU.Execute();
+            //   emu.CPU.Execute();
             //}
-            emu.PPU.ProcessFrame();
-            emu.PPU.ProcessFrame();
-            emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
+            //emu.PPU.ProcessFrame();
             //emu.PPU.ProcessFrame();
             //emu.PPU.ProcessFrame();
         }
