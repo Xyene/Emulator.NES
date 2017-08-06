@@ -175,7 +175,7 @@ namespace dotNES
 
         private void PerformDMA(int from)
         {
-            Console.WriteLine("OAM DMA");
+            //Console.WriteLine("OAM DMA");
             from <<= 8;
             int OAMADDR = _emulator.PPU.F.OAMAddress;
             for (int i = 0; i <= 0xFF; i++)

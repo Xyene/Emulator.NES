@@ -104,7 +104,7 @@ namespace dotNES
             {
                 int shift = F.AddressLatch ? 0 : 8;
                 F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
-                Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
+                //Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
                 F.AddressLatch ^= true;
             }
         }

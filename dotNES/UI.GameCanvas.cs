@@ -30,6 +30,7 @@ namespace dotNES
 
         const int GameWidth = 256, GameHeight = 240;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
+        private bool ready = false;
 
         public void InitRendering()
         {
@@ -46,19 +47,19 @@ namespace dotNES
             };
 
             Device.CreateWithSwapChain(DriverType.Hardware,
-                                       DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug,
+                                       DeviceCreationFlags.BgraSupport,
                                        new SharpDX.Direct3D.FeatureLevel[] { SharpDX.Direct3D.FeatureLevel.Level_10_0 },
                                        desc,
                                        out device,
                                        out swapChain);
 
             var d2dFactory = new SharpDX.Direct2D1.Factory();
-            
+
             Factory factory = swapChain.GetParent<Factory>();
             factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
-            
+
             Texture2D backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
-            
+
             Surface surface = backBuffer.QueryInterface<Surface>();
 
             d2dRenderTarget = new RenderTarget(d2dFactory, surface,
@@ -70,10 +71,12 @@ namespace dotNES
             factory.Dispose();
             surface.Dispose();
             backBuffer.Dispose();
+            ready = true;
         }
 
         private void DisposeDirect3D()
         {
+            ready = false;
             d2dRenderTarget.Dispose();
             swapChain.Dispose();
             device.Dispose();
@@ -93,8 +96,9 @@ namespace dotNES
             base.OnResize(e);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        public void Draw()
         {
+            if (!ready) return;
             d2dRenderTarget.BeginDraw();
             d2dRenderTarget.Clear(Color.Transparent);
 
@@ -111,6 +115,11 @@ namespace dotNES
 
             d2dRenderTarget.EndDraw();
             swapChain.Present(0, PresentFlags.None);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Draw();
             base.OnPaint(e);
         }
     }
