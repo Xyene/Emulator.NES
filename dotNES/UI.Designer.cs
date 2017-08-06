@@ -37,6 +37,7 @@
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Name = "UI";
             this.Text = "UI";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI_FormClosing);
             this.Load += new System.EventHandler(this.UI_Load);
             this.ResumeLayout(false);
 
