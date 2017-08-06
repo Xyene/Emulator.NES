@@ -17,9 +17,13 @@ namespace dotNES
         private string[] opcodeNames = new string[256];
         private OpcodeDef[] opcodeDefs = new OpcodeDef[256];
 
+        private readonly Func<int, byte> ReadMapperByte;
+
         public CPU(Emulator emulator)
         {
             _emulator = emulator;
+
+            ReadMapperByte = emulator.Mapper.ReadByte;
 
             var opcodeDefs = from opcode in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
                              let defs = opcode.GetCustomAttributes(typeof(OpcodeDef), false)

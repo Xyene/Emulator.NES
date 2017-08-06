@@ -69,25 +69,23 @@ namespace dotNES
         public byte ReadByte(int addr)
         {
             addr &= 0xFFFF;
-            switch (addr & 0xF000)
+
+            if (0x3EFF < addr)
             {
-                case 0x0000:
-                case 0x1000:
-                    return emulator.Cartridge.CHRROM[addr];
-                case 0x2000:
-                    return VRAM[(addr - 0x2000) & 0x7FF];
-                case 0x3000:
-                    if (addr <= 0x3EFF)
-                    {
-                        return VRAM[addr - 0x300];
-                    }
-                    else
-                    {
-                        return PaletteRAM[(addr - 0x3F00) & 0x1F];
-                    }
-                default:
-                    throw new NotImplementedException($"{addr.ToString("X4")}");
+                return PaletteRAM[(addr - 0x3F00) & 0x1F];
             }
+
+            if (addr < 0x2000)
+            {
+                return emulator.Cartridge.CHRROM[addr];
+            }
+
+            if (addr < 0x3000)
+            {
+                return VRAM[(addr - 0x2000) & 0x7FF];
+            }
+
+            return VRAM[addr - 0x3000];
         }
 
         public void WriteByte(int addr, int _val)

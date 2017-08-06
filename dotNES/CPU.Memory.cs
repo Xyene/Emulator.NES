@@ -79,24 +79,28 @@ namespace dotNES
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private sbyte NextSByte() => (sbyte)NextByte();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Push(int what)
         {
             WriteByte(0x100 + SP, what);
             SP--;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private byte Pop()
         {
             SP++;
             return ReadByte(0x100 + SP);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PushWord(int what)
         {
             Push(what >> 8);
             Push(what & 0xFF);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int PopWord() => Pop() | (Pop() << 8);
 
         public byte ReadByte(int addr)
@@ -117,7 +121,7 @@ namespace dotNES
              */
             if (0x401F < addr)
             {
-                return _emulator.Mapper.ReadByte(addr);
+                return ReadMapperByte(addr);
             }
 
             if (addr < 0x1000)
