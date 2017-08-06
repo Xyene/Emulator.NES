@@ -2,7 +2,7 @@
 
 namespace dotNES
 {
-    partial class PPU : IAddressable
+    partial class PPU
     {
         private Emulator emulator;
 

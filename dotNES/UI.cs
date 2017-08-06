@@ -26,7 +26,7 @@ namespace dotNES
         {
             renderer = new Thread(() =>
             {
-                Emulator emu = new Emulator();
+                Emulator emu = new Emulator(@"N:\Emulator-.NES\color_test.nes");
                 Console.WriteLine(emu.Cartridge);
                 while (rendererRunning)
                 {

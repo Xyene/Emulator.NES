@@ -65,7 +65,7 @@ namespace dotNES
         private void PHP() => Push(P | BreakSourceBit);
 
         [OpcodeDef(Opcode = 0x28, Cycles = 4)]
-        private void PLP() => P = Pop() & ~BreakSourceBit;
+        private void PLP() => P = (uint) (Pop() & ~BreakSourceBit);
 
         [OpcodeDef(Opcode = 0x68, Cycles = 4)]
         private void PLA() => A = Pop();
@@ -77,7 +77,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x2C, Mode = Absolute, Cycles = 4)]
         private void BIT()
         {
-            int val = AddressRead();
+            uint val = AddressRead();
             F.Overflow = (val & 0x40) > 0;
             F.Zero = (val & A) == 0;
             F.Negative = (val & 0x80) > 0;
@@ -85,7 +85,7 @@ namespace dotNES
 
         private void Branch(bool cond)
         {
-            int nPC = PC + NextSByte() + 1;
+            uint nPC = (uint) (PC + NextSByte() + 1);
             if (cond)
             {
                 PC = nPC;
@@ -101,7 +101,7 @@ namespace dotNES
                 PC = NextWord();
             else if (currentInstruction == 0x6C)
             {
-                int off = NextWord();
+                uint off = NextWord();
                 // AN INDIRECT JUMP MUST NEVER USE A VECTOR BEGINNING ON THE LAST BYTE OF A PAGE
                 //
                 // If address $3000 contains $40, $30FF contains $80, and $3100 contains $50, 
@@ -110,7 +110,7 @@ namespace dotNES
                 // $30FF and the high byte from $3000.
                 //
                 // http://www.6502.org/tutorials/6502opcodes.html
-                int hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
+                uint hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
                 PC = ReadByte(off) | (ReadByte(hi) << 8);
             }
             else throw new NotImplementedException();
@@ -257,7 +257,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x7D, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
         private void ADC() => ADCImpl(AddressRead());
 
-        private void ADCImpl(int val)
+        private void ADCImpl(uint val)
         {
             int nA = (sbyte)A + (sbyte)val + (sbyte)(F.Carry ? 1 : 0);
             F.Overflow = nA < -128 || nA > 127;
@@ -296,9 +296,9 @@ namespace dotNES
         [OpcodeDef(Opcode = 0xCC, Mode = Absolute, Cycles = 4)]
         private void CPY() => CMPImpl(Y);
 
-        private void CMPImpl(int reg)
+        private void CMPImpl(uint reg)
         {
-            int d = reg - AddressRead();
+            long d = reg - (int)AddressRead();
 
             F.Negative = (d & 0x80) > 0 && d != 0;
             F.Carry = d >= 0;
@@ -312,7 +312,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x4A, Mode = Direct, Cycles = 2)]
         private void LSR()
         {
-            int D = AddressRead();
+            uint D = AddressRead();
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
             _F(D);
@@ -326,7 +326,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x0A, Mode = Direct, Cycles = 2)]
         private void ASL()
         {
-            int D = AddressRead();
+            uint D = AddressRead();
             F.Carry = (D & 0x80) > 0;
             D <<= 1;
             _F(D);
@@ -340,7 +340,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x6A, Mode = Direct, Cycles = 2)]
         private void ROR()
         {
-            int D = AddressRead();
+            uint D = AddressRead();
             bool c = F.Carry;
             F.Carry = (D & 0x1) > 0;
             D >>= 1;
@@ -356,7 +356,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x2A, Mode = Direct, Cycles = 2)]
         private void ROL()
         {
-            int D = AddressRead();
+            uint D = AddressRead();
             bool c = F.Carry;
             F.Carry = (D & 0x80) > 0;
             D <<= 1;

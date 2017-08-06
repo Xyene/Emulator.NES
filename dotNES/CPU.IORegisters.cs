@@ -10,7 +10,7 @@ namespace dotNES
     partial class CPU
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void WriteIORegister(int reg, byte val)
+        public void WriteIORegister(uint reg, byte val)
         {
             switch (reg)
             {
@@ -22,7 +22,7 @@ namespace dotNES
             throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
         }
 
-        public byte ReadIORegister(int reg)
+        public uint ReadIORegister(uint reg)
         {
             return 0xFF;
             //throw new NotImplementedException();

@@ -76,11 +76,14 @@ namespace dotNES
 
         private void DisposeDirect3D()
         {
-            ready = false;
-            d2dRenderTarget.Dispose();
-            swapChain.Dispose();
-            device.Dispose();
-            gameBitmap.Dispose();
+            if (ready)
+            {
+                ready = false;
+                d2dRenderTarget.Dispose();
+                swapChain.Dispose();
+                device.Dispose();
+                gameBitmap.Dispose();
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)

@@ -17,9 +17,9 @@ namespace dotNES
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override byte ReadByte(int addr) => AddressSpace[(addr & 0xFFFF) - 0x6000];
+        public override byte ReadByte(uint addr) => AddressSpace[(addr & 0xFFFF) - 0x6000];
 
-        public override void WriteByte(int addr, int _val)
+        public override void WriteByte(uint addr, uint _val)
         {
             byte val = (byte) _val;
             switch (addr & 0xF000)

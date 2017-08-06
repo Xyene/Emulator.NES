@@ -4,12 +4,12 @@ using System.Reflection;
 
 namespace dotNES
 {
-    partial class CPU : IAddressable
+    partial class CPU
     {
         private readonly Emulator _emulator;
         private readonly byte[] _ram = new byte[0x800];
         private long _cycle;
-        private int currentInstruction;
+        private uint currentInstruction;
 
         delegate void Opcode();
 
@@ -17,7 +17,7 @@ namespace dotNES
         private string[] opcodeNames = new string[256];
         private OpcodeDef[] opcodeDefs = new OpcodeDef[256];
 
-        private readonly Func<int, byte> ReadMapperByte;
+        private readonly Func<uint, byte> ReadMapperByte;
 
         public CPU(Emulator emulator)
         {
@@ -56,7 +56,7 @@ namespace dotNES
             }
 
             
-            byte w;
+            uint w;
             ushort x = 6000;
             string z = "";
             while ((w = ReadByte(x)) != '\0')

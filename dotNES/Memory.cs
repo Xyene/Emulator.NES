@@ -1,6 +1,6 @@
 ﻿namespace dotNES
 {
-    abstract class Memory : IAddressable
+    abstract class Memory
     {
         protected Emulator Emulator;
 
@@ -9,8 +9,8 @@
             this.Emulator = emulator;
         }
 
-        public abstract byte ReadByte(int addr);
+        public abstract byte ReadByte(uint addr);
 
-        public abstract void WriteByte(int addr, int val);
+        public abstract void WriteByte(uint addr, uint val);
     }
 }

@@ -95,7 +95,6 @@
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
     <Compile Include="Emulator.cs" />
-    <Compile Include="IAddressable.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="NROM.cs" />
     <Compile Include="PPU.Core.cs">

@@ -25,31 +25,31 @@ namespace dotNES
 
         public readonly CPUFlags F = new CPUFlags();
 
-        public int _A, _X, _Y, _SP;
-        public int PC { get; private set; }
+        public uint _A, _X, _Y, _SP;
+        public uint PC;
 
-        public int A
+        public uint A
         {
             get => _A;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _A = _F(value & 0xFF); }
         }
 
-        public int X
+        public uint X
         {
             get => _X;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _X = _F(value & 0xFF); }
         }
 
-        public int Y
+        public uint Y
         {
             get => _Y;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private set { _Y = _F(value & 0xFF); }
         }
 
-        public int SP
+        public uint SP
         {
             get => _SP;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,23 +57,23 @@ namespace dotNES
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int _F(int val)
+        private uint _F(uint val)
         {
             F.Zero = (val & 0xFF) == 0;
             F.Negative = (val & 0x80) > 0;
             return val;
         }
 
-        public int P
+        public uint P
         {
-            get => (F.Carry.AsByte() << 0) |
-                   (F.Zero.AsByte() << 1) |
-                   (F.InterruptsDisabled.AsByte() << 2) |
-                   (F.DecimalMode.AsByte() << 3) |
-                   (F.BreakSource.AsByte() << 4) |
-                   (1 << 5) |
-                   (F.Overflow.AsByte() << 6) |
-                   (F.Negative.AsByte() << 7);
+            get => (uint) ((F.Carry.AsByte() << 0) |
+                           (F.Zero.AsByte() << 1) |
+                           (F.InterruptsDisabled.AsByte() << 2) |
+                           (F.DecimalMode.AsByte() << 3) |
+                           (F.BreakSource.AsByte() << 4) |
+                           (1 << 5) |
+                           (F.Overflow.AsByte() << 6) |
+                           (F.Negative.AsByte() << 7));
             set
             {
                 F.Carry = (value & CarryBit) > 0;

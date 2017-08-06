@@ -18,14 +18,14 @@ namespace dotNES
             AbsoluteX,
             AbsoluteY,
             IndirectX,
-            IndirectY,
+            IndirectY
         }
 
-        private int _currentMemoryAddress;
+        private uint? _currentMemoryAddress;
 
-        private void ResetInstructionAddressingMode() => _currentMemoryAddress = -1;
+        private void ResetInstructionAddressingMode() => _currentMemoryAddress = null;
 
-        private int _Address()
+        private uint _Address()
         {
             switch (opcodeDefs[currentInstruction].Mode)
             {
@@ -44,7 +44,7 @@ namespace dotNES
                 case AbsoluteY:
                     return NextWord() + Y;
                 case IndirectX:
-                    int off = (NextByte() + X) & 0xFF;
+                    uint off = (NextByte() + X) & 0xFF;
                     return ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
                 case IndirectY:
                     off = NextByte() & 0xFF;
@@ -53,57 +53,57 @@ namespace dotNES
             throw new NotImplementedException();
         }
 
-        public int AddressRead()
+        public uint AddressRead()
         {
             if (opcodeDefs[currentInstruction].Mode == Direct) return A;
-            if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
-            return ReadByte(_currentMemoryAddress) & 0xFF;
+            if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
+            return ReadByte((uint) _currentMemoryAddress) & 0xFF;
         }
 
-        public void AddressWrite(int val)
+        public void AddressWrite(uint val)
         {
             if (opcodeDefs[currentInstruction].Mode == Direct) A = val;
             else
             {
-                if (_currentMemoryAddress == -1) _currentMemoryAddress = _Address();
-                WriteByte(_currentMemoryAddress, val);
+                if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
+                WriteByte((uint) _currentMemoryAddress, val);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int NextByte() => ReadByte(PC++) & 0xFF;
+        private uint NextByte() => ReadByte(PC++);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int NextWord() => NextByte() | (NextByte() << 8);
+        private uint NextWord() => NextByte() | (NextByte() << 8);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private sbyte NextSByte() => (sbyte)NextByte();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Push(int what)
+        private void Push(uint what)
         {
             WriteByte(0x100 + SP, what);
             SP--;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte Pop()
+        private uint Pop()
         {
             SP++;
             return ReadByte(0x100 + SP);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PushWord(int what)
+        private void PushWord(uint what)
         {
             Push(what >> 8);
             Push(what & 0xFF);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int PopWord() => Pop() | (Pop() << 8);
+        private uint PopWord() => Pop() | (Pop() << 8);
 
-        public byte ReadByte(int addr)
+        public uint ReadByte(uint addr)
         {
             /*
              * Address range 	Size 	Device
@@ -139,7 +139,7 @@ namespace dotNES
             return ReadIORegister(addr - 0x4000);
         }
 
-        public void WriteByte(int addr, int _val)
+        public void WriteByte(uint addr, uint _val)
         {
             byte val = (byte)_val;
             addr &= 0xFFFF;
@@ -154,7 +154,7 @@ namespace dotNES
                 case 0x2000:
                 case 0x3000:
                     // Wrap every 7h bytes
-                    int reg = (addr & 0x7) - 0x2000;
+                    uint reg = (addr & 0x7) - 0x2000;
                     _emulator.PPU.WriteRegister(reg, val);
                     return;
                 case 0x4000:
@@ -178,7 +178,7 @@ namespace dotNES
             int OAMADDR = _emulator.PPU.F.OAMAddress;
             for (int i = 0; i <= 0xFF; i++)
             {
-                _emulator.PPU.OAM[i] = ReadByte(from | ((i + OAMADDR) & 0xFF));
+                _emulator.PPU.OAM[i] = (byte) ReadByte((uint) (from | ((i + OAMADDR) & 0xFF)));
             }
         }
     }
