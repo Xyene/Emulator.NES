@@ -66,17 +66,31 @@ namespace dotNES
 
             var bitmapProperties = new BitmapProperties(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Ignore));
             gameBitmap = new Bitmap(d2dRenderTarget, new Size2(GameWidth, GameHeight), bitmapProperties);
+
+            factory.Dispose();
+            surface.Dispose();
+            backBuffer.Dispose();
+        }
+
+        private void DisposeDirect3D()
+        {
+            d2dRenderTarget.Dispose();
+            swapChain.Dispose();
+            device.Dispose();
+            gameBitmap.Dispose();
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            DisposeDirect3D();
             base.OnClosing(e);
         }
 
         protected override void OnResize(EventArgs e)
         {
-            base.OnResize(e);
+            DisposeDirect3D();
             InitRendering();
+            base.OnResize(e);
         }
 
         protected override void OnPaint(PaintEventArgs e)
