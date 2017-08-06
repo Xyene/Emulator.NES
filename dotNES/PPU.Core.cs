@@ -154,7 +154,7 @@ namespace dotNES
 
         public void ProcessCycle(int scanline, int cycle)
         {
-            if (cycle < 256 && scanline < 240)
+            if (scanline < 240 && cycle < 256)
                 ProcessPixel(cycle, scanline);
 
             if (cycle == 256)
@@ -162,21 +162,24 @@ namespace dotNES
                 CountSpritesOnLine(scanline + 1);
             }
 
-            if (scanline == VBlankSetLine && cycle == 0)
+            if (cycle == 0)
             {
-                // Console.WriteLine("---VBlank Set---");
-                F.VBlankStarted = true;
-                if (F.NMIEnabled)
+                if (scanline == VBlankSetLine)
                 {
-                    this.emulator.CPU.TriggerNMI();
+                    // Console.WriteLine("---VBlank Set---");
+                    F.VBlankStarted = true;
+                    if (F.NMIEnabled)
+                    {
+                        this.emulator.CPU.TriggerNMI();
+                    }
                 }
-            }
 
-            if (scanline == VBlankClearedLine && cycle == 0)
-            {
-                // Console.WriteLine("---VBlank End---");
-                F.VBlankStarted = false;
-                F.Sprite0Hit = false;
+                if (scanline == VBlankClearedLine)
+                {
+                    // Console.WriteLine("---VBlank End---");
+                    F.VBlankStarted = false;
+                    F.Sprite0Hit = false;
+                }
             }
 
             if (CPUSyncCounter + 1 == 3)

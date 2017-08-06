@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using static dotNES.CPU.AddressingMode;
 
 namespace dotNES
@@ -68,11 +69,14 @@ namespace dotNES
                 WriteByte(_currentMemoryAddress, val);
             }
         }
-        
-        private int NextByte() => ReadByte((ushort)PC++) & 0xFF;
 
-        private int NextWord() => (NextByte() | (NextByte() << 8));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int NextByte() => ReadByte(PC++) & 0xFF;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int NextWord() => NextByte() | (NextByte() << 8);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private sbyte NextSByte() => (sbyte)NextByte();
 
         private void Push(int what)
@@ -97,13 +101,6 @@ namespace dotNES
 
         public byte ReadByte(int addr)
         {
-            byte read = _ReadAddress(addr);
-            // Console.WriteLine($"Read from {addr.ToString("X")} = {read}");
-            return read;
-        }
-
-        private byte _ReadAddress(int addr)
-        {
             /*
              * Address range 	Size 	Device
              * $0000-$07FF 	    $0800 	2KB internal RAM
@@ -118,27 +115,24 @@ namespace dotNES
              * 
              * https://wiki.nesdev.com/w/index.php/CPU_memory_map
              */
-            switch (addr & 0xF000)
+            if (0x401F < addr)
             {
-                case 0x0000:
-                case 0x1000:
-                    // Wrap every 7FFh bytes
-                    return _ram[addr & 0x07FF];
-                case 0x2000:
-                case 0x3000:
-                    // Wrap every 7h bytes
-                    int reg = (addr & 0x7) - 0x2000;
-                    return _emulator.PPU.ReadRegister(reg);
-                case 0x4000:
-                    if (addr <= 0x401F)
-                    {
-                        reg = addr - 0x4000;
-                        return ReadIORegister(reg);
-                    }
-                    goto default;
-                default:
-                    return _emulator.Mapper.ReadByte(addr);
+                return _emulator.Mapper.ReadByte(addr);
             }
+
+            if (addr < 0x1000)
+            {
+                // Wrap every 7FFh bytes
+                return _ram[addr & 0x07FF];
+            }
+
+            if (addr < 0x3000)
+            {
+                // Wrap every 7h bytes
+                return _emulator.PPU.ReadRegister((addr & 0x7) - 0x2000);
+            }
+
+            return ReadIORegister(addr - 0x4000);
         }
 
         public void WriteByte(int addr, int _val)
