@@ -83,7 +83,7 @@ namespace dotNES
                     }
                     else
                     {
-                        return PaletteRAM[(addr - 0x3000) & 0x19];
+                        return PaletteRAM[(addr - 0x3F00) & 0x1F];
                     }
                 default:
                     throw new NotImplementedException($"{addr.ToString("X4")}");
@@ -111,7 +111,7 @@ namespace dotNES
                     }
                     else
                     {
-                        PaletteRAM[(addr - 0x3000) & 0x19] = val;
+                        PaletteRAM[(addr - 0x3F00) & 0x1F] = val;
                     }
                     break;
                 default:
