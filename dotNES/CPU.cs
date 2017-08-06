@@ -51,15 +51,15 @@ namespace dotNES
                 ExecuteSingleInstruction();
             }
 
-            /* 
-             * byte w;
-             * ushort x = 6000;
-             * string z = "";
-             * while ((w = ReadAddress(x)) != '\0')
-             * {
-             *    z += (char) w;
-             * }
-             */
+            
+            byte w;
+            ushort x = 6000;
+            string z = "";
+            while ((w = ReadByte(x)) != '\0')
+            {
+               z += (char) w;
+            }
+            
             Console.WriteLine(">>> " + ReadByte(0x02));
         }
     }

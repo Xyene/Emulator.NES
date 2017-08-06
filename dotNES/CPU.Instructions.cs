@@ -268,7 +268,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x00, Cycles = 7)]
         private void BRK()
         {
-            TriggerNMI();
+            //TriggerNMI();
             F.InterruptsDisabled = true;
             NextByte();
             PushWord(PC);

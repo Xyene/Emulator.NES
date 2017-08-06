@@ -46,6 +46,9 @@ namespace dotNES
 
             /* PPUDATA register */
             public int BusData;
+
+            /* OAMADDR register */
+            public int OAMAddress;
         }
 
         public PPUFlags F = new PPUFlags();
@@ -94,7 +97,6 @@ namespace dotNES
             set { throw new NotImplementedException(); }
         }
 
-        private bool firstlatch = false;
         public int PPUADDR
         {
             get { throw new NotImplementedException(); }
@@ -102,7 +104,7 @@ namespace dotNES
             {
                 int shift = F.AddressLatch ? 0 : 8;
                 F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
-                Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")}");
+                Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
                 F.AddressLatch ^= true;
             }
         }
@@ -121,6 +123,12 @@ namespace dotNES
                 WriteByte(F.BusAddress, value);
                 F.BusAddress += F.VRAMIncrement;
             }
+        }
+
+        public int OAMADDR
+        {
+            get { return F.OAMAddress; }
+            set { F.OAMAddress = value; }
         }
     }
 }

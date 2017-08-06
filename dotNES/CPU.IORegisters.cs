@@ -10,13 +10,20 @@ namespace dotNES
     {
         public void WriteIORegister(int reg, byte val)
         {
+            switch (reg)
+            {
+                case 0x0014: // OAM DMA
+                    PerformDMA(val);
+                    break;
+            }
             if (0x0000 <= reg && reg <= 0x0017) return; // APU write
             throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
         }
 
         public byte ReadIORegister(int reg)
         {
-            throw new NotImplementedException();
+            return 0xFF;
+            //throw new NotImplementedException();
         }
     }
 }

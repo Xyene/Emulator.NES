@@ -8,7 +8,7 @@ namespace dotNES
 {
     partial class PPU
     {
-        private byte[] OAM = new byte[256];
+        public byte[] OAM = new byte[256];
         private byte[] VRAM = new byte[0x800];
         private byte[] PaletteRAM = new byte[0x20];
 
@@ -29,6 +29,11 @@ namespace dotNES
                 case 0x0002:
                     PPUSTATUS = val;
                     return;
+                case 0x0003:
+                    OAMADDR = val;
+                    return;
+                case 0x005:
+                    return; // TODO
                 case 0x0006:
                     PPUADDR = val;
                     return;
@@ -51,6 +56,8 @@ namespace dotNES
                     return (byte)PPUMASK;
                 case 0x0002:
                     return (byte)PPUSTATUS;
+                case 0x0003:
+                    return (byte)OAMADDR;
                 case 0x0006:
                     return (byte)PPUADDR;
                 case 0x0007:
@@ -62,7 +69,25 @@ namespace dotNES
         public byte ReadByte(int addr)
         {
             addr &= 0xFFFF;
-            throw new NotImplementedException();
+            switch (addr & 0xF000)
+            {
+                case 0x0000:
+                case 0x1000:
+                    return emulator.Cartridge.CHRROM[addr];
+                case 0x2000:
+                    return VRAM[(addr - 0x2000) & 0x7FF];
+                case 0x3000:
+                    if (addr <= 0x3EFF)
+                    {
+                        return VRAM[addr - 0x300];
+                    }
+                    else
+                    {
+                        return PaletteRAM[(addr - 0x3000) & 0x19];
+                    }
+                default:
+                    throw new NotImplementedException($"{addr.ToString("X4")}");
+            }
         }
 
         public void WriteByte(int addr, int _val)
