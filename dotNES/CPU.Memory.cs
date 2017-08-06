@@ -180,6 +180,7 @@ namespace dotNES
             {
                 _emulator.PPU.OAM[i] = (byte) ReadByte((uint) (from | ((i + OAMADDR) & 0xFF)));
             }
+            _cycle += 513;
         }
     }
 }

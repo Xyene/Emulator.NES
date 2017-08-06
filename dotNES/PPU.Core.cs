@@ -184,7 +184,7 @@ namespace dotNES
 
             if (CPUSyncCounter + 1 == 3)
             {
-                emulator.CPU.ExecuteSingleInstruction();
+                emulator.CPU.TickFromPPU();
                 CPUSyncCounter = 0;
             }
             else CPUSyncCounter++;

@@ -24,6 +24,13 @@ namespace dotNES
 
         private bool NMI = false;
         private int _numExecuted = 0;
+
+        public void TickFromPPU()
+        {
+            if (_cycle-- > 0) return;
+            ExecuteSingleInstruction();
+        }
+
         public void ExecuteSingleInstruction()
         {
             if (NMI)
