@@ -24,7 +24,7 @@ namespace dotNES
 
         public uint ReadIORegister(uint reg)
         {
-            return 0xFF;
+            return 0x00;
             //throw new NotImplementedException();
         }
     }

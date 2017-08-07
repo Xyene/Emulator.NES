@@ -28,15 +28,16 @@ namespace dotNES
             {
                 Emulator emu = new Emulator(@"N:\Emulator-.NES\donkeykong.nes");
                 Console.WriteLine(emu.Cartridge);
+                var go = (MethodInvoker) delegate { Draw(); };
+                Stopwatch s = new Stopwatch();
                 while (rendererRunning)
                 {
-                    Stopwatch s = new Stopwatch();
-                    s.Start();
+                    s.Restart();
                     for (int i = 0; i < 60; i++)
                     {
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.rawBitmap;
-                        Invoke((MethodInvoker)delegate { Draw(); });
+                        Invoke(go);
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");

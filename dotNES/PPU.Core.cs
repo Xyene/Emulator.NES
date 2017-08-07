@@ -30,7 +30,7 @@ namespace dotNES
         private int CPUSyncCounter = 2;
         private int[] scanlineOAM = new int[8 * 4];
         private int spriteCount;
-
+    
         public void ProcessPixel(int x, int y)
         {
             if (F.DrawBackground)
@@ -82,7 +82,7 @@ namespace dotNES
             // ++--------  Color bits 3 - 2 for bottom right quadrant of this byte
             // value = (topleft << 0) | (topright << 2) | (bottomleft << 4) | (bottomright << 6)   
 
-            int palette = (attributeTableEntry >> (((tileX & 1) << 1) | (tileY & 1) << 2)) & 0x3;
+            int palette = (attributeTableEntry >> ((tileX & 2) | ((tileY & 2) << 1))) & 0x3;
 
             int tileIdx = ReadByte(nametableAddressBase + tileY * 32 + tileX) * 16;
 
@@ -93,15 +93,17 @@ namespace dotNES
             int color =
                 (
                     (
-                        ReadByte(address + 8) >> (6 - logicalX)
-                    ) & 0x2 // this is the upper bit of the color number
-                )
-                |
+                        (
+                            // fetch upper bit from 2nd bit plane
+                            ReadByte(address + 8) & (0x80 >> logicalX)
+                        ) >> (7 - logicalX)
+                    ) << 1 // this is the upper bit of the color number
+                ) |
                 (
                     (
-                        ReadByte(address) >> (7 - logicalX)
-                    ) & 0x1 // this is the lower bit of the color number
-                );
+                        ReadByte(address) & (0x80 >> logicalX)
+                    ) >> (7 - logicalX)
+                ); // << 0, this is the lower bit of the color number
 
             if (color == 0)
             {
@@ -151,15 +153,17 @@ namespace dotNES
                 int color =
                     (
                         (
-                            ReadByte(address + 8) >> (6 - logicalX)
-                        ) & 0x2 // this is the upper bit of the color number
-                    )
-                        |
+                            (
+                                // fetch upper bit from 2nd bit plane
+                                ReadByte(address + 8) & (0x80 >> logicalX)
+                            ) >> (7 - logicalX)
+                        ) << 1 // this is the upper bit of the color number
+                    ) |
                     (
                         (
-                            ReadByte(address) >> (7 - logicalX)
-                        ) & 0x1 // this is the lower bit of the color number
-                    ); 
+                            ReadByte(address) & (0x80 >> logicalX)
+                        ) >> (7 - logicalX)
+                    ); // << 0, this is the lower bit of the color number
 
                 if (color > 0)
                 {
