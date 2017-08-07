@@ -10,7 +10,7 @@ namespace dotNES
     {
         const int GameWidth = 256, GameHeight = 240;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
-        public int[] bg = new int[GameWidth * GameHeight];
+        public int[] priority = new int[GameWidth * GameHeight];
 
         // TODO: use real chroma/luma decoding
         private uint[] Palette = {
@@ -61,11 +61,53 @@ namespace dotNES
 
         private void ProcessBackgroundForPixel(int x, int y)
         {
-            int color = 0;
-            int palette = 1;
+            // TODO: scroll?
+            int tileX = x / 8;
+            int tileY = y / 8;
 
-            rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + 4 * palette + color) & 0x3F];
-            bg[y * GameWidth + x] = color;
+            // TODO: handle mirroring etc.
+            int nametableAddressBase = 0x2000;
+            int attributeTableAddressBase = nametableAddressBase + 0x3C0; // 960 bytes followed by attribs
+
+            byte attributeTableEntry = ReadByte(attributeTableAddressBase + (tileY >> 2) * 8 + (tileX >> 2));
+
+            // 7654 3210
+            // |||| || ++- Color bits 3 - 2 for top left quadrant of this byte
+            // |||| ++---  Color bits 3 - 2 for top right quadrant of this byte
+            // || ++------ Color bits 3 - 2 for bottom left quadrant of this byte
+            // ++--------  Color bits 3 - 2 for bottom right quadrant of this byte
+            // value = (topleft << 0) | (topright << 2) | (bottomleft << 4) | (bottomright << 6)   
+
+            int palette = (attributeTableEntry >> (((tileX & 1) << 1) | (tileY & 1) << 2)) & 0x3;
+
+            int tileIdx = ReadByte(nametableAddressBase + tileY * 32 + tileX) * 16;
+
+            int logicalX = x % 8;
+            int logicalLine = y % 8;
+            int address = F.PatternTableAddress + tileIdx + logicalLine;
+
+            int color =
+                (
+                    (
+                        (
+                            // fetch upper bit from 2nd bit plane
+                            ReadByte(address + 8) & (0x80 >> logicalX)
+                        ) >> (7 - logicalX)
+                    ) << 1 // this is the upper bit of the color number
+                ) |
+                (
+                    (
+                        ReadByte(address) & (0x80 >> logicalX)
+                    ) >> (7 - logicalX)
+                ); // << 0, this is the lower bit of the color number
+
+            if (color == 0)
+            {
+                palette = 0;
+            }
+
+            priority[y * GameWidth + x] = color;
+            rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + palette * 4 + color) & 0x3F];
         }
 
         private void ProcessSpritesForPixel(int x, int scanline)
@@ -121,7 +163,7 @@ namespace dotNES
 
                 if (color > 0)
                 {
-                    int backgroundPixel = bg[scanline * GameWidth + x];
+                    int backgroundPixel = priority[scanline * GameWidth + x];
                     // Sprite 0 hits...
                     if (!(idx != 0 || // do not occur on not-0 sprite (TODO: this isn't the real sprite 0)
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
