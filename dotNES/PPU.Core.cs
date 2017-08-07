@@ -82,8 +82,8 @@ namespace dotNES
 
             int tileIdx = ReadByte(nametableAddressBase + tileY * 32 + tileX) * 16;
 
-            int logicalX = x % 8;
-            int logicalLine = y % 8;
+            int logicalX = x & 7;
+            int logicalLine = y & 7;
             int address = F.PatternTableAddress + tileIdx + logicalLine;
 
             int color =
