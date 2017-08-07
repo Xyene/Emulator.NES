@@ -63,6 +63,8 @@ namespace dotNES
 
         private void ProcessBackgroundForPixel(int x, int y)
         {
+            if (x < 8 && !F.DrawLeftBackground) return;
+
             // TODO: scroll?
             int tileX = x / 8;
             int tileY = y / 8;
