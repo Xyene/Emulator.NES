@@ -27,6 +27,7 @@ namespace dotNES
         SwapChain swapChain;
         RenderTarget d2dRenderTarget;
         Bitmap gameBitmap;
+        RawRectangleF clientArea;
 
         const int GameWidth = 256, GameHeight = 240;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
@@ -68,6 +69,14 @@ namespace dotNES
             var bitmapProperties = new BitmapProperties(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Ignore));
             gameBitmap = new Bitmap(d2dRenderTarget, new Size2(GameWidth, GameHeight), bitmapProperties);
 
+            clientArea = new RawRectangleF()
+            {
+                Left = 0,
+                Top = 0,
+                Bottom = ClientSize.Height,
+                Right = ClientSize.Width
+            };
+
             factory.Dispose();
             surface.Dispose();
             backBuffer.Dispose();
@@ -108,13 +117,7 @@ namespace dotNES
             int stride = GameWidth * 4;
             gameBitmap.CopyFromMemory(rawBitmap, stride);
 
-            d2dRenderTarget.DrawBitmap(gameBitmap, new RawRectangleF()
-            {
-                Left = 0,
-                Top = 0,
-                Bottom = ClientSize.Height,
-                Right = ClientSize.Width
-            }, 1f, BitmapInterpolationMode.NearestNeighbor);
+            d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f, BitmapInterpolationMode.Linear);
 
             d2dRenderTarget.EndDraw();
             swapChain.Present(0, PresentFlags.None);
