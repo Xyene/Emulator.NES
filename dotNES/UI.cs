@@ -31,7 +31,7 @@ namespace dotNES
                 string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\donkeykong.nes";
                 Emulator emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
-                var go = (MethodInvoker) delegate { Draw(); };
+                var go = (MethodInvoker) Draw;
                 Stopwatch s = new Stopwatch();
                 while (rendererRunning)
                 {
