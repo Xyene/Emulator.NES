@@ -2,13 +2,16 @@
 {
     class Emulator
     {
-        public Emulator(string path)
+        public Emulator(string path, NES001Controller controller)
         {
-            this.Cartridge = new Cartridge(path);
-            this.Mapper = new NROM(this);
-            this.CPU = new CPU(this);
-            this.PPU = new PPU(this);
+            Cartridge = new Cartridge(path);
+            Mapper = new NROM(this);
+            CPU = new CPU(this);
+            PPU = new PPU(this);
+            Controller = controller;
         }
+
+        public NES001Controller Controller;
 
         public readonly CPU CPU;
 

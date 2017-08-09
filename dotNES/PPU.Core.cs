@@ -33,10 +33,10 @@ namespace dotNES
     
         public void ProcessPixel(int x, int y)
         {
-            if (F.DrawBackground)
+             if (F.DrawBackground)
                 ProcessBackgroundForPixel(x, y);
-            if (F.DrawSprites)
-                ProcessSpritesForPixel(x, y);
+             if (F.DrawSprites)
+                 ProcessSpritesForPixel(x, y);
         }
 
         private void CountSpritesOnLine(int scanline)

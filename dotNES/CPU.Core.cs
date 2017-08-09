@@ -22,7 +22,7 @@ namespace dotNES
             F.InterruptsDisabled = true;
         }
 
-        private bool NMI = false;
+        public bool NMI = false;
         private int _numExecuted = 0;
 
         public void TickFromPPU()

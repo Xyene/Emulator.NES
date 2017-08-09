@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="Emulator.cs" />
     <Compile Include="Memory.cs" />
+    <Compile Include="NES001Controller.cs" />
     <Compile Include="NROM.cs" />
     <Compile Include="PPU.Core.cs">
       <DependentUpon>PPU.cs</DependentUpon>

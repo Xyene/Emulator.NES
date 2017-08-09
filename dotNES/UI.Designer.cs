@@ -39,6 +39,8 @@
             this.Text = "UI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI_FormClosing);
             this.Load += new System.EventHandler(this.UI_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.UI_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.UI_KeyUp);
             this.ResumeLayout(false);
 
         }

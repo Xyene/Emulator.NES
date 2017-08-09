@@ -16,6 +16,7 @@ namespace dotNES
     {
         private bool rendererRunning = true;
         private Thread renderer;
+        private NES001Controller controller = new NES001Controller();
 
         public UI()
         {
@@ -26,7 +27,7 @@ namespace dotNES
         {
             renderer = new Thread(() =>
             {
-                Emulator emu = new Emulator(@"N:\Emulator-.NES\donkeykong.nes");
+                Emulator emu = new Emulator(@"N:\Emulator-.NES\donkeykong.nes", controller);
                 Console.WriteLine(emu.Cartridge);
                 var go = (MethodInvoker) delegate { Draw(); };
                 Stopwatch s = new Stopwatch();
@@ -38,6 +39,7 @@ namespace dotNES
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.rawBitmap;
                         Invoke(go);
+                        Thread.Sleep(500/60);
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
@@ -50,6 +52,16 @@ namespace dotNES
         {
             rendererRunning = false;
             renderer.Abort();
+        }
+
+        private void UI_KeyDown(object sender, KeyEventArgs e)
+        {
+            controller.PressKey(e);
+        }
+
+        private void UI_KeyUp(object sender, KeyEventArgs e)
+        {
+            controller.ReleaseKey(e);
         }
     }
 }

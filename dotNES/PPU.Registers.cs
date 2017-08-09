@@ -89,10 +89,12 @@ namespace dotNES
             get
             {
                 F.AddressLatch = false;
-                return (F.VBlankStarted.AsByte() << 7) |
+                var ret = (F.VBlankStarted.AsByte() << 7) |
                     (F.Sprite0Hit.AsByte() << 6) |
                     (F.SpriteOverflow.AsByte() << 5) |
                     (_lastWrittenRegister & 0x1F);
+                F.VBlankStarted = false;
+                return ret;
             }
             set { throw new NotImplementedException(); }
         }
