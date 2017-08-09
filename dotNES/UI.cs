@@ -31,7 +31,6 @@ namespace dotNES
                 string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\donkeykong.nes";
                 Emulator emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
-                var go = (MethodInvoker) Draw;
                 Stopwatch s = new Stopwatch();
                 while (rendererRunning)
                 {
@@ -40,7 +39,7 @@ namespace dotNES
                     {
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.rawBitmap;
-                        Invoke(go);
+                        Invoke((MethodInvoker)Draw);
                         Thread.Sleep(500/60);
                     }
                     s.Stop();
