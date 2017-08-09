@@ -27,7 +27,9 @@ namespace dotNES
         {
             renderer = new Thread(() =>
             {
-                Emulator emu = new Emulator(@"N:\Emulator-.NES\donkeykong.nes", controller);
+                string[] args = Environment.GetCommandLineArgs();
+                string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\donkeykong.nes";
+                Emulator emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 var go = (MethodInvoker) delegate { Draw(); };
                 Stopwatch s = new Stopwatch();
