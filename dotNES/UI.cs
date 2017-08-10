@@ -28,7 +28,7 @@ namespace dotNES
             renderer = new Thread(() =>
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\smb.nes";
+                string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\xyene.nes";
                 Emulator emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();

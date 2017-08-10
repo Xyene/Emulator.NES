@@ -30,13 +30,12 @@ namespace dotNES
         private int CPUSyncCounter = 2;
         private int[] scanlineOAM = new int[8 * 4];
         private int spriteCount;
-    
+
         public void ProcessPixel(int x, int y)
         {
-             if (F.DrawBackground)
-                ProcessBackgroundForPixel(x, y);
-             if (F.DrawSprites)
-                 ProcessSpritesForPixel(x, y);
+            ProcessBackgroundForPixel(x, y);
+            if (F.DrawSprites)
+                ProcessSpritesForPixel(x, y);
         }
 
         private void CountSpritesOnLine(int scanline)
@@ -63,7 +62,12 @@ namespace dotNES
 
         private void ProcessBackgroundForPixel(int x, int y)
         {
-            if (x < 8 && !F.DrawLeftBackground) return;
+            if (x < 8 && !F.DrawLeftBackground || !F.DrawBackground)
+            {
+
+                rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? (F.BusAddress & 0x001F) : 0)) & 0x3F];
+                return;
+            }
 
             // TODO: scroll?
             int tileX = (x + F.ScrollX) / 8;
