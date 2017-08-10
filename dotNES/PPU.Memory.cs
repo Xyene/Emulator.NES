@@ -33,7 +33,8 @@ namespace dotNES
                     OAMADDR = val;
                     return;
                 case 0x005:
-                    return; // TODO
+                    PPUSCROLL = val;
+                    return;
                 case 0x0006:
                     PPUADDR = val;
                     return;
@@ -58,6 +59,8 @@ namespace dotNES
                     return (byte)PPUSTATUS;
                 case 0x0003:
                     return (byte)OAMADDR;
+                case 0x0005:
+                    return (byte)PPUSCROLL;
                 case 0x0006:
                     return (byte)PPUADDR;
                 case 0x0007:

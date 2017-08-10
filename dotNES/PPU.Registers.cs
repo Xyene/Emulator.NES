@@ -49,6 +49,10 @@ namespace dotNES
 
             /* OAMADDR register */
             public int OAMAddress;
+
+            /* PPUSCROLL registers */
+            public int ScrollX;
+            public int ScrollY;
         }
 
         public PPUFlags F = new PPUFlags();
@@ -89,6 +93,7 @@ namespace dotNES
             get
             {
                 F.AddressLatch = false;
+                F.BusAddress = 0;
                 var ret = (F.VBlankStarted.AsByte() << 7) |
                     (F.Sprite0Hit.AsByte() << 6) |
                     (F.SpriteOverflow.AsByte() << 5) |
@@ -107,6 +112,17 @@ namespace dotNES
                 int shift = F.AddressLatch ? 0 : 8;
                 F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
                 //Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
+                F.AddressLatch ^= true;
+            }
+        }
+
+        public int PPUSCROLL
+        {
+            get { throw new NotImplementedException(); }
+            set
+            {
+                if (F.AddressLatch) F.ScrollY = value;
+                else F.ScrollX = value;
                 F.AddressLatch ^= true;
             }
         }

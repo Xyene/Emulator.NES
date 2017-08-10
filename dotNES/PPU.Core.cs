@@ -66,8 +66,8 @@ namespace dotNES
             if (x < 8 && !F.DrawLeftBackground) return;
 
             // TODO: scroll?
-            int tileX = x / 8;
-            int tileY = y / 8;
+            int tileX = (x + F.ScrollX) / 8;
+            int tileY = (y + F.ScrollY) / 8;
 
             // TODO: handle mirroring etc.
             int nametableAddressBase = 0x2000;
@@ -118,8 +118,8 @@ namespace dotNES
         {
             for (int idx = 0; idx < spriteCount * 4; idx += 4)
             {
-                int spriteX = scanlineOAM[idx + 3];
-                int spriteY = scanlineOAM[idx] + 1;
+                int spriteX = scanlineOAM[idx + 3] + F.ScrollX;
+                int spriteY = scanlineOAM[idx] + 1 + F.ScrollY;
 
                 // Don't draw this sprite if...
                 if (spriteY == 0 || // it's located at y = 0
@@ -187,6 +187,9 @@ namespace dotNES
         public void ProcessFrame()
         {
             // Console.WriteLine("---Frame---");
+            rawBitmap.Fill((uint)0);
+            priority.Fill(0);
+
             for (int i = 0; i < ScanlineCount; i++)
                 ProcessScanline(i);
         }
