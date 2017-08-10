@@ -71,8 +71,6 @@ namespace dotNES
 
         public byte ReadByte(int addr)
         {
-            addr &= 0xFFFF;
-
             if (0x3EFF < addr)
             {
                 if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)

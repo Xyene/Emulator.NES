@@ -127,11 +127,18 @@ namespace dotNES
             }
         }
 
+        private byte ReadBuffer;
         public int PPUDATA
         {
             get
             {
                 byte ret = ReadByte(F.BusAddress);
+                if (F.BusAddress < 0x3EFF)
+                {
+                    byte temp = ReadBuffer;
+                    ReadBuffer = ret;
+                    ret = temp;
+                }
                 F.BusAddress += F.VRAMIncrement;
                 return ret;
             }

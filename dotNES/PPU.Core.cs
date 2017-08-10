@@ -76,7 +76,7 @@ namespace dotNES
             int tileY = (y + F.ScrollY) / 8;
 
             // TODO: handle mirroring etc.
-            int nametableAddressBase = 0x2000;
+            int nametableAddressBase = F.NametableAddress;
             int attributeTableAddressBase = nametableAddressBase + 0x3C0; // 960 bytes followed by attribs
 
             byte attributeTableEntry = ReadByte(attributeTableAddressBase + (tileY >> 2) * 8 + (tileX >> 2));
