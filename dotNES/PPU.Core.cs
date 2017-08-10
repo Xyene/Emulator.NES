@@ -64,8 +64,10 @@ namespace dotNES
         {
             if (x < 8 && !F.DrawLeftBackground || !F.DrawBackground)
             {
-
-                rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? (F.BusAddress & 0x001F) : 0)) & 0x3F];
+                // Maximally sketchy: if current address is in the PPU palette, then it draws that palette entry if rendering is disabled
+                // Otherwise, it draws $3F00 (universal bg color)
+                // https://www.romhacking.net/forum/index.php?topic=20554.0
+                rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? F.BusAddress & 0x001F : 0)) & 0x3F];
                 return;
             }
 
