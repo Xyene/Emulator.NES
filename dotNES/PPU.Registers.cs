@@ -48,7 +48,12 @@ namespace dotNES
             public int BusData;
 
             /* OAMADDR register */
-            public int OAMAddress;
+            private int _oamAddress;
+            public int OAMAddress
+            {
+                get => _oamAddress;
+                set => _oamAddress = value & 0xFF;
+            }
 
             /* PPUSCROLL registers */
             public int ScrollX;
@@ -154,6 +159,16 @@ namespace dotNES
         {
             get { return F.OAMAddress; }
             set { F.OAMAddress = value; }
+        }
+
+        public int OAMDATA
+        {
+            get { return OAM[F.OAMAddress]; }
+            set
+            {
+                OAM[F.OAMAddress] = (byte)value;
+                F.OAMAddress++;
+            }
         }
     }
 }
