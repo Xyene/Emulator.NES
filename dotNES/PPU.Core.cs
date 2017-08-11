@@ -73,12 +73,26 @@ namespace dotNES
                 return;
             }
 
-            // TODO: scroll?
-            int tileX = (x + F.ScrollX) / 8;
-            int tileY = (y + F.ScrollY) / 8;
+            int nametable = 0;
+            
+            int coarseX = x + F.ScrollX;
+            if (coarseX >= GameWidth)
+            {
+                nametable |= 0x1;
+                coarseX %= GameWidth;
+            }
 
-            // TODO: handle mirroring etc.
-            int nametableAddressBase = F.NametableAddress;
+            int coarseY = y + F.ScrollY;
+            if (coarseY >= GameHeight)
+            {
+                nametable |= 0x2;
+                coarseY %= GameHeight;
+            }
+
+            int tileX = coarseX / 8;
+            int tileY = coarseY / 8;
+            
+            int nametableAddressBase = F.NametableAddress + nametable * 0x400;
             int attributeTableAddressBase = nametableAddressBase + 0x3C0; // 960 bytes followed by attribs
 
             byte attributeTableEntry = ReadByte(attributeTableAddressBase + (tileY >> 2) * 8 + (tileX >> 2));
@@ -177,13 +191,12 @@ namespace dotNES
                 {
                     int backgroundPixel = priority[scanline * GameWidth + x];
                     // Sprite 0 hits...
-                    if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite (TODO: this isn't the real sprite 0)
+                    if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
                           backgroundPixel == 0 || // or if bg pixel is transparent
                           F.Sprite0Hit || // or if it fired this frame already
                           x == 255)) // or if x is 255, "for an obscure reason related to the pixel pipeline"
                         F.Sprite0Hit = true;
-
                     if (front || backgroundPixel == 0)
                     {
                         rawBitmap[scanline * GameWidth + x] = Palette[ReadByte(0x3F10 + palette * 4 + color) & 0x3F];
