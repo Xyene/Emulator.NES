@@ -105,6 +105,7 @@ namespace dotNES
 
         public uint ReadByte(uint addr)
         {
+            addr &= 0xFFFF;
             /*
              * Address range 	Size 	Device
              * $0000-$07FF 	    $0800 	2KB internal RAM
@@ -124,13 +125,13 @@ namespace dotNES
                 return ReadMapperByte(addr);
             }
 
-            if (addr < 0x1000)
+            if (addr < 0x2000)
             {
                 // Wrap every 7FFh bytes
                 return _ram[addr & 0x07FF];
             }
 
-            if (addr < 0x3000)
+            if (addr < 0x4000)
             {
                 // Wrap every 7h bytes
                 return _emulator.PPU.ReadRegister((addr & 0x7) - 0x2000);
