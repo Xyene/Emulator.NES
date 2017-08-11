@@ -27,7 +27,8 @@ namespace dotNES
 
         private uint _Address()
         {
-            switch (opcodeDefs[currentInstruction].Mode)
+            var def = opcodeDefs[currentInstruction];
+            switch (def.Mode)
             {
                 case Immediate:
                     return PC++;
@@ -40,15 +41,21 @@ namespace dotNES
                 case ZeroPageY:
                     return (NextByte() + Y) & 0xFF;
                 case AbsoluteX:
-                    return NextWord() + X;
+                    uint addr = NextWord();
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + X) & 0xFF00)) _cycle += 1;
+                    return addr + X;
                 case AbsoluteY:
-                    return NextWord() + Y;
+                    addr = NextWord();
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) _cycle += 1;
+                    return addr + Y;
                 case IndirectX:
                     uint off = (NextByte() + X) & 0xFF;
                     return ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
                 case IndirectY:
                     off = NextByte() & 0xFF;
-                    return ((ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8)) + Y) & 0xFFFF;
+                    addr = ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) _cycle += 1;
+                    return (addr + Y) & 0xFFFF;
             }
             throw new NotImplementedException();
         }
@@ -57,7 +64,7 @@ namespace dotNES
         {
             if (opcodeDefs[currentInstruction].Mode == Direct) return A;
             if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
-            return ReadByte((uint) _currentMemoryAddress) & 0xFF;
+            return ReadByte((uint)_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(uint val)
@@ -66,7 +73,7 @@ namespace dotNES
             else
             {
                 if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
-                WriteByte((uint) _currentMemoryAddress, val);
+                WriteByte((uint)_currentMemoryAddress, val);
             }
         }
 
@@ -179,7 +186,7 @@ namespace dotNES
             int OAMADDR = _emulator.PPU.F.OAMAddress;
             for (int i = 0; i <= 0xFF; i++)
             {
-                _emulator.PPU.OAM[i] = (byte) ReadByte((uint) (from | ((i + OAMADDR) & 0xFF)));
+                _emulator.PPU.OAM[i] = (byte)ReadByte((uint)(from | ((i + OAMADDR) & 0xFF)));
             }
             _cycle += 513;
         }

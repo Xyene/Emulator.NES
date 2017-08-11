@@ -111,7 +111,10 @@ namespace dotNES
                 //
                 // http://www.6502.org/tutorials/6502opcodes.html
                 uint hi = (off & 0xFF) == 0xFF ? off - 0xFF : off + 1;
+                uint oldPC = PC;
                 PC = ReadByte(off) | (ReadByte(hi) << 8);
+
+                if ((oldPC & 0xFF00) != (PC & 0xFF00)) _cycle += 2;
             }
             else throw new NotImplementedException();
         }
