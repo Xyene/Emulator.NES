@@ -124,8 +124,8 @@ namespace dotNES
         {
             for (int idx = 0; idx < spriteCount * 4; idx += 4)
             {
-                int spriteX = scanlineOAM[idx + 3] + F.ScrollX;
-                int spriteY = scanlineOAM[idx] + 1 + F.ScrollY;
+                int spriteX = scanlineOAM[idx + 3];
+                int spriteY = scanlineOAM[idx] + 1;
 
                 // Don't draw this sprite if...
                 if (spriteY == 0 || // it's located at y = 0
