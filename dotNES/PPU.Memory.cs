@@ -26,9 +26,7 @@ namespace dotNES
                 case 0x0001:
                     PPUMASK = val;
                     return;
-                case 0x0002:
-                    PPUSTATUS = val;
-                    return;
+                case 0x0002: return;
                 case 0x0003:
                     OAMADDR = val;
                     return;
@@ -54,20 +52,16 @@ namespace dotNES
             reg &= 0xF;
             switch (reg)
             {
-                case 0x0000:
-                    return (byte)PPUCTRL;
-                case 0x0001:
-                    return (byte)PPUMASK;
+                case 0x0000: return (byte) _lastWrittenRegister;
+                case 0x0001: return (byte)_lastWrittenRegister;
                 case 0x0002:
                     return (byte)PPUSTATUS;
                 case 0x0003:
                     return (byte)OAMADDR;
                 case 0x0004:
                     return (byte)OAMDATA;
-                case 0x0005:
-                    return (byte)PPUSCROLL;
-                case 0x0006:
-                    return (byte)PPUADDR;
+                case 0x0005: return (byte) _lastWrittenRegister;
+                case 0x0006: return (byte) _lastWrittenRegister;
                 case 0x0007:
                     return (byte)PPUDATA;
             }

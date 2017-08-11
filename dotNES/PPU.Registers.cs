@@ -64,7 +64,6 @@ namespace dotNES
 
         public int PPUCTRL
         {
-            get { throw new NotImplementedException(); }
             set
             {
                 F.NMIEnabled = (value & 0x80) > 0;
@@ -79,7 +78,6 @@ namespace dotNES
 
         public int PPUMASK
         {
-            get { throw new NotImplementedException(); }
             set
             {
                 F.GrayscaleEnabled = (value & 0x1) > 0;
@@ -106,12 +104,10 @@ namespace dotNES
                 F.VBlankStarted = false;
                 return ret;
             }
-            set { throw new NotImplementedException(); }
         }
 
         public int PPUADDR
         {
-            get { throw new NotImplementedException(); }
             set
             {
                 int shift = F.AddressLatch ? 0 : 8;
@@ -123,7 +119,6 @@ namespace dotNES
 
         public int PPUSCROLL
         {
-            get { throw new NotImplementedException(); }
             set
             {
                 if (F.AddressLatch) F.ScrollY = value;
