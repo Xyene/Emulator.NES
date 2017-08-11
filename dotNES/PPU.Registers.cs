@@ -112,6 +112,14 @@ namespace dotNES
             {
                 int shift = F.AddressLatch ? 0 : 8;
                 F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
+                // Horrifying hack to get SMB working until I implement proper scrolling
+                // Found on http://forums.nesdev.com/viewtopic.php?t=5365
+                if (F.BusAddress == 0)
+                {
+                    F.ScrollX = 0;
+                    F.ScrollY = 0;
+                    F.NametableAddress = 0x2000;
+                }
                 //Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
                 F.AddressLatch ^= true;
             }
