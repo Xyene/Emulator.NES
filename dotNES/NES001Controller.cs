@@ -48,8 +48,7 @@ namespace dotNES
         public void PressKey(KeyEventArgs e)
         {
             if (!keyMapping.ContainsKey(e.KeyCode)) return;
-            data |= (1 << keyMapping[e.KeyCode]);
-            Console.WriteLine(data.ToString("X4"));
+            data |= 1 << keyMapping[e.KeyCode];
         }
 
         public void ReleaseKey(KeyEventArgs e)

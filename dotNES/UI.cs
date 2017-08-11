@@ -28,19 +28,22 @@ namespace dotNES
             renderer = new Thread(() =>
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\smb.nes";
+                string rom = args.Length > 1 ? args[1] : @"N:\Emulator-.NES\donkeykong.nes";
                 Emulator emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();
+                Stopwatch s0 = new Stopwatch();
                 while (rendererRunning)
                 {
                     s.Restart();
                     for (int i = 0; i < 60; i++)
                     {
+                        s0.Restart();
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.rawBitmap;
                         Invoke((MethodInvoker)Draw);
-                        Thread.Sleep(500/60);
+                        s0.Stop();
+                        Thread.Sleep(Math.Max((int) (980/60.0 - s0.ElapsedMilliseconds), 0));
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
