@@ -29,6 +29,7 @@ namespace dotNES
         private int CyclesPerLine = 341;
         private int CPUSyncCounter = 2;
         private int[] scanlineOAM = new int[8 * 4];
+        private bool[] isSprite0 = new bool[8];
         private int spriteCount;
 
         public void ProcessPixel(int x, int y)
@@ -49,6 +50,7 @@ namespace dotNES
 
                 if (scanline >= y && scanline < y + height)
                 {
+                    isSprite0[spriteCount] = idx == 0;
                     scanlineOAM[spriteCount * 4 + 0] = OAM[idx + 0];
                     scanlineOAM[spriteCount * 4 + 1] = OAM[idx + 1];
                     scanlineOAM[spriteCount * 4 + 2] = OAM[idx + 2];
@@ -175,7 +177,7 @@ namespace dotNES
                 {
                     int backgroundPixel = priority[scanline * GameWidth + x];
                     // Sprite 0 hits...
-                    if (!(idx != 0 || // do not occur on not-0 sprite (TODO: this isn't the real sprite 0)
+                    if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite (TODO: this isn't the real sprite 0)
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
                           backgroundPixel == 0 || // or if bg pixel is transparent
                           F.Sprite0Hit || // or if it fired this frame already
