@@ -9,6 +9,7 @@ namespace dotNES
     partial class PPU
     {
         const int GameWidth = 256, GameHeight = 240;
+        public uint bufferPos;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
         public int[] priority = new int[GameWidth * GameHeight];
 
@@ -23,7 +24,7 @@ namespace dotNES
             0xFCFCFC, 0xA4E4FC, 0xB8B8F8, 0xD8B8F8, 0xF8B8F8, 0xF8A4C0, 0xF0D0B0, 0xFCE0A8,
             0xF8D878, 0xD8F878, 0xB8F8B8, 0xB8F8D8, 0x00FCFC, 0xF8D8F8, 0x000000, 0x000000
         };
-        private int ScanlineCount = 262;
+        private int ScanlineCount = 261;
         private int VBlankSetLine = 241;
         private int VBlankClearedLine = 20;
         private int CyclesPerLine = 341;
@@ -32,11 +33,18 @@ namespace dotNES
         private bool[] isSprite0 = new bool[8];
         private int spriteCount;
 
+        private long tileShiftRegister;
+        private int _currentNametableByte;
+        private int _currentHighTile, _currentLowTile;
+        private int _currentColor;
+
         public void ProcessPixel(int x, int y)
         {
             ProcessBackgroundForPixel(x, y);
             if (F.DrawSprites)
                 ProcessSpritesForPixel(x, y);
+
+            if (y != -1) bufferPos++;
         }
 
         private void CountSpritesOnLine(int scanline)
@@ -62,78 +70,61 @@ namespace dotNES
             }
         }
 
-        private void ProcessBackgroundForPixel(int x, int y)
+        private void NextNametableByte()
         {
-            if (x < 8 && !F.DrawLeftBackground || !F.DrawBackground)
+            _currentNametableByte = ReadByte(0x2000 | (V & 0x0FFF));
+        }
+
+        private void NextTileByte(bool hi)
+        {
+            int tileIdx = _currentNametableByte * 16;
+
+            int address = F.PatternTableAddress + tileIdx + FineY;
+
+            if (hi)
+                _currentHighTile = ReadByte(address + 8);
+            else
+                _currentLowTile = ReadByte(address);
+        }
+
+        private void NextAttributeByte()
+        {
+            // Bless nesdev
+            int addr = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
+
+            _currentColor = (ReadByte(addr) >> ((CoarseX & 2) | ((CoarseY & 2) << 1))) & 0x3;
+        }
+
+        private void ShiftTileRegister()
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                int palette = ((_currentHighTile & 0x80) >> 6) | ((_currentLowTile & 0x80) >> 7);
+                tileShiftRegister |= (uint)(palette + _currentColor * 4) << ((7 - x) * 4);
+                _currentLowTile <<= 1;
+                _currentHighTile <<= 1;
+            }
+        }
+
+        private void ProcessBackgroundForPixel(int cycle, int scanline)
+        {
+            if (cycle < 8 && !F.DrawLeftBackground || !F.DrawBackground && scanline != -1)
             {
                 // Maximally sketchy: if current address is in the PPU palette, then it draws that palette entry if rendering is disabled
                 // Otherwise, it draws $3F00 (universal bg color)
                 // https://www.romhacking.net/forum/index.php?topic=20554.0
-                rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? F.BusAddress & 0x001F : 0)) & 0x3F];
+                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? F.BusAddress & 0x001F : 0)) & 0x3F];
                 return;
             }
 
-            int nametable = 0;
-            
-            int coarseX = x + F.ScrollX;
-            if (coarseX >= GameWidth)
+            int paletteEntry = (int)(tileShiftRegister >> 32 >> ((7 - X) * 4)) & 0x0F;
+            if (paletteEntry % 4 == 0) paletteEntry = 0;
+
+            if (scanline != -1)
             {
-                nametable |= 0x1;
-                coarseX %= GameWidth;
+                priority[bufferPos] = paletteEntry;
+                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00 + paletteEntry) & 0x3F];
             }
-
-            int coarseY = y + F.ScrollY;
-            if (coarseY >= GameHeight)
-            {
-                nametable |= 0x2;
-                coarseY %= GameHeight;
-            }
-
-            int tileX = coarseX / 8;
-            int tileY = coarseY / 8;
-            
-            int nametableAddressBase = F.NametableAddress + nametable * 0x400;
-            int attributeTableAddressBase = nametableAddressBase + 0x3C0; // 960 bytes followed by attribs
-
-            byte attributeTableEntry = ReadByte(attributeTableAddressBase + (tileY >> 2) * 8 + (tileX >> 2));
-
-            // 7654 3210
-            // |||| || ++- Color bits 3 - 2 for top left quadrant of this byte
-            // |||| ++---  Color bits 3 - 2 for top right quadrant of this byte
-            // || ++------ Color bits 3 - 2 for bottom left quadrant of this byte
-            // ++--------  Color bits 3 - 2 for bottom right quadrant of this byte
-            // value = (topleft << 0) | (topright << 2) | (bottomleft << 4) | (bottomright << 6)   
-
-            int palette = (attributeTableEntry >> ((tileX & 2) | ((tileY & 2) << 1))) & 0x3;
-
-            int tileIdx = ReadByte(nametableAddressBase + tileY * 32 + tileX) * 16;
-
-            int logicalX = (x + F.ScrollX) & 7;
-            int logicalLine = (y + F.ScrollY) & 7;
-            int address = F.PatternTableAddress + tileIdx + logicalLine;
-
-            int color =
-                (
-                    (
-                        (
-                            // fetch upper bit from 2nd bit plane
-                            ReadByte(address + 8) & (0x80 >> logicalX)
-                        ) >> (7 - logicalX)
-                    ) << 1 // this is the upper bit of the color number
-                ) |
-                (
-                    (
-                        ReadByte(address) & (0x80 >> logicalX)
-                    ) >> (7 - logicalX)
-                ); // << 0, this is the lower bit of the color number
-
-            if (color == 0)
-            {
-                palette = 0;
-            }
-
-            priority[y * GameWidth + x] = color;
-            rawBitmap[y * GameWidth + x] = Palette[ReadByte(0x3F00 + palette * 4 + color) & 0x3F];
         }
 
         private void ProcessSpritesForPixel(int x, int scanline)
@@ -189,7 +180,7 @@ namespace dotNES
 
                 if (color > 0)
                 {
-                    int backgroundPixel = priority[scanline * GameWidth + x];
+                    int backgroundPixel = priority[bufferPos];
                     // Sprite 0 hits...
                     if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
@@ -199,7 +190,10 @@ namespace dotNES
                         F.Sprite0Hit = true;
                     if (front || backgroundPixel == 0)
                     {
-                        rawBitmap[scanline * GameWidth + x] = Palette[ReadByte(0x3F10 + palette * 4 + color) & 0x3F];
+                        if (scanline != -1)
+                        {
+                            rawBitmap[bufferPos] = Palette[ReadByte(0x3F10 + palette * 4 + color) & 0x3F];
+                        }
                     }
                 }
             }
@@ -207,46 +201,88 @@ namespace dotNES
 
         public void ProcessFrame()
         {
-            // Console.WriteLine("---Frame---");
             rawBitmap.Fill((uint)0);
             priority.Fill(0);
+            bufferPos = 0;
 
-            for (int i = 0; i < ScanlineCount; i++)
+            for (int i = -1; i < ScanlineCount; i++)
                 ProcessScanline(i);
         }
 
         public void ProcessScanline(int line)
         {
-            // Console.WriteLine("---Scanline---")
             for (int i = 0; i < CyclesPerLine; i++)
                 ProcessCycle(line, i);
         }
 
         public void ProcessCycle(int scanline, int cycle)
         {
-            if (scanline < 240 && cycle < 256)
-                ProcessPixel(cycle, scanline);
+            bool visibleCycle = 1 <= cycle && cycle <= 256;
+            bool prefetchCycle = 321 <= cycle && cycle <= 336;
+            bool fetchCycle = visibleCycle || prefetchCycle;
 
-            if (cycle == 256)
+            if (0 <= scanline && scanline < 240 || scanline == -1)
             {
-                CountSpritesOnLine(scanline + 1);
+                if (visibleCycle)
+                    ProcessPixel(cycle - 1, scanline);
+
+                // During pixels 280 through 304 of this scanline, the vertical scroll bits are reloaded TODO: if rendering is enabled.
+                if (scanline == -1 && 280 <= cycle && cycle <= 304)
+                    ReloadScrollY();
+
+                if (fetchCycle)
+                {
+                    tileShiftRegister <<= 4;
+
+                    // Begin rendering a brand new tile
+                    if ((cycle & 7) == 0)
+                        ShiftTileRegister();
+
+                    // Takes 8 cycles for tile to be read, 2 per "step"
+                    switch (cycle & 0x3)
+                    {
+                        case 0: // NT
+                            NextNametableByte();
+                            break;
+                        case 1: // AT
+                            NextAttributeByte();
+                            break;
+                        case 2: // Tile low
+                            NextTileByte(false);
+                            break;
+                        case 3: // Tile high
+                            NextTileByte(true);
+                            break;
+                    }
+
+                    if (cycle % 8 == 0)
+                        IncrementScrollX();
+                }
+
+                if (cycle == 256)
+                    IncrementScrollY();
+
+                if (cycle == 257)
+                {
+                    ReloadScrollX();
+                    // 257 - 320
+                    // The tile data for the sprites on the next scanline are fetched here.
+                    // TODO: stagger this over all the cycles as opposed to only on 257
+                    CountSpritesOnLine(scanline + 1);
+                }
             }
 
-            if (cycle == 0)
+            if (cycle == 1)
             {
                 if (scanline == VBlankSetLine)
                 {
-                    // Console.WriteLine("---VBlank Set---");
                     F.VBlankStarted = true;
                     if (F.NMIEnabled)
-                    {
-                        this.emulator.CPU.TriggerNMI();
-                    }
+                        emulator.CPU.TriggerNMI();
                 }
 
                 if (scanline == VBlankClearedLine)
                 {
-                    // Console.WriteLine("---VBlank End---");
                     F.VBlankStarted = false;
                     F.Sprite0Hit = false;
                 }

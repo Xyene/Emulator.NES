@@ -17,7 +17,6 @@ namespace dotNES
             public int PatternTableAddress;
             public int SpriteTableAddress;
             public int VRAMIncrement;
-            public int NametableAddress;
 
             /* PPUMASK register */
             public bool GrayscaleEnabled;
@@ -56,11 +55,65 @@ namespace dotNES
             }
 
             /* PPUSCROLL registers */
+            [Obsolete]
             public int ScrollX;
+            [Obsolete]
             public int ScrollY;
         }
 
         public PPUFlags F = new PPUFlags();
+
+        private int _v;
+        public int V
+        {
+            get => _v;
+            set => _v = value & 0x7FFF;
+        }
+        public int T, X;
+
+        public int CoarseX => V & 0x1F;
+
+        public int CoarseY => (V >> 5) & 0x1F;
+
+        public int FineY => (V >> 12) & 0x7;
+
+        public void ReloadScrollX() => V = (V & 0xFBE0) | (T & 0x041F);
+
+        public void ReloadScrollY() => V = (V & 0x841F) | (T & 0x7BE0);
+
+        public void IncrementScrollX()
+        {
+            if ((V & 0x001F) == 31) // if coarse X == 31
+            {
+                V &= ~0x001F; // coarse X = 0
+                V ^= 0x0400; // switch horizontal nametable
+            }
+            else
+                V += 1; // increment coarse X
+        }
+
+        public void IncrementScrollY()
+        {
+            if ((V & 0x7000) != 0x7000) // if fine Y < 7
+                V += 0x1000; // increment fine Y
+            else
+            {
+                V &= ~0x7000; // fine Y = 0
+
+                int y = (V & 0x03E0) >> 5; // let y = coarse Y
+                if (y == 29)
+                {
+                    y = 0; // coarse Y = 0
+                    V ^= 0x0800;
+                }
+                // switch vertical nametable
+                else if (y == 31)
+                    y = 0; // coarse Y = 0, nametable not switched
+                else
+                    y += 1; // increment coarse Y
+                V = (V & 0xFC1F) | (y << 5); // put coarse Y back into v
+            }
+        }
 
         public int PPUCTRL
         {
@@ -72,7 +125,12 @@ namespace dotNES
                 F.PatternTableAddress = (value & 0x10) > 0 ? 0x1000 : 0x0000;
                 F.SpriteTableAddress = (value & 0x08) > 0 ? 0x1000 : 0x0000;
                 F.VRAMIncrement = (value & 0x04) > 0 ? 32 : 1;
-                F.NametableAddress = (value & 0x3) * 0x400 + 0x2000;
+                // yyy NN YYYYY XXXXX
+                // ||| || ||||| +++++--coarse X scroll
+                // ||| || +++++--------coarse Y scroll
+                // ||| ++--------------nametable select
+                // +++-----------------fine Y scroll
+                T = (T & 0xF3FF) | ((value & 0x3) << 10); // Bits 10-11 hold the base address of the nametable minus $2000
             }
         }
 
@@ -91,6 +149,7 @@ namespace dotNES
             }
         }
 
+        /** $2002 **/
         public int PPUSTATUS
         {
             get
@@ -106,36 +165,44 @@ namespace dotNES
             }
         }
 
+        /** $2006 **/
         public int PPUADDR
         {
             set
             {
-                int shift = F.AddressLatch ? 0 : 8;
-                F.BusAddress = (F.BusAddress & 0xFF00 >> shift) | (value << shift);
-                // Horrifying hack to get SMB working until I implement proper scrolling
-                // Found on http://forums.nesdev.com/viewtopic.php?t=5365
-                if (F.BusAddress == 0)
+                if (F.AddressLatch)
                 {
-                    F.ScrollX = 0;
-                    F.ScrollY = 0;
-                    F.NametableAddress = 0x2000;
+                    T = (T & 0xFF00) | value;
+                    F.BusAddress = T;
                 }
-                //Console.WriteLine($"PPU LATCH {F.BusAddress.ToString("X4")} {F.AddressLatch}");
+                else
+                    T = (T & 0x80FF) | ((value & 0x3F) << 8);
                 F.AddressLatch ^= true;
             }
         }
 
+        /** $2005 **/
         public int PPUSCROLL
         {
             set
             {
-                if (F.AddressLatch) F.ScrollY = value;
-                else F.ScrollX = value;
+                if (F.AddressLatch)
+                {
+                    F.ScrollY = value;
+                    T = (T & 0x8FFF) | ((value & 0x7) << 12);
+                    T = (T & 0xFC1F) | (value & 0xF8) << 2;
+                }
+                else
+                {
+                    F.ScrollX = value;
+                    X = value & 0x7;
+                    T = (T & 0xFFE0) | (value >> 3);
+                }
                 F.AddressLatch ^= true;
             }
         }
 
-        private byte ReadBuffer;
+        private byte _readBuffer;
         public int PPUDATA
         {
             get
@@ -143,8 +210,8 @@ namespace dotNES
                 byte ret = ReadByte(F.BusAddress);
                 if (F.BusAddress < 0x3EFF)
                 {
-                    byte temp = ReadBuffer;
-                    ReadBuffer = ret;
+                    byte temp = _readBuffer;
+                    _readBuffer = ret;
                     ret = temp;
                 }
                 F.BusAddress += F.VRAMIncrement;
@@ -160,13 +227,13 @@ namespace dotNES
 
         public int OAMADDR
         {
-            get { return F.OAMAddress; }
-            set { F.OAMAddress = value; }
+            get => F.OAMAddress;
+            set => F.OAMAddress = value;
         }
 
         public int OAMDATA
         {
-            get { return OAM[F.OAMAddress]; }
+            get => OAM[F.OAMAddress];
             set
             {
                 OAM[F.OAMAddress] = (byte)value;
