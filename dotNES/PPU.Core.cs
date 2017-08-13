@@ -25,8 +25,6 @@ namespace dotNES
             0xF8D878, 0xD8F878, 0xB8F8B8, 0xB8F8D8, 0x00FCFC, 0xF8D8F8, 0x000000, 0x000000
         };
         private int ScanlineCount = 261;
-        private int VBlankSetLine = 241;
-        private int VBlankClearedLine = 20;
         private int CyclesPerLine = 341;
         private int CPUSyncCounter = 2;
         private int[] scanlineOAM = new int[8 * 4];
@@ -234,33 +232,32 @@ namespace dotNES
                 {
                     tileShiftRegister <<= 4;
 
-                    // Begin rendering a brand new tile
-                    if ((cycle & 7) == 0)
-                        ShiftTileRegister();
-
+                    // See https://wiki.nesdev.com/w/images/d/d1/Ntsc_timing.png
                     // Takes 8 cycles for tile to be read, 2 per "step"
-                    switch (cycle & 0x3)
+                    switch (cycle & 7)
                     {
-                        case 0: // NT
+                        case 1: // NT
                             NextNametableByte();
                             break;
-                        case 1: // AT
+                        case 3: // AT
                             NextAttributeByte();
                             break;
-                        case 2: // Tile low
+                        case 5: // Tile low
                             NextTileByte(false);
                             break;
-                        case 3: // Tile high
+                        case 7: // Tile high
                             NextTileByte(true);
                             break;
+                        case 0: // 2nd cycle of tile high fetch
+                            if (cycle == 256)
+                                IncrementScrollY();
+                            else
+                                IncrementScrollX();
+                            // Begin rendering a brand new tile
+                            ShiftTileRegister();
+                            break;
                     }
-
-                    if (cycle % 8 == 0)
-                        IncrementScrollX();
                 }
-
-                if (cycle == 256)
-                    IncrementScrollY();
 
                 if (cycle == 257)
                 {
@@ -274,17 +271,19 @@ namespace dotNES
 
             if (cycle == 1)
             {
-                if (scanline == VBlankSetLine)
+                if (scanline == 241)
                 {
                     F.VBlankStarted = true;
                     if (F.NMIEnabled)
                         emulator.CPU.TriggerNMI();
                 }
 
-                if (scanline == VBlankClearedLine)
+                // Happens at the same time as 1st cycle of NT byte fetch
+                if (scanline == -1)
                 {
                     F.VBlankStarted = false;
                     F.Sprite0Hit = false;
+                    F.SpriteOverflow = false;
                 }
             }
 
