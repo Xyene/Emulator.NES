@@ -1,4 +1,4 @@
-# Emulator.NES [![Windows Build Status](https://ci.appveyor.com/api/projects/status/gup13j6tw463siny?svg=true)](https://ci.appveyor.com/project/Xyene/emulator-nes)
+# Emulator.NES [![Linux Build Status](https://travis-ci.org/Xyene/Emulator-.NES.svg?branch=master)](https://travis-ci.org/Xyene/Emulator-.NES) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/gup13j6tw463siny?svg=true)](https://ci.appveyor.com/project/Xyene/emulator-nes)
 Nintendo NES emulator written in C#.
 
 Well, it sort of works.
