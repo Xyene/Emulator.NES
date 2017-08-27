@@ -68,10 +68,8 @@ namespace dotNES
             throw new NotImplementedException(reg.ToString("X2"));
         }
 
-        public byte ReadByte(int addr)
+        public uint ReadByte(uint addr)
         {
-            addr &= 0xFFFF;
-
             if (0x3EFF < addr)
             {
                 if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
@@ -92,11 +90,10 @@ namespace dotNES
             return VRAM[addr - 0x3000];
         }
 
-        public void WriteByte(int addr, int _val)
+        public void WriteByte(uint addr, uint _val)
         {
             byte val = (byte)_val;
 
-            addr &= 0xFFFF;
             switch (addr & 0xF000)
             {
                 case 0x0000:

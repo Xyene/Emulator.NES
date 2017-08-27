@@ -11,7 +11,7 @@ namespace dotNES
         const int GameWidth = 256, GameHeight = 240;
         public uint bufferPos;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
-        public int[] priority = new int[GameWidth * GameHeight];
+        public uint[] priority = new uint[GameWidth * GameHeight];
 
         // TODO: use real chroma/luma decoding
         private uint[] Palette = {
@@ -27,14 +27,14 @@ namespace dotNES
         private int ScanlineCount = 261;
         private int CyclesPerLine = 341;
         private int CPUSyncCounter = 2;
-        private int[] scanlineOAM = new int[8 * 4];
+        private uint[] scanlineOAM = new uint[8 * 4];
         private bool[] isSprite0 = new bool[8];
         private int spriteCount;
 
         private long tileShiftRegister;
-        private int _currentNametableByte;
-        private int _currentHighTile, _currentLowTile;
-        private int _currentColor;
+        private uint _currentNametableByte;
+        private uint _currentHighTile, _currentLowTile;
+        private uint _currentColor;
 
         public void ProcessPixel(int x, int y)
         {
@@ -75,9 +75,9 @@ namespace dotNES
 
         private void NextTileByte(bool hi)
         {
-            int tileIdx = _currentNametableByte * 16;
+            uint tileIdx = _currentNametableByte * 16;
 
-            int address = F.PatternTableAddress + tileIdx + FineY;
+            uint address = F.PatternTableAddress + tileIdx + FineY;
 
             if (hi)
                 _currentHighTile = ReadByte(address + 8);
@@ -88,17 +88,17 @@ namespace dotNES
         private void NextAttributeByte()
         {
             // Bless nesdev
-            int addr = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
+            uint addr = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
 
-            _currentColor = (ReadByte(addr) >> ((CoarseX & 2) | ((CoarseY & 2) << 1))) & 0x3;
+            _currentColor = (ReadByte(addr) >> (int)((CoarseX & 2) | ((CoarseY & 2) << 1))) & 0x3;
         }
 
         private void ShiftTileRegister()
         {
             for (int x = 0; x < 8; x++)
             {
-                int palette = ((_currentHighTile & 0x80) >> 6) | ((_currentLowTile & 0x80) >> 7);
-                tileShiftRegister |= (uint)(palette + _currentColor * 4) << ((7 - x) * 4);
+                uint palette = ((_currentHighTile & 0x80) >> 6) | ((_currentLowTile & 0x80) >> 7);
+                tileShiftRegister |= (palette + _currentColor * 4) << ((7 - x) * 4);
                 _currentLowTile <<= 1;
                 _currentHighTile <<= 1;
             }
@@ -117,13 +117,13 @@ namespace dotNES
                 return;
             }
 
-            int paletteEntry = (int)(tileShiftRegister >> 32 >> ((7 - X) * 4)) & 0x0F;
+            uint paletteEntry = (uint)(tileShiftRegister >> 32 >> (int)((7 - X) * 4)) & 0x0F;
             if (paletteEntry % 4 == 0) paletteEntry = 0;
 
             if (scanline != -1)
             {
                 priority[bufferPos] = paletteEntry;
-                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00 + paletteEntry) & 0x3F];
+                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00u + paletteEntry) & 0x3F];
             }
         }
 
@@ -131,8 +131,8 @@ namespace dotNES
         {
             for (int idx = 0; idx < spriteCount * 4; idx += 4)
             {
-                int spriteX = scanlineOAM[idx + 3];
-                int spriteY = scanlineOAM[idx] + 1;
+                uint spriteX = scanlineOAM[idx + 3];
+                uint spriteY = scanlineOAM[idx] + 1;
 
                 // Don't draw this sprite if...
                 if (spriteY == 0 || // it's located at y = 0
@@ -146,24 +146,24 @@ namespace dotNES
                 // to that of the Gameboy / Gameboy Color, so I've sort of just copy/pasted
                 // handling code wholesale from my GBC emulator at
                 // https://github.com/Xyene/Nitrous-Emulator/blob/master/src/main/java/nitrous/lcd/LCD.java#L642
-                int tileIdx = scanlineOAM[idx + 1] * 16;
-                int attrib = scanlineOAM[idx + 2] & 0xE3;
+                uint tileIdx = scanlineOAM[idx + 1] * 16;
+                uint attrib = scanlineOAM[idx + 2] & 0xE3;
 
-                int palette = attrib & 0x3;
+                uint palette = attrib & 0x3;
                 bool front = (attrib & 0x20) == 0;
                 bool flipX = (attrib & 0x40) > 0;
                 bool flipY = (attrib & 0x80) > 0;
 
-                int px = x - spriteX;
-                int line = scanline - spriteY;
+                long px = x - spriteX;
+                long line = scanline - spriteY;
 
                 // here we handle the x and y flipping by tweaking the indices we are accessing
-                int logicalX = flipX ? 7 - px : px;
-                int logicalLine = flipY ? 7 - line : line;
-                int address = F.SpriteTableAddress + tileIdx + logicalLine;
+                int logicalX = (int) (flipX ? 7 - px : px);
+                int logicalLine = (int) (flipY ? 7 - line : line);
+                uint address = (uint)(F.SpriteTableAddress + tileIdx + logicalLine);
 
                 // this looks bad, but it's about as readable as it's going to get
-                int color =
+                uint color = (uint)(
                     (
                         (
                             (
@@ -176,11 +176,11 @@ namespace dotNES
                         (
                             ReadByte(address) & (0x80 >> logicalX)
                         ) >> (7 - logicalX)
-                    ); // << 0, this is the lower bit of the color number
+                    )); // << 0, this is the lower bit of the color number
 
                 if (color > 0)
                 {
-                    int backgroundPixel = priority[bufferPos];
+                    uint backgroundPixel = priority[bufferPos];
                     // Sprite 0 hits...
                     if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
@@ -201,8 +201,8 @@ namespace dotNES
 
         public void ProcessFrame()
         {
-            rawBitmap.Fill((uint)0);
-            priority.Fill(0);
+            rawBitmap.Fill(0u);
+            priority.Fill(0u);
             bufferPos = 0;
 
             for (int i = -1; i < ScanlineCount; i++)

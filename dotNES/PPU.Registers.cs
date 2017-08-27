@@ -14,9 +14,9 @@ namespace dotNES
             public bool NMIEnabled;
             public bool IsMaster;
             public bool TallSpritesEnabled;
-            public int PatternTableAddress;
-            public int SpriteTableAddress;
-            public int VRAMIncrement;
+            public uint PatternTableAddress;
+            public uint SpriteTableAddress;
+            public uint VRAMIncrement;
 
             /* PPUMASK register */
             public bool GrayscaleEnabled;
@@ -36,19 +36,19 @@ namespace dotNES
             public bool AddressLatch;
 
             /* PPUADDR register */
-            private int _busAddress;
-            public int BusAddress
+            private uint _busAddress;
+            public uint BusAddress
             {
                 get => _busAddress;
                 set => _busAddress = value & 0x3FFF;
             }
 
             /* PPUDATA register */
-            public int BusData;
+            public uint BusData;
 
             /* OAMADDR register */
-            private int _oamAddress;
-            public int OAMAddress
+            private uint _oamAddress;
+            public uint OAMAddress
             {
                 get => _oamAddress;
                 set => _oamAddress = value & 0xFF;
@@ -56,26 +56,26 @@ namespace dotNES
 
             /* PPUSCROLL registers */
             [Obsolete]
-            public int ScrollX;
+            public uint ScrollX;
             [Obsolete]
-            public int ScrollY;
+            public uint ScrollY;
         }
 
         public PPUFlags F = new PPUFlags();
 
-        private int _v;
-        public int V
+        private uint _v;
+        public uint V
         {
             get => _v;
             set => _v = value & 0x7FFF;
         }
-        public int T, X;
+        public uint T, X;
 
-        public int CoarseX => V & 0x1F;
+        public uint CoarseX => V & 0x1F;
 
-        public int CoarseY => (V >> 5) & 0x1F;
+        public uint CoarseY => (V >> 5) & 0x1F;
 
-        public int FineY => (V >> 12) & 0x7;
+        public uint FineY => (V >> 12) & 0x7;
 
         public void ReloadScrollX() => V = (V & 0xFBE0) | (T & 0x041F);
 
@@ -85,7 +85,7 @@ namespace dotNES
         {
             if ((V & 0x001F) == 31) // if coarse X == 31
             {
-                V &= ~0x001F; // coarse X = 0
+                V &= ~0x001Fu; // coarse X = 0
                 V ^= 0x0400; // switch horizontal nametable
             }
             else
@@ -98,9 +98,9 @@ namespace dotNES
                 V += 0x1000; // increment fine Y
             else
             {
-                V &= ~0x7000; // fine Y = 0
+                V &= ~0x7000u; // fine Y = 0
 
-                int y = (V & 0x03E0) >> 5; // let y = coarse Y
+                uint y = (V & 0x03E0) >> 5; // let y = coarse Y
                 if (y == 29)
                 {
                     y = 0; // coarse Y = 0
@@ -115,16 +115,16 @@ namespace dotNES
             }
         }
 
-        public int PPUCTRL
+        public uint PPUCTRL
         {
             set
             {
                 F.NMIEnabled = (value & 0x80) > 0;
                 F.IsMaster = (value & 0x40) > 0;
                 F.TallSpritesEnabled = (value & 0x20) > 0;
-                F.PatternTableAddress = (value & 0x10) > 0 ? 0x1000 : 0x0000;
-                F.SpriteTableAddress = (value & 0x08) > 0 ? 0x1000 : 0x0000;
-                F.VRAMIncrement = (value & 0x04) > 0 ? 32 : 1;
+                F.PatternTableAddress = (value & 0x10) > 0 ? 0x1000u : 0x0000;
+                F.SpriteTableAddress = (value & 0x08) > 0 ? 0x1000u : 0x0000;
+                F.VRAMIncrement = (value & 0x04) > 0 ? 32u : 1;
                 // yyy NN YYYYY XXXXX
                 // ||| || ||||| +++++--coarse X scroll
                 // ||| || +++++--------coarse Y scroll
@@ -134,7 +134,7 @@ namespace dotNES
             }
         }
 
-        public int PPUMASK
+        public uint PPUMASK
         {
             set
             {
@@ -150,7 +150,7 @@ namespace dotNES
         }
 
         /** $2002 **/
-        public int PPUSTATUS
+        public uint PPUSTATUS
         {
             get
             {
@@ -161,12 +161,12 @@ namespace dotNES
                     (F.SpriteOverflow.AsByte() << 5) |
                     (_lastWrittenRegister & 0x1F);
                 F.VBlankStarted = false;
-                return ret;
+                return (uint)ret;
             }
         }
 
         /** $2006 **/
-        public int PPUADDR
+        public uint PPUADDR
         {
             set
             {
@@ -182,7 +182,7 @@ namespace dotNES
         }
 
         /** $2005 **/
-        public int PPUSCROLL
+        public uint PPUSCROLL
         {
             set
             {
@@ -202,15 +202,15 @@ namespace dotNES
             }
         }
 
-        private byte _readBuffer;
-        public int PPUDATA
+        private uint _readBuffer;
+        public uint PPUDATA
         {
             get
             {
-                byte ret = ReadByte(F.BusAddress);
+                uint ret = ReadByte(F.BusAddress);
                 if (F.BusAddress < 0x3EFF)
                 {
-                    byte temp = _readBuffer;
+                    uint temp = _readBuffer;
                     _readBuffer = ret;
                     ret = temp;
                 }
@@ -225,13 +225,13 @@ namespace dotNES
             }
         }
 
-        public int OAMADDR
+        public uint OAMADDR
         {
             get => F.OAMAddress;
             set => F.OAMAddress = value;
         }
 
-        public int OAMDATA
+        public uint OAMDATA
         {
             get => OAM[F.OAMAddress];
             set
