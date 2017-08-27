@@ -9,7 +9,7 @@
             this.Emulator = emulator;
         }
 
-        public abstract byte ReadByte(uint addr);
+        public abstract uint ReadByte(uint addr);
 
         public abstract void WriteByte(uint addr, uint val);
     }

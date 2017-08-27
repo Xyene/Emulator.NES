@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace dotNES
 {
-    partial class CPU
+    partial class CPU : IAddressable
     {
         private readonly Emulator _emulator;
         private readonly byte[] _ram = new byte[0x800];
@@ -17,7 +17,7 @@ namespace dotNES
         private string[] opcodeNames = new string[256];
         private OpcodeDef[] opcodeDefs = new OpcodeDef[256];
 
-        private readonly Func<uint, byte> ReadMapperByte;
+        private readonly Func<uint, uint> ReadMapperByte;
 
         public CPU(Emulator emulator)
         {

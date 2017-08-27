@@ -8,7 +8,7 @@ namespace dotNES
 {
     interface IAddressable
     {
-        byte ReadByte(uint addr);
+        uint ReadByte(uint addr);
 
         void WriteByte(uint addr, uint val);
     }

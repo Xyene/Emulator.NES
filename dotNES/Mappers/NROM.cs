@@ -17,7 +17,7 @@ namespace dotNES.Mappers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override byte ReadByte(uint addr) => AddressSpace[(addr & 0xFFFF) - 0x6000];
+        public override uint ReadByte(uint addr) => AddressSpace[(addr & 0xFFFF) - 0x6000];
 
         public override void WriteByte(uint addr, uint _val)
         {
