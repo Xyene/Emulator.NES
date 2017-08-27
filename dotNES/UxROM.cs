@@ -5,10 +5,10 @@ namespace dotNES
 {
     class UxROM : Memory
     {
-        private readonly byte[] _RAM = new byte[0x2000];
-        private readonly byte[] _PRGROM;
-        private int _bankOffset;
-        private readonly int _lastBankOffset;
+        protected readonly byte[] _RAM = new byte[0x2000];
+        protected readonly byte[] _PRGROM;
+        protected int _bankOffset;
+        protected readonly int _lastBankOffset;
 
         public UxROM(Emulator emulator) : base(emulator)
         {

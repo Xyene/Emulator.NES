@@ -1,0 +1,20 @@
+﻿using System;
+using System.Runtime.CompilerServices;
+
+namespace dotNES
+{
+    class Mapper180 : UxROM
+    {
+        public Mapper180(Emulator emulator) : base(emulator)
+        {
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override byte ReadByte(uint addr)
+        {
+            if (addr < 0x8000) return _RAM[addr - 0x6000];
+            if (addr < 0xC000) return _PRGROM[addr - 0x8000];
+            return _PRGROM[_bankOffset + (addr - 0xC000)];
+        }
+    }
+}
