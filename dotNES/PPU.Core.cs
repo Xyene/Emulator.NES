@@ -154,12 +154,12 @@ namespace dotNES
                 bool flipX = (attrib & 0x40) > 0;
                 bool flipY = (attrib & 0x80) > 0;
 
-                long px = x - spriteX;
-                long line = scanline - spriteY;
+                int px = (int) (x - spriteX);
+                int line = (int) (scanline - spriteY);
 
                 // here we handle the x and y flipping by tweaking the indices we are accessing
-                int logicalX = (int) (flipX ? 7 - px : px);
-                int logicalLine = (int) (flipY ? 7 - line : line);
+                int logicalX = flipX ? 7 - px : px;
+                int logicalLine = flipY ? 7 - line : line;
                 uint address = (uint)(F.SpriteTableAddress + tileIdx + logicalLine);
 
                 // this looks bad, but it's about as readable as it's going to get
