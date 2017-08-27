@@ -30,7 +30,7 @@ namespace dotNES
         {
             byte val = (byte) _val;
 
-            if ((addr & 0x6000) == 0x6000)
+            if (addr < 0x8000)
                 _RAM[addr - 0x6000] = val;
             else if (addr >= 0x8000)
                 _bankOffset = (val & 0xF) * 0x4000;

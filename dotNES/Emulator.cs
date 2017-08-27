@@ -8,6 +8,7 @@ namespace dotNES
         private static readonly Dictionary<int, Type> Mappers = new Dictionary<int, Type> {
             {0, typeof(NROM)},
             {2, typeof(UxROM)},
+            {94, typeof(Mapper094)},
             {180, typeof(Mapper180)}
         };
 
