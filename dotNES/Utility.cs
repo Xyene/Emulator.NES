@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace dotNES
 {
@@ -12,6 +14,14 @@ namespace dotNES
             for (int i = 0; i < arr.Length; i++)
             {
                 arr[i] = value;
+            }
+        }
+
+        public static void Map<T>(this IEnumerable<T> enumerator, Action<T> go)
+        {
+            foreach (var e in enumerator)
+            {
+                go(e);
             }
         }
     }

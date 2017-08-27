@@ -32,28 +32,28 @@ namespace dotNES
         {
             get => _A;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _A = _F(value & 0xFF); }
+            private set => _A = _F(value & 0xFF);
         }
 
         public uint X
         {
             get => _X;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _X = _F(value & 0xFF); }
+            private set => _X = _F(value & 0xFF);
         }
 
         public uint Y
         {
             get => _Y;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _Y = _F(value & 0xFF); }
+            private set => _Y = _F(value & 0xFF);
         }
 
         public uint SP
         {
             get => _SP;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private set { _SP = value & 0xFF; }
+            private set => _SP = value & 0xFF;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
