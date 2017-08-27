@@ -33,8 +33,13 @@ namespace dotNES
             PRGROM = new byte[PRGROMSize];
             Array.Copy(Raw, PRGROMOffset, PRGROM, 0, PRGROMSize);
 
-            CHRROM = new byte[CHRROMSize];
-            Array.Copy(Raw, PRGROMOffset + PRGROMSize, CHRROM, 0, CHRROMSize);
+            if (CHRROMSize == 0)
+                CHRROM = new byte[0x2000];
+            else
+            {
+                CHRROM = new byte[CHRROMSize];
+                Array.Copy(Raw, PRGROMOffset + PRGROMSize, CHRROM, 0, CHRROMSize);
+            }
         }
 
         public override string ToString()

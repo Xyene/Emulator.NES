@@ -10,6 +10,7 @@
     <AssemblyName>dotNES</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -22,7 +23,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -97,6 +97,7 @@
     <Compile Include="Emulator.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="NES001Controller.cs" />
+    <Compile Include="UxROM.cs" />
     <Compile Include="NROM.cs" />
     <Compile Include="PPU.Core.cs">
       <DependentUpon>PPU.cs</DependentUpon>
