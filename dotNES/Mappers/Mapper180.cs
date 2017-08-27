@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
-namespace dotNES
+namespace dotNES.Mappers
 {
     // Mapper used strictly for Crazy Climber; logic is slighly different:
     // $8000-$C000 is fixed to *first* bank

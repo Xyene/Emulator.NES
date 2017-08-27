@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace dotNES
+namespace dotNES.Mappers
 {
     class UxROM : Memory
     {

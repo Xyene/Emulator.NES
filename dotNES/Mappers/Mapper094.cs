@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace dotNES
+namespace dotNES.Mappers
 {
     class Mapper094 : UxROM
     {
