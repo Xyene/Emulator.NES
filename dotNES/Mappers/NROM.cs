@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    class NROM : Memory
+    class NROM : AbstractMemory
     {
         private readonly byte[] AddressSpace = new byte[0x2000 + 0x8000];
 

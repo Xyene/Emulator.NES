@@ -95,12 +95,13 @@
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
     <Compile Include="Emulator.cs" />
-    <Compile Include="Memory.cs" />
+    <Compile Include="IAddressable.cs" />
+    <Compile Include="Mappers\AbstractMemory.cs" />
     <Compile Include="NES001Controller.cs" />
-    <Compile Include="Mapper180.cs" />
-    <Compile Include="Mapper094.cs" />
-    <Compile Include="UxROM.cs" />
-    <Compile Include="NROM.cs" />
+    <Compile Include="Mappers\Mapper180.cs" />
+    <Compile Include="Mappers\Mapper094.cs" />
+    <Compile Include="Mappers\UxROM.cs" />
+    <Compile Include="Mappers\NROM.cs" />
     <Compile Include="PPU.Core.cs">
       <DependentUpon>PPU.cs</DependentUpon>
     </Compile>

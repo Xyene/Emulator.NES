@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    class UxROM : Memory
+    class UxROM : AbstractMemory
     {
         protected readonly byte[] _RAM = new byte[0x2000];
         protected readonly byte[] _PRGROM;

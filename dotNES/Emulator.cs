@@ -16,7 +16,7 @@ namespace dotNES
         public Emulator(string path, NES001Controller controller)
         {
             Cartridge = new Cartridge(path);
-            Mapper = (Memory)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
+            Mapper = (AbstractMemory)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
             CPU = new CPU(this);
             PPU = new PPU(this);
             Controller = controller;
@@ -28,7 +28,7 @@ namespace dotNES
 
         public readonly PPU PPU;
 
-        public readonly Memory Mapper;
+        public readonly IAddressable Mapper;
 
         public readonly Cartridge Cartridge;
     }
