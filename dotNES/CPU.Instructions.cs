@@ -153,9 +153,9 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x8D, Mode = Absolute, Cycles = 4)]
         private void STA() => AddressWrite(A);
 
-        [OpcodeDef(Opcode = 0x96, Mode = ZeroPageY, Cycles = 4, RMW = true)]
-        [OpcodeDef(Opcode = 0x86, Mode = ZeroPage, Cycles = 3, RMW = true)]
-        [OpcodeDef(Opcode = 0x8E, Mode = Absolute, Cycles = 4, RMW = true)]
+        [OpcodeDef(Opcode = 0x96, Mode = ZeroPageY, Cycles = 4)]
+        [OpcodeDef(Opcode = 0x86, Mode = ZeroPage, Cycles = 3)]
+        [OpcodeDef(Opcode = 0x8E, Mode = Absolute, Cycles = 4)]
         private void STX() => AddressWrite(X);
 
         [OpcodeDef(Opcode = 0x94, Mode = ZeroPageX, Cycles = 4)]
