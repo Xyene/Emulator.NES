@@ -8,9 +8,19 @@ namespace dotNES
 {
     partial class PPU
     {
-        public byte[] OAM = new byte[256];
-        private byte[] VRAM = new byte[0x800];
+        public byte[] OAM = new byte[0x100];
+        private byte[] VRAM = new byte[0x2000];
         private byte[] PaletteRAM = new byte[0x20];
+
+        private static readonly uint[][] VRAMMirrorLookup =
+        {
+            new uint[]{0, 0, 1, 1},
+            new uint[]{0, 1, 0, 1},
+            new uint[]{0, 1, 2, 3},
+        };
+
+        // TODO: cart-controlled modes
+        private Cartridge.VRAMMirroringMode _currentMirroringMode => emulator.Cartridge.MirroringMode;
 
         private int _lastWrittenRegister;
 
@@ -44,7 +54,7 @@ namespace dotNES
                     return;
             }
 
-            throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
+            throw new NotImplementedException($"{reg:X4} = {val:X2}");
         }
 
         public byte ReadRegister(uint reg)
@@ -52,7 +62,7 @@ namespace dotNES
             reg &= 0xF;
             switch (reg)
             {
-                case 0x0000: return (byte) _lastWrittenRegister;
+                case 0x0000: return (byte)_lastWrittenRegister;
                 case 0x0001: return (byte)_lastWrittenRegister;
                 case 0x0002:
                     return (byte)PPUSTATUS;
@@ -60,12 +70,19 @@ namespace dotNES
                     return (byte)OAMADDR;
                 case 0x0004:
                     return (byte)OAMDATA;
-                case 0x0005: return (byte) _lastWrittenRegister;
-                case 0x0006: return (byte) _lastWrittenRegister;
+                case 0x0005: return (byte)_lastWrittenRegister;
+                case 0x0006: return (byte)_lastWrittenRegister;
                 case 0x0007:
                     return (byte)PPUDATA;
             }
             throw new NotImplementedException(reg.ToString("X2"));
+        }
+
+        public uint GetVRAMMirror(long addr)
+        {
+            long entry;
+            var table = Math.DivRem(addr - 0x2000, 0x400, out entry);
+            return VRAMMirrorLookup[(int)_currentMirroringMode][table] * 0x400 + (uint)entry;
         }
 
         public uint ReadByte(uint addr)
@@ -84,10 +101,10 @@ namespace dotNES
 
             if (addr < 0x3000)
             {
-                return VRAM[(addr - 0x2000) & 0x7FF];
+                return VRAM[GetVRAMMirror(addr)];
             }
 
-            return VRAM[addr - 0x3000];
+            return VRAM[GetVRAMMirror(addr - 0x1000)];
         }
 
         public void WriteByte(uint addr, uint _val)
@@ -101,12 +118,12 @@ namespace dotNES
                     emulator.Cartridge.CHRROM[addr] = val;
                     break;
                 case 0x2000:
-                    VRAM[(addr - 0x2000) & 0x7FF] = val;
+                    VRAM[GetVRAMMirror(addr)] = val;
                     break;
                 case 0x3000:
                     if (addr <= 0x3EFF)
                     {
-                        VRAM[addr - 0x3000] = val;
+                        VRAM[GetVRAMMirror(addr - 0x1000)] = val;
                     }
                     else
                     {
@@ -116,7 +133,7 @@ namespace dotNES
                     }
                     break;
                 default:
-                    throw new NotImplementedException($"{addr.ToString("X4")} = {val.ToString("X2")}");
+                    throw new NotImplementedException($"{addr:X4} = {val:X2}");
             }
         }
     }
