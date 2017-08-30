@@ -22,6 +22,7 @@ namespace dotNES
         }
 
         private uint? _currentMemoryAddress;
+        private uint _rmwValue;
 
         private void ResetInstructionAddressingMode() => _currentMemoryAddress = null;
 
@@ -62,9 +63,9 @@ namespace dotNES
 
         public uint AddressRead()
         {
-            if (opcodeDefs[currentInstruction].Mode == Direct) return A;
+            if (opcodeDefs[currentInstruction].Mode == Direct) return _rmwValue = A;
             if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
-            return ReadByte((uint)_currentMemoryAddress) & 0xFF;
+            return _rmwValue = ReadByte((uint)_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(uint val)
@@ -73,6 +74,8 @@ namespace dotNES
             else
             {
                 if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
+                if (opcodeDefs[currentInstruction].RMW)
+                    WriteByte((uint)_currentMemoryAddress, _rmwValue);
                 WriteByte((uint)_currentMemoryAddress, val);
             }
         }

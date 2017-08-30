@@ -10,7 +10,8 @@ namespace dotNES
         {
             public int Opcode;
             public int Cycles = 1;
-            public bool PageBoundary = false;
+            public bool PageBoundary;
+            public bool RMW;
             public AddressingMode Mode = None;
         }
 
@@ -40,7 +41,7 @@ namespace dotNES
         [OpcodeDef(Opcode = 0xE8, Cycles = 2)]
         private void INX() => X++;
 
-        [OpcodeDef(Opcode = 0xCA, Cycles = 2)]
+        [OpcodeDef(Opcode = 0xCA, Cycles = 2, RMW = true)]
         private void DEX() => X--;
 
         [OpcodeDef(Opcode = 0xA8, Cycles = 2)]
@@ -49,16 +50,16 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x98, Cycles = 2)]
         private void TYA() => A = Y;
 
-        [OpcodeDef(Opcode = 0xAA, Cycles = 2)]
+        [OpcodeDef(Opcode = 0xAA, Cycles = 2, RMW = true)]
         private void TAX() => X = A;
 
-        [OpcodeDef(Opcode = 0x8A, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x8A, Cycles = 2, RMW = true)]
         private void TXA() => A = X;
 
         [OpcodeDef(Opcode = 0xBA, Cycles = 2)]
         private void TSX() => X = SP;
 
-        [OpcodeDef(Opcode = 0x9A, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x9A, Cycles = 2, RMW = true)]
         private void TXS() => SP = X;
 
         [OpcodeDef(Opcode = 0x08, Cycles = 3)]
@@ -152,9 +153,9 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x8D, Mode = Absolute, Cycles = 4)]
         private void STA() => AddressWrite(A);
 
-        [OpcodeDef(Opcode = 0x96, Mode = ZeroPageY, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x86, Mode = ZeroPage, Cycles = 3)]
-        [OpcodeDef(Opcode = 0x8E, Mode = Absolute, Cycles = 4)]
+        [OpcodeDef(Opcode = 0x96, Mode = ZeroPageY, Cycles = 4, RMW = true)]
+        [OpcodeDef(Opcode = 0x86, Mode = ZeroPage, Cycles = 3, RMW = true)]
+        [OpcodeDef(Opcode = 0x8E, Mode = Absolute, Cycles = 4, RMW = true)]
         private void STX() => AddressWrite(X);
 
         [OpcodeDef(Opcode = 0x94, Mode = ZeroPageX, Cycles = 4)]
@@ -203,11 +204,11 @@ namespace dotNES
         [OpcodeDef(Opcode = 0xBC, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
         private void LDY() => Y = AddressRead();
 
-        [OpcodeDef(Opcode = 0xA2, Mode = Immediate, Cycles = 2)]
-        [OpcodeDef(Opcode = 0xA6, Mode = ZeroPage, Cycles = 3)]
-        [OpcodeDef(Opcode = 0xAE, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xB6, Mode = ZeroPageY, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xBE, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xA2, Mode = Immediate, Cycles = 2, RMW = true)]
+        [OpcodeDef(Opcode = 0xA6, Mode = ZeroPage, Cycles = 3, RMW = true)]
+        [OpcodeDef(Opcode = 0xAE, Mode = Absolute, Cycles = 4, RMW = true)]
+        [OpcodeDef(Opcode = 0xB6, Mode = ZeroPageY, Cycles = 4, RMW = true)]
+        [OpcodeDef(Opcode = 0xBE, Mode = AbsoluteY, Cycles = 4, PageBoundary=true, RMW = true)]
         private void LDX() => X = AddressRead();
 
         [OpcodeDef(Opcode = 0x01, Mode = IndirectX, Cycles = 6)]
@@ -308,11 +309,11 @@ namespace dotNES
             F.Zero = d == 0;
         }
 
-        [OpcodeDef(Opcode = 0x46, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0x4E, Mode = Absolute, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x56, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x5E, Mode = AbsoluteX, Cycles = 7)]
-        [OpcodeDef(Opcode = 0x4A, Mode = Direct, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x46, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0x4E, Mode = Absolute, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x56, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x5E, Mode = AbsoluteX, Cycles = 7, RMW = true)]
+        [OpcodeDef(Opcode = 0x4A, Mode = Direct, Cycles = 2, RMW = true)]
         private void LSR()
         {
             uint D = AddressRead();
@@ -322,11 +323,11 @@ namespace dotNES
             AddressWrite(D);
         }
 
-        [OpcodeDef(Opcode = 0x06, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0x0E, Mode = Absolute, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x16, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x1E, Mode = AbsoluteX, Cycles = 7)]
-        [OpcodeDef(Opcode = 0x0A, Mode = Direct, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x06, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0x0E, Mode = Absolute, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x16, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x1E, Mode = AbsoluteX, Cycles = 7, RMW = true)]
+        [OpcodeDef(Opcode = 0x0A, Mode = Direct, Cycles = 2, RMW = true)]
         private void ASL()
         {
             uint D = AddressRead();
@@ -336,11 +337,11 @@ namespace dotNES
             AddressWrite(D);
         }
 
-        [OpcodeDef(Opcode = 0x66, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0x6E, Mode = Absolute, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x76, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x7E, Mode = AbsoluteX, Cycles = 7)]
-        [OpcodeDef(Opcode = 0x6A, Mode = Direct, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x66, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0x6E, Mode = Absolute, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x76, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x7E, Mode = AbsoluteX, Cycles = 7, RMW = true)]
+        [OpcodeDef(Opcode = 0x6A, Mode = Direct, Cycles = 2, RMW = true)]
         private void ROR()
         {
             uint D = AddressRead();
@@ -352,11 +353,11 @@ namespace dotNES
             AddressWrite(D);
         }
 
-        [OpcodeDef(Opcode = 0x26, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0x2E, Mode = Absolute, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x36, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0x3E, Mode = AbsoluteX, Cycles = 7)]
-        [OpcodeDef(Opcode = 0x2A, Mode = Direct, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x26, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0x2E, Mode = Absolute, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x36, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0x3E, Mode = AbsoluteX, Cycles = 7, RMW = true)]
+        [OpcodeDef(Opcode = 0x2A, Mode = Direct, Cycles = 2, RMW = true)]
         private void ROL()
         {
             uint D = AddressRead();
@@ -368,10 +369,10 @@ namespace dotNES
             AddressWrite(D);
         }
 
-        [OpcodeDef(Opcode = 0xE6, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0xEE, Mode = Absolute, Cycles = 6)]
-        [OpcodeDef(Opcode = 0xF6, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0xFE, Mode = AbsoluteX, Cycles = 7)]
+        [OpcodeDef(Opcode = 0xE6, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0xEE, Mode = Absolute, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0xF6, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0xFE, Mode = AbsoluteX, Cycles = 7, RMW = true)]
         private void INC()
         {
             byte D = (byte)(AddressRead() + 1);
@@ -379,10 +380,10 @@ namespace dotNES
             AddressWrite(D);
         }
 
-        [OpcodeDef(Opcode = 0xC6, Mode = ZeroPage, Cycles = 5)]
-        [OpcodeDef(Opcode = 0xCE, Mode = Absolute, Cycles = 3)]
-        [OpcodeDef(Opcode = 0xD6, Mode = ZeroPageX, Cycles = 6)]
-        [OpcodeDef(Opcode = 0xDE, Mode = AbsoluteX, Cycles = 7)]
+        [OpcodeDef(Opcode = 0xC6, Mode = ZeroPage, Cycles = 5, RMW = true)]
+        [OpcodeDef(Opcode = 0xCE, Mode = Absolute, Cycles = 3, RMW = true)]
+        [OpcodeDef(Opcode = 0xD6, Mode = ZeroPageX, Cycles = 6, RMW = true)]
+        [OpcodeDef(Opcode = 0xDE, Mode = AbsoluteX, Cycles = 7, RMW = true)]
         private void DEC()
         {
             byte D = (byte)(AddressRead() - 1);
