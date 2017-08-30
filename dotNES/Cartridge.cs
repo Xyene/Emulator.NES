@@ -12,6 +12,12 @@ namespace dotNES
         public readonly int MapperNumber;
         public readonly byte[] PRGROM;
         public readonly byte[] CHRROM;
+        public readonly VRAMMirroringMode MirroringMode;
+
+        public enum VRAMMirroringMode
+        {
+            HORIZONTAL, VERTICAL
+        }
 
         public Cartridge(string filename)
         {
@@ -27,6 +33,8 @@ namespace dotNES
 
             bool hasTrainer = (Raw[6] & 0x2) > 0;
             PRGROMOffset = 16 + (hasTrainer ? 512 : 0);
+
+            MirroringMode = (Raw[6] & 0x1) > 0 ? VRAMMirroringMode.VERTICAL : VRAMMirroringMode.HORIZONTAL;
 
             MapperNumber = (Raw[6] >> 4) | (Raw[7] & 0xF0);
 
