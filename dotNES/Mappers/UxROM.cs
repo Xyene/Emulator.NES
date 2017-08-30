@@ -6,16 +6,10 @@ namespace dotNES.Mappers
     class UxROM : AbstractMemory
     {
         protected readonly byte[] _RAM = new byte[0x2000];
-        protected readonly byte[] _PRGROM;
         protected int _bankOffset;
-        protected readonly int _lastBankOffset;
 
         public UxROM(Emulator emulator) : base(emulator)
         {
-            var cart = emulator.Cartridge;
-            _PRGROM = cart.PRGROM;
-            _lastBankOffset = cart.PRGROM.Length - 0x4000;
-            _bankOffset = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,7 +22,7 @@ namespace dotNES.Mappers
 
         public override void WriteByte(uint addr, uint _val)
         {
-            byte val = (byte) _val;
+            byte val = (byte)_val;
 
             if (addr < 0x8000)
                 _RAM[addr - 0x6000] = val;

@@ -11,8 +11,8 @@ namespace dotNES.Mappers
         {
             for (int i = 0; i < 0x8000; i++)
             {
-                int offset = Emulator.Cartridge.PRGROMSize == 16384 ? (i & 0xBFFF) : i;
-                AddressSpace[0x2000 + i] = Emulator.Cartridge.PRGROM[offset];
+                int offset = _emulator.Cartridge.PRGROMSize == 16384 ? (i & 0xBFFF) : i;
+                AddressSpace[0x2000 + i] = _emulator.Cartridge.PRGROM[offset];
             }
         }
 

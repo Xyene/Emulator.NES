@@ -2,11 +2,16 @@
 {
     abstract class AbstractMemory : IAddressable
     {
-        protected Emulator Emulator;
+        protected readonly Emulator _emulator;
+        protected readonly byte[] _PRGROM;
+        protected readonly int _lastBankOffset;
 
         public AbstractMemory(Emulator emulator)
         {
-            this.Emulator = emulator;
+            _emulator = emulator;
+            var cart = emulator.Cartridge;
+            _PRGROM = cart.PRGROM;
+            _lastBankOffset = cart.PRGROM.Length - 0x4000;
         }
 
         public abstract uint ReadByte(uint addr);
