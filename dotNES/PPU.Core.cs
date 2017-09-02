@@ -29,6 +29,7 @@ namespace dotNES
         private int CPUSyncCounter;
         private uint[] scanlineOAM = new uint[8 * 4];
         private bool[] isSprite0 = new bool[8];
+        private bool[] isTallSpritePart = new bool[8];
         private int spriteCount;
 
         private long tileShiftRegister;
@@ -57,6 +58,7 @@ namespace dotNES
                 if (scanline >= y && scanline < y + height)
                 {
                     isSprite0[spriteCount] = idx == 0;
+                    isTallSpritePart[spriteCount] = !(scanline < y);
                     scanlineOAM[spriteCount * 4 + 0] = OAM[idx + 0];
                     scanlineOAM[spriteCount * 4 + 1] = OAM[idx + 1];
                     scanlineOAM[spriteCount * 4 + 2] = OAM[idx + 2];
@@ -146,7 +148,8 @@ namespace dotNES
                 // to that of the Gameboy / Gameboy Color, so I've sort of just copy/pasted
                 // handling code wholesale from my GBC emulator at
                 // https://github.com/Xyene/Nitrous-Emulator/blob/master/src/main/java/nitrous/lcd/LCD.java#L642
-                uint tileIdx = scanlineOAM[idx + 1] * 16;
+                uint tileIdx = (scanlineOAM[idx + 1] >> 1) * 32;
+
                 uint attrib = scanlineOAM[idx + 2] & 0xE3;
 
                 uint palette = attrib & 0x3;
@@ -154,13 +157,22 @@ namespace dotNES
                 bool flipX = (attrib & 0x40) > 0;
                 bool flipY = (attrib & 0x80) > 0;
 
-                int px = (int) (x - spriteX);
-                int line = (int) (scanline - spriteY);
+                int px = (int)(x - spriteX);
+                int line = (int)(scanline - spriteY);
+
+                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 1) * 0x1000 : F.SpriteTableAddress;
+
+                if (F.TallSpritesEnabled && line >= 8)
+                {
+                    line -= 8;
+                    tileIdx += 16;
+                }
 
                 // here we handle the x and y flipping by tweaking the indices we are accessing
                 int logicalX = flipX ? 7 - px : px;
                 int logicalLine = flipY ? 7 - line : line;
-                uint address = (uint)(F.SpriteTableAddress + tileIdx + logicalLine);
+
+                uint address = (uint)(tableBase + tileIdx + logicalLine);
 
                 // this looks bad, but it's about as readable as it's going to get
                 uint color = (uint)(
