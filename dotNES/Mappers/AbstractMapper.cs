@@ -7,6 +7,7 @@ namespace dotNES.Mappers
     {
         protected readonly Emulator _emulator;
         protected readonly byte[] _prgROM;
+        protected readonly byte[] _prgRAM = new byte[0x2000];
         protected readonly byte[] _chrROM;
         protected readonly uint _lastBankOffset;
 

@@ -25,7 +25,6 @@ namespace dotNES.Mappers
         private uint _prgBank;
 
         private bool _prgRAMEnabled;
-        private readonly byte[] _prgRAM = new byte[0x2000];
 
         // Set to MaxValue in case a RMW happens in first cycle -- is that even possible?
         private uint _lastWriteCycle = uint.MaxValue;

@@ -13,7 +13,7 @@ namespace dotNES.Mappers
             byte val = (byte) _val;
 
             if (addr < 0x8000)
-                _RAM[addr - 0x6000] = val;
+                _prgRAM[addr - 0x6000] = val;
             else if (addr >= 0x8000)
                 _bankOffset = (val & 0x1C) << 12;
             else
