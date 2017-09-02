@@ -148,7 +148,7 @@ namespace dotNES
                 // to that of the Gameboy / Gameboy Color, so I've sort of just copy/pasted
                 // handling code wholesale from my GBC emulator at
                 // https://github.com/Xyene/Nitrous-Emulator/blob/master/src/main/java/nitrous/lcd/LCD.java#L642
-                uint tileIdx = (scanlineOAM[idx + 1] >> 1) * 32;
+                uint tileIdx = scanlineOAM[idx + 1] * 16;
 
                 uint attrib = scanlineOAM[idx + 2] & 0xE3;
 
