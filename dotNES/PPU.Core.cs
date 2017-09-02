@@ -131,7 +131,7 @@ namespace dotNES
 
         private void ProcessSpritesForPixel(int x, int scanline)
         {
-            for (int idx = 0; idx < spriteCount * 4; idx += 4)
+            for (int idx = spriteCount * 4 - 4; idx >= 0; idx -= 4)
             {
                 uint spriteX = scanlineOAM[idx + 3];
                 uint spriteY = scanlineOAM[idx] + 1;
@@ -160,7 +160,7 @@ namespace dotNES
                 int px = (int)(x - spriteX);
                 int line = (int)(scanline - spriteY);
 
-                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 1) * 0x1000 : F.SpriteTableAddress;
+                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 0x1) * 0x1000 : F.SpriteTableAddress;
 
                 if (F.TallSpritesEnabled && line >= 8)
                 {
