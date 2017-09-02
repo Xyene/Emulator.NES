@@ -9,7 +9,7 @@ namespace dotNES
         public class OpcodeDef : Attribute
         {
             public int Opcode;
-            public int Cycles = 1;
+            public uint Cycles = 1;
             public bool PageBoundary;
             public bool RMW;
             public AddressingMode Mode = None;
@@ -90,7 +90,7 @@ namespace dotNES
             if (cond)
             {
                 PC = nPC;
-                _cycle++;
+                Cycle++;
             }
         }
 
@@ -115,7 +115,7 @@ namespace dotNES
                 uint oldPC = PC;
                 PC = ReadByte(off) | (ReadByte(hi) << 8);
 
-                if ((oldPC & 0xFF00) != (PC & 0xFF00)) _cycle += 2;
+                if ((oldPC & 0xFF00) != (PC & 0xFF00)) Cycle += 2;
             }
             else throw new NotImplementedException();
         }

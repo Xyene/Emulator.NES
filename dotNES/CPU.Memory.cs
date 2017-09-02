@@ -43,11 +43,11 @@ namespace dotNES
                     return (NextByte() + Y) & 0xFF;
                 case AbsoluteX:
                     uint addr = NextWord();
-                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + X) & 0xFF00)) _cycle += 1;
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + X) & 0xFF00)) Cycle += 1;
                     return addr + X;
                 case AbsoluteY:
                     addr = NextWord();
-                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) _cycle += 1;
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) Cycle += 1;
                     return addr + Y;
                 case IndirectX:
                     uint off = (NextByte() + X) & 0xFF;
@@ -55,7 +55,7 @@ namespace dotNES
                 case IndirectY:
                     off = NextByte() & 0xFF;
                     addr = ReadByte(off) | (ReadByte((off + 1) & 0xFF) << 8);
-                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) _cycle += 1;
+                    if (def.PageBoundary && (addr & 0xFF00) != ((addr + Y) & 0xFF00)) Cycle += 1;
                     return (addr + Y) & 0xFFFF;
             }
             throw new NotImplementedException();
@@ -191,7 +191,7 @@ namespace dotNES
             {
                 _emulator.PPU.OAM[i] = (byte)ReadByte(from | ((i + OAMADDR) & 0xFF));
             }
-            _cycle += 513;
+            Cycle += 513;
         }
     }
 }

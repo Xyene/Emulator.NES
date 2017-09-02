@@ -8,7 +8,7 @@ namespace dotNES
     {
         private readonly Emulator _emulator;
         private readonly byte[] _ram = new byte[0x800];
-        private long _cycle;
+        public uint Cycle;
         private uint currentInstruction;
 
         delegate void Opcode();

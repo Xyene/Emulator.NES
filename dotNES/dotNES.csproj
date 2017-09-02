@@ -99,7 +99,9 @@
     </Compile>
     <Compile Include="Emulator.cs" />
     <Compile Include="IAddressable.cs" />
-    <Compile Include="Mappers\AbstractMemory.cs" />
+    <Compile Include="Mappers\AbstractMapper.cs" />
+    <Compile Include="Mappers\Mapper155.cs" />
+    <Compile Include="Mappers\MMC1.cs" />
     <Compile Include="NES001Controller.cs" />
     <Compile Include="Mappers\Mapper180.cs" />
     <Compile Include="Mappers\Mapper094.cs" />

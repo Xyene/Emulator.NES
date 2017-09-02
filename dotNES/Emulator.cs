@@ -8,15 +8,17 @@ namespace dotNES
     {
         private static readonly Dictionary<int, Type> Mappers = new Dictionary<int, Type> {
             {0, typeof(NROM)},
+            {1, typeof(MMC1)},
             {2, typeof(UxROM)},
             {94, typeof(Mapper094)},
+            {155, typeof(Mapper155)},
             {180, typeof(Mapper180)}
         };
 
         public Emulator(string path, NES001Controller controller)
         {
             Cartridge = new Cartridge(path);
-            Mapper = (AbstractMemory)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
+            Mapper = (AbstractMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
             CPU = new CPU(this);
             PPU = new PPU(this);
             Controller = controller;
@@ -28,7 +30,7 @@ namespace dotNES
 
         public readonly PPU PPU;
 
-        public readonly IAddressable Mapper;
+        public readonly AbstractMapper Mapper;
 
         public readonly Cartridge Cartridge;
     }

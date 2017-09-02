@@ -15,8 +15,8 @@ namespace dotNES.Mappers
         public override uint ReadByte(uint addr)
         {
             if (addr < 0x8000) return _RAM[addr - 0x6000];
-            if (addr < 0xC000) return _PRGROM[addr - 0x8000];
-            return _PRGROM[_bankOffset + (addr - 0xC000)];
+            if (addr < 0xC000) return _prgROM[addr - 0x8000];
+            return _prgROM[_bankOffset + (addr - 0xC000)];
         }
     }
 }

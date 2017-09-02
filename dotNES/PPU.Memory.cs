@@ -14,6 +14,8 @@ namespace dotNES
             new uint[]{0, 0, 1, 1},
             new uint[]{0, 1, 0, 1},
             new uint[]{0, 1, 2, 3},
+            new uint[]{0, 0, 0, 0},
+            new uint[]{1, 1, 1, 1},
         };
 
         // TODO: cart-controlled modes
@@ -94,7 +96,7 @@ namespace dotNES
 
             if (addr < 0x2000)
             {
-                return emulator.Cartridge.CHRROM[addr];
+                return emulator.Mapper.ReadBytePPU(addr);
             }
 
             if (addr < 0x3000)
@@ -113,7 +115,7 @@ namespace dotNES
             {
                 case 0x0000:
                 case 0x1000:
-                    emulator.Cartridge.CHRROM[addr] = val;
+                    emulator.Mapper.WriteBytePPU(addr, val);
                     break;
                 case 0x2000:
                     VRAM[GetVRAMMirror(addr)] = val;

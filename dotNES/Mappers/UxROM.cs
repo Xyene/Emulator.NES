@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    class UxROM : AbstractMemory
+    class UxROM : AbstractMapper
     {
         protected readonly byte[] _RAM = new byte[0x2000];
         protected int _bankOffset;
@@ -16,8 +16,8 @@ namespace dotNES.Mappers
         public override uint ReadByte(uint addr)
         {
             if (addr < 0x8000) return _RAM[addr - 0x6000];
-            if (addr < 0xC000) return _PRGROM[_bankOffset + (addr - 0x8000)];
-            return _PRGROM[_lastBankOffset + (addr - 0xC000)];
+            if (addr < 0xC000) return _prgROM[_bankOffset + (addr - 0x8000)];
+            return _prgROM[_lastBankOffset + (addr - 0xC000)];
         }
 
         public override void WriteByte(uint addr, uint _val)

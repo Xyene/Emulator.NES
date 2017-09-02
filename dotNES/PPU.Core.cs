@@ -26,7 +26,7 @@ namespace dotNES
         };
         private int ScanlineCount = 261;
         private int CyclesPerLine = 341;
-        private int CPUSyncCounter = 2;
+        private int CPUSyncCounter;
         private uint[] scanlineOAM = new uint[8 * 4];
         private bool[] isSprite0 = new bool[8];
         private int spriteCount;

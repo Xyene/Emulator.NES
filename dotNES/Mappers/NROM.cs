@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    class NROM : AbstractMemory
+    class NROM : AbstractMapper
     {
         private readonly byte[] _addressSpace = new byte[0x2000 + 0x8000]; // Space for $2000 VRAM + $8000 PRG
 
@@ -11,12 +11,11 @@ namespace dotNES.Mappers
         {
             for (int i = 0; i < 0x8000; i++)
             {
-                int offset = _emulator.Cartridge.PRGROMSize == 16384 ? i & 0xBFFF : i;
-                _addressSpace[0x2000 + i] = _PRGROM[offset];
+                int offset = _emulator.Cartridge.PRGROMSize == 0x4000 ? i & 0xBFFF : i;
+                _addressSpace[0x2000 + i] = _prgROM[offset];
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override uint ReadByte(uint addr) => _addressSpace[(addr & 0xFFFF) - 0x6000];
 
         public override void WriteByte(uint addr, uint _val)
