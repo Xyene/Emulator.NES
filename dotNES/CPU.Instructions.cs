@@ -9,7 +9,7 @@ namespace dotNES
         public class OpcodeDef : Attribute
         {
             public int Opcode;
-            public uint Cycles = 1;
+            public int Cycles = 1;
             public bool PageBoundary;
             public bool RMW;
             public AddressingMode Mode = None;
