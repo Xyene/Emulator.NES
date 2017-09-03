@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using static dotNES.Cartridge.VRAMMirroringMode;
 
 namespace dotNES.Mappers
 {
     class MMC1 : AbstractMapper
     {
+        // TODO: are MMC1 and MMC1A even different chip types?
         public enum ChipType { MMC1, MMC1A, MMC1B, MMC1C }
         public enum CHRBankingMode { Single, Double }
         public enum PRGBankingMode { Switch32Kb, Switch16KbFixFirst, Switch16KbFixLast }
+
+        private readonly Cartridge.VRAMMirroringMode[] _mirroringModes = { Lower, Upper, Vertical, Horizontal };
 
         private readonly ChipType _type;
         private CHRBankingMode _chrBankingMode;
@@ -26,8 +30,7 @@ namespace dotNES.Mappers
 
         private bool _prgRAMEnabled;
 
-        // Set to MaxValue in case a RMW happens in first cycle -- is that even possible?
-        private uint _lastWriteCycle = uint.MaxValue;
+        private uint? _lastWritePC;
 
         public MMC1(Emulator emulator) : this(emulator, ChipType.MMC1B)
         {
@@ -39,7 +42,7 @@ namespace dotNES.Mappers
             _type = chipType;
             if (chipType == ChipType.MMC1B) _prgRAMEnabled = true;
             UpdateControl(0x0F);
-            _emulator.Cartridge.MirroringMode = Cartridge.VRAMMirroringMode.HORIZONTAL;
+            _emulator.Cartridge.MirroringMode = Horizontal;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,18 +84,16 @@ namespace dotNES.Mappers
             {
                 // PRG RAM is always enabled on MMC1A
                 if (_type == ChipType.MMC1A || _prgRAMEnabled)
-                {
-                    _prgRAM[addr - 0x6000] = (byte) value;
-                }
+                    _prgRAM[addr - 0x6000] = (byte)value;
             }
             else if (addr >= 0x8000)
             {
                 // Explicitly ignore the second write happening on consecutive cycles
                 // of an RMW instruction
                 var cycle = _emulator.CPU.PC;
-                if (cycle == _lastWriteCycle)
+                if (cycle == _lastWritePC)
                     return;
-                _lastWriteCycle = cycle;
+                _lastWritePC = cycle;
 
                 if ((value & 0x80) > 0)
                 {
@@ -129,21 +130,7 @@ namespace dotNES.Mappers
         {
             _control = value;
 
-            switch (value & 0x03)
-            {
-                case 0:
-                    _emulator.Cartridge.MirroringMode = Cartridge.VRAMMirroringMode.LOWER;
-                    break;
-                case 1:
-                    _emulator.Cartridge.MirroringMode = Cartridge.VRAMMirroringMode.UPPER;
-                    break;
-                case 2:
-                    _emulator.Cartridge.MirroringMode = Cartridge.VRAMMirroringMode.VERTICAL;
-                    break;
-                case 3:
-                    _emulator.Cartridge.MirroringMode = Cartridge.VRAMMirroringMode.HORIZONTAL;
-                    break;
-            }
+            _emulator.Cartridge.MirroringMode = _mirroringModes[value & 0x3];
 
             _chrBankingMode = (CHRBankingMode)((value >> 4) & 0x1);
 
