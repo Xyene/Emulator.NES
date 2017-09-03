@@ -27,8 +27,6 @@ namespace dotNES.Mappers
                 case 0x7000:
                     _addressSpace[addr - 0x6000] = val;
                     break;
-                default:
-                    throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
             }
         }
     }

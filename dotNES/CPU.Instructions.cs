@@ -272,12 +272,10 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x00, Cycles = 7)]
         private void BRK()
         {
-            //TriggerNMI();
-            F.InterruptsDisabled = true;
             NextByte();
-            PushWord(PC);
             Push(P | BreakSourceBit);
-            PC = ReadByte(0xFFFE) | (ReadByte(0xFFFF) << 8);    
+            F.InterruptsDisabled = true;
+            PC = ReadByte(0xFFFE) | (ReadByte(0xFFFF) << 8);
         }
 
         [OpcodeDef(Opcode = 0xC1, Mode = IndirectX, Cycles = 6)]

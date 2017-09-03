@@ -13,6 +13,7 @@ namespace dotNES
         private int serialData;
         private bool strobing;
 
+        public bool debug;
         // bit:   	 7     6     5     4     3     2     1     0
         // button:	 A B  Select Start  Up Down  Left 
 
@@ -47,6 +48,7 @@ namespace dotNES
 
         public void PressKey(KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.P) debug ^= true;
             if (!keyMapping.ContainsKey(e.KeyCode)) return;
             data |= 1 << keyMapping[e.KeyCode];
         }

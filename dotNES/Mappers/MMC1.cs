@@ -29,7 +29,7 @@ namespace dotNES.Mappers
         // Set to MaxValue in case a RMW happens in first cycle -- is that even possible?
         private uint _lastWriteCycle = uint.MaxValue;
 
-        public MMC1(Emulator emulator) : this(emulator, ChipType.MMC1)
+        public MMC1(Emulator emulator) : this(emulator, ChipType.MMC1A)
         {
 
         }
@@ -58,9 +58,13 @@ namespace dotNES.Mappers
             {
                 return _prgRAM[addr - 0x6000];
             }
-            if (addr >= 0x8000)
+            if (addr >= 0x8000 && addr <= 0xbfff)
             {
-                return _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x4000] + addr % 0x4000];
+                return _prgROM[_prgBankOffsets[0] + (addr & 0x3FFF)];
+            }
+            if (addr >= 0xc000 && addr <= 0xffff)
+            {
+                return _prgROM[_prgBankOffsets[1] + (addr & 0x3FFF)];
             }
             throw new NotImplementedException();
         }
@@ -77,19 +81,23 @@ namespace dotNES.Mappers
 
         public override void WriteByte(uint addr, uint value)
         {
-            // Explicitly ignore the second write happening on consecutive cycles
-            // of an RMW instruction
-            var cycle = _emulator.CPU.PC;
-            if (cycle == _lastWriteCycle) return;
-            _lastWriteCycle = cycle;
-
             if (0x6000 <= addr && addr < 0x8000)
             {
                 // PRG RAM is always enabled on MMC1A
-                if (_type == ChipType.MMC1A || _prgRAMEnabled) _prgRAM[addr - 0x6000] = (byte)value;
+                if (_type == ChipType.MMC1A || _prgRAMEnabled)
+                {
+                    _prgRAM[addr - 0x6000] = (byte) value;
+                }
             }
             else if (addr >= 0x8000)
             {
+                // Explicitly ignore the second write happening on consecutive cycles
+                // of an RMW instruction
+                var cycle = _emulator.CPU.PC;
+                if (cycle == _lastWriteCycle)
+                    return;
+                _lastWriteCycle = cycle;
+
                 if ((value & 0x80) > 0)
                 {
                     _serialData = 0;
@@ -103,23 +111,21 @@ namespace dotNES.Mappers
 
                     if (_serialPos == 5)
                     {
-                        if (addr < 0xA000)
+                        // Address is incompletely decoded
+                        addr &= 0x6000;
+                        if (addr == 0x0000)
                             UpdateControl(_serialData);
-                        else if (addr < 0xC000)
-                            UpdateCHRBank(0, _chrBanks[0] = _serialData);
-                        else if (addr < 0xE000)
-                            UpdateCHRBank(1, _chrBanks[1] = _serialData);
-                        else
+                        else if (addr == 0x2000)
+                            UpdateCHRBank(0, _serialData);
+                        else if (addr == 0x4000)
+                            UpdateCHRBank(1, _serialData);
+                        else if (addr == 0x6000)
                             UpdatePRGBank(_serialData);
 
                         _serialData = 0;
                         _serialPos = 0;
                     }
                 }
-            }
-            else
-            {
-                throw new NotImplementedException();
             }
         }
 
