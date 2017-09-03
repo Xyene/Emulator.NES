@@ -89,7 +89,7 @@ namespace dotNES
         {
             if (0x3EFF < addr)
             {
-                if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
+                if (addr % 4 == 0)
                     addr -= 0x10;
                 return PaletteRAM[(addr - 0x3F00) & 0x1F];
             }
@@ -127,7 +127,7 @@ namespace dotNES
                     }
                     else
                     {
-                        if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
+                        if (addr % 4 == 0)
                             addr -= 0x10;
                         PaletteRAM[(addr - 0x3F00) & 0x1F] = val;
                     }

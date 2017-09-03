@@ -111,7 +111,7 @@ namespace dotNES
                     y = 0; // coarse Y = 0, nametable not switched
                 else
                     y += 1; // increment coarse Y
-                V = (V & 0xFC1F) | (y << 5); // put coarse Y back into v
+                V = (V & ~0x03E0u) | (y << 5); // put coarse Y back into v
             }
         }
 

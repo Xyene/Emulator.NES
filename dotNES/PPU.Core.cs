@@ -148,7 +148,9 @@ namespace dotNES
                 // to that of the Gameboy / Gameboy Color, so I've sort of just copy/pasted
                 // handling code wholesale from my GBC emulator at
                 // https://github.com/Xyene/Nitrous-Emulator/blob/master/src/main/java/nitrous/lcd/LCD.java#L642
-                uint tileIdx = scanlineOAM[idx + 1] * 16;
+                uint tileIdx = scanlineOAM[idx + 1];
+                if (F.TallSpritesEnabled) tileIdx &= ~0x1u;
+                tileIdx *= 16;
 
                 uint attrib = scanlineOAM[idx + 2] & 0xE3;
 
@@ -160,12 +162,18 @@ namespace dotNES
                 int px = (int)(x - spriteX);
                 int line = (int)(scanline - spriteY);
 
-                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 0x1) * 0x1000 : F.SpriteTableAddress;
+                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 1) * 0x1000 : F.SpriteTableAddress;
 
-                if (F.TallSpritesEnabled && line >= 8)
+                if (F.TallSpritesEnabled)
                 {
-                    line -= 8;
-                    tileIdx += 16;
+                    if (line >= 8)
+                    {
+                        line -= 8;
+                        if (!flipY)
+                            tileIdx += 16;
+                        flipY = false;
+                    }
+                    if (flipY) tileIdx += 16;
                 }
 
                 // here we handle the x and y flipping by tweaking the indices we are accessing
