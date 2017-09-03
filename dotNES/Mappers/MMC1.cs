@@ -29,7 +29,7 @@ namespace dotNES.Mappers
         // Set to MaxValue in case a RMW happens in first cycle -- is that even possible?
         private uint _lastWriteCycle = uint.MaxValue;
 
-        public MMC1(Emulator emulator) : this(emulator, ChipType.MMC1A)
+        public MMC1(Emulator emulator) : this(emulator, ChipType.MMC1B)
         {
 
         }
@@ -58,13 +58,9 @@ namespace dotNES.Mappers
             {
                 return _prgRAM[addr - 0x6000];
             }
-            if (addr >= 0x8000 && addr <= 0xbfff)
+            if (addr >= 0x8000)
             {
-                return _prgROM[_prgBankOffsets[0] + (addr & 0x3FFF)];
-            }
-            if (addr >= 0xc000 && addr <= 0xffff)
-            {
-                return _prgROM[_prgBankOffsets[1] + (addr & 0x3FFF)];
+                return _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x4000] + addr % 0x4000];
             }
             throw new NotImplementedException();
         }
@@ -165,7 +161,7 @@ namespace dotNES.Mappers
         {
             _prgBank = value;
 
-            _prgRAMEnabled = (value & 0x10) > 0;
+            _prgRAMEnabled = (value & 0x10) == 0;
             value &= 0xF;
 
             switch (_prgBankingMode)
