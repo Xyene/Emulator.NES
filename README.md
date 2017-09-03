@@ -4,6 +4,10 @@
 
 Well, it sort of works.
 
-![](http://i.imgur.com/p2aDeO4.gif)
-![](http://i.imgur.com/TTK4vzc.gif)
-![](https://i.imgur.com/PRsbu9S.gif)
+![](http://i.imgur.com/aef0cM9.png)
+![](http://i.imgur.com/OjrvRmz.png)
+![](http://i.imgur.com/OKPWHhP.png)
+![](http://i.imgur.com/ot4FOwH.png)
+![](http://i.imgur.com/Xyfp0AZ.png)
+![](http://i.imgur.com/aMmF3dM.png)
+<!--![](http://i.imgur.com/KGrhRwt.png) Senjou no Ookami-->
