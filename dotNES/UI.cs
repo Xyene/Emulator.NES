@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -48,6 +49,7 @@ namespace dotNES
         private string activeSpeed = "1x";
         private string[] sizes = { "1x", "2x", "4x", "8x" };
         private string activeSize = "2x";
+        private Emulator emu;
 
         public UI()
         {
@@ -59,8 +61,8 @@ namespace dotNES
             renderer = new Thread(() =>
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\zelda.nes";
-                Emulator emu = new Emulator(rom, controller);
+                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\contra.nes";
+                emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();
                 Stopwatch s0 = new Stopwatch();
@@ -83,6 +85,18 @@ namespace dotNES
             renderer.Start();
         }
 
+        private void Screenshot()
+        {
+            var bitmap = new Bitmap(GameWidth, GameHeight, PixelFormat.Format32bppArgb);
+
+            for (int y = 0; y < GameHeight; y++)
+                for (int x = 0; x < GameWidth; x++)
+                {
+                    bitmap.SetPixel(x, y, Color.FromArgb((int)(rawBitmap[y * GameWidth + x] | 0xff000000)));
+                }
+            bitmap.Save("screenshot.png");
+        }
+
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
             rendererRunning = false;
@@ -91,7 +105,9 @@ namespace dotNES
 
         private void UI_KeyDown(object sender, KeyEventArgs e)
         {
-            controller.PressKey(e);
+            if (e.KeyCode == Keys.O) Screenshot();
+            else
+                controller.PressKey(e);
         }
 
         private void UI_KeyUp(object sender, KeyEventArgs e)

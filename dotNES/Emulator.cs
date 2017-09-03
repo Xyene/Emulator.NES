@@ -18,6 +18,8 @@ namespace dotNES
         public Emulator(string path, NES001Controller controller)
         {
             Cartridge = new Cartridge(path);
+            if (!Mappers.ContainsKey(Cartridge.MapperNumber))
+                throw new NotImplementedException($"unsupported mapper {Cartridge.MapperNumber}");
             Mapper = (AbstractMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
             CPU = new CPU(this);
             PPU = new PPU(this);
