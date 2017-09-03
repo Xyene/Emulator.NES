@@ -174,7 +174,7 @@ namespace dotNES.Mappers
         {
             _chrBanks[bank] = value;
 
-            if (_chrBankingMode == CHRBankingMode.Single)
+            if (bank == 0 && _chrBankingMode == CHRBankingMode.Single)
             {
                 value >>= 1;
                 value *= 0x1000;
