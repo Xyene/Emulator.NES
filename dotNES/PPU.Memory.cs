@@ -11,11 +11,11 @@ namespace dotNES
 
         private static readonly uint[][] VRAMMirrorLookup =
         {
-            new uint[]{0, 0, 1, 1},
-            new uint[]{0, 1, 0, 1},
-            new uint[]{0, 1, 2, 3},
-            new uint[]{0, 0, 0, 0},
-            new uint[]{1, 1, 1, 1},
+            new uint[]{0, 0, 1, 1}, // H
+            new uint[]{0, 1, 0, 1}, // V
+            new uint[]{0, 1, 2, 3}, // All
+            new uint[]{0, 0, 0, 0}, // Upper
+            new uint[]{1, 1, 1, 1}, // Lower
         };
 
         // TODO: cart-controlled modes

@@ -50,6 +50,7 @@ namespace dotNES
         private string[] sizes = { "1x", "2x", "4x", "8x" };
         private string activeSize = "2x";
         private Emulator emu;
+        private bool suspended;
 
         public UI()
         {
@@ -61,15 +62,21 @@ namespace dotNES
             renderer = new Thread(() =>
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\contra.nes";
+                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\zelda.nes";
                 emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();
                 Stopwatch s0 = new Stopwatch();
                 while (rendererRunning)
                 {
+                    if (suspended)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
+
                     s.Restart();
-                    for (int i = 0; i < 60; i++)
+                    for (int i = 0; i < 60 && !suspended; i++)
                     {
                         s0.Restart();
                         emu.PPU.ProcessFrame();
@@ -105,9 +112,21 @@ namespace dotNES
 
         private void UI_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.O) Screenshot();
-            else
-                controller.PressKey(e);
+            switch (e.KeyCode)
+            {
+                case Keys.O:
+                    Screenshot();
+                    break;
+                case Keys.F2:
+                    suspended = false;
+                    break;
+                case Keys.F3:
+                    suspended = true;
+                    break;
+                default:
+                    controller.PressKey(e);
+                    break;
+            }
         }
 
         private void UI_KeyUp(object sender, KeyEventArgs e)

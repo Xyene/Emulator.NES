@@ -16,7 +16,7 @@ namespace dotNES
 
         public enum VRAMMirroringMode
         {
-            Horizontal, Vertical, ALL, Upper, Lower
+            Horizontal, Vertical, All, Upper, Lower
         }
 
         public Cartridge(string filename)
@@ -35,7 +35,7 @@ namespace dotNES
             PRGROMOffset = 16 + (hasTrainer ? 512 : 0);
 
             MirroringMode = (Raw[6] & 0x1) > 0 ? VRAMMirroringMode.Vertical : VRAMMirroringMode.Horizontal;
-            if ((Raw[6] & 0x8) > 0) MirroringMode = VRAMMirroringMode.ALL;
+            if ((Raw[6] & 0x8) > 0) MirroringMode = VRAMMirroringMode.All;
 
             MapperNumber = (Raw[6] >> 4) | (Raw[7] & 0xF0);
 
