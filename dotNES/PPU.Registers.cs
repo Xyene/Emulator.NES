@@ -155,7 +155,6 @@ namespace dotNES
             get
             {
                 F.AddressLatch = false;
-                F.BusAddress = 0;
                 var ret = (F.VBlankStarted.AsByte() << 7) |
                     (F.Sprite0Hit.AsByte() << 6) |
                     (F.SpriteOverflow.AsByte() << 5) |
@@ -174,6 +173,7 @@ namespace dotNES
                 {
                     T = (T & 0xFF00) | value;
                     F.BusAddress = T;
+                    V = T;
                 }
                 else
                     T = (T & 0x80FF) | ((value & 0x3F) << 8);
@@ -208,7 +208,7 @@ namespace dotNES
             get
             {
                 uint ret = ReadByte(F.BusAddress);
-                if (F.BusAddress < 0x3EFF)
+                if (F.BusAddress < 0x3F00)
                 {
                     uint temp = _readBuffer;
                     _readBuffer = ret;
