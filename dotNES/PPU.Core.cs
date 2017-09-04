@@ -208,7 +208,7 @@ namespace dotNES
                           F.Sprite0Hit || // or if it fired this frame already
                           x == 255)) // or if x is 255, "for an obscure reason related to the pixel pipeline"
                         F.Sprite0Hit = true;
-                    if (front || backgroundPixel == 0)
+                    if (F.DrawBackground && (front || backgroundPixel == 0))
                     {
                         if (scanline != -1)
                         {
