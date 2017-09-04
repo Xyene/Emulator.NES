@@ -174,7 +174,9 @@ namespace dotNES.Mappers
         {
             _chrBanks[bank] = value;
 
-            if (bank == 0 && _chrBankingMode == CHRBankingMode.Single)
+            // TODO FIXME: I feel like this branch should only be taken
+            // when bank == 0, but this breaks Final Fantasy
+            if (_chrBankingMode == CHRBankingMode.Single)
             {
                 value >>= 1;
                 value *= 0x1000;
