@@ -176,8 +176,10 @@ namespace dotNES.Mappers
 
             // TODO FIXME: I feel like this branch should only be taken
             // when bank == 0, but this breaks Final Fantasy
+            // When can banking mode change without UpdateCHRBank being called?
             if (_chrBankingMode == CHRBankingMode.Single)
             {
+                value = _chrBanks[0];
                 value >>= 1;
                 value *= 0x1000;
                 _chrBankOffsets[0] = value;
