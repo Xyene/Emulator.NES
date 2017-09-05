@@ -15,7 +15,7 @@ namespace dotNES
             switch (reg)
             {
                 case 0x0014: // OAM DMA
-                    PerformDMA(val);
+                    _emulator.PPU.PerformDMA(val);
                     break;
                 case 0x0016:
                     _emulator.Controller.Strobe(val == 1);

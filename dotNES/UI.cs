@@ -62,7 +62,7 @@ namespace dotNES
             renderer = new Thread(() =>
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\ff2.nes";
+                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\megaman.nes";
                 emu = new Emulator(rom, controller);
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();

@@ -181,17 +181,5 @@ namespace dotNES
                     return;
             }
         }
-
-        private void PerformDMA(uint from)
-        {
-            //Console.WriteLine("OAM DMA");
-            from <<= 8;
-            uint OAMADDR = _emulator.PPU.F.OAMAddress;
-            for (uint i = 0; i <= 0xFF; i++)
-            {
-                _emulator.PPU.OAM[i] = (byte)ReadByte(from | ((i + OAMADDR) & 0xFF));
-            }
-            Cycle += 513;
-        }
     }
 }

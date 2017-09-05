@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace dotNES
 {
     partial class CPU
     {
+        private bool _nmi;
+
         public void Initialize()
         {
             A = 0;
@@ -22,9 +23,6 @@ namespace dotNES
             F.InterruptsDisabled = true;
         }
 
-        public bool NMI = false;
-        private int _numExecuted = 0;
-
         public void TickFromPPU()
         {
             if (Cycle-- > 0) return;
@@ -33,19 +31,17 @@ namespace dotNES
 
         public void ExecuteSingleInstruction()
         {
-            if (NMI)
+            if (_nmi)
             {
                 PushWord(PC);
                 Push(P);
                 PC = ReadByte(0xFFFA) | (ReadByte(0xFFFB) << 8);
                 F.InterruptsDisabled = true;
-                NMI = false;
+                _nmi = false;
                 return;
             }
-            _numExecuted++;
             currentInstruction = NextByte();
-            if (PC == 0x6EEA)
-                PC = 0x6EEA;
+
             Cycle += opcodeDefs[currentInstruction].Cycles;
 
             ResetInstructionAddressingMode();
@@ -61,7 +57,7 @@ namespace dotNES
 
         public void TriggerNMI()
         {
-            NMI = true;
+            _nmi = true;
         }
     }
 }

@@ -288,7 +288,7 @@
                 {
                     F.VBlankStarted = true;
                     if (F.NMIEnabled)
-                        emulator.CPU.TriggerNMI();
+                        _emulator.CPU.TriggerNMI();
                 }
 
                 // Happens at the same time as 1st cycle of NT byte fetch
@@ -302,7 +302,7 @@
 
             if (_cpuSyncCounter + 1 == 3)
             {
-                emulator.CPU.TickFromPPU();
+                _emulator.CPU.TickFromPPU();
                 _cpuSyncCounter = 0;
             }
             else _cpuSyncCounter++;

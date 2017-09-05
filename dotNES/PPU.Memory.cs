@@ -79,7 +79,7 @@ namespace dotNES
         {
             long entry;
             var table = Math.DivRem(addr - 0x2000, 0x400, out entry);
-            return VRAMMirrorLookup[(int)emulator.Cartridge.MirroringMode][table] * 0x400 + (uint)entry;
+            return VRAMMirrorLookup[(int)_emulator.Cartridge.MirroringMode][table] * 0x400 + (uint)entry;
         }
 
         public uint ReadByte(uint addr)
@@ -93,7 +93,7 @@ namespace dotNES
 
             if (addr < 0x2000)
             {
-                return emulator.Mapper.ReadBytePPU(addr);
+                return _emulator.Mapper.ReadBytePPU(addr);
             }
 
             if (addr < 0x3000)
@@ -112,7 +112,7 @@ namespace dotNES
             {
                 case 0x0000:
                 case 0x1000:
-                    emulator.Mapper.WriteBytePPU(addr, val);
+                    _emulator.Mapper.WriteBytePPU(addr, val);
                     break;
                 case 0x2000:
                     _vram[GetVRAMMirror(addr)] = val;
@@ -132,6 +132,18 @@ namespace dotNES
                 default:
                     throw new NotImplementedException($"{addr:X4} = {val:X2}");
             }
+        }
+
+        public void PerformDMA(uint from)
+        {
+            //Console.WriteLine("OAM DMA");
+            from <<= 8;
+            uint OAMADDR = F.OAMAddress;
+            for (uint i = 0; i <= 0xFF; i++)
+            {
+                _oam[i] = (byte)_emulator.CPU.ReadByte(from | ((i + OAMADDR) & 0xFF));
+            }
+            _emulator.CPU.Cycle += 513;
         }
     }
 }
