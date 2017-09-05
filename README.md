@@ -9,6 +9,10 @@
 ![](http://i.imgur.com/Xyfp0AZ.png) <!-- Castlevania 2 -->
 ![](http://i.imgur.com/9lBMzz8.png) <!-- Contra -->
 
+## Running
+You can pick up the latest build [from AppVeyor](https://ci.appveyor.com/project/Xyene/emulator-nes/build/artifacts).
+Simply drag & drop an NES ROM file into it to start. Right click the window for options.
+
 ## Compatibility
 For a list of games known to be playable, visit [the wiki page](https://github.com/Xyene/Emulator.NES/wiki/Games-Known-to-Work).
 
