@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNES
 {
@@ -233,10 +229,10 @@ namespace dotNES
 
         public uint OAMDATA
         {
-            get => OAM[F.OAMAddress];
+            get => _oam[F.OAMAddress];
             set
             {
-                OAM[F.OAMAddress] = (byte)value;
+                _oam[F.OAMAddress] = (byte)value;
                 F.OAMAddress++;
             }
         }

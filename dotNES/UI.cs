@@ -80,7 +80,7 @@ namespace dotNES
                     {
                         s0.Restart();
                         emu.PPU.ProcessFrame();
-                        rawBitmap = emu.PPU.rawBitmap;
+                        rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)Draw);
                         s0.Stop();
                         Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));

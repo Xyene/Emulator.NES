@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace dotNES
+﻿namespace dotNES
 {
     partial class PPU
     {
-        const int GameWidth = 256, GameHeight = 240;
-        public uint bufferPos;
-        public uint[] rawBitmap = new uint[GameWidth * GameHeight];
-        public uint[] priority = new uint[GameWidth * GameHeight];
+        private const int GameWidth = 256, GameHeight = 240;
+
+        private uint _bufferPos;
+        public readonly uint[] RawBitmap = new uint[GameWidth * GameHeight];
+        private readonly uint[] _priority = new uint[GameWidth * GameHeight];
 
         // TODO: use real chroma/luma decoding
-        private uint[] Palette = {
+        private readonly uint[] _palette = {
             0x7C7C7C, 0x0000FC, 0x0000BC, 0x4428BC, 0x940084, 0xA80020, 0xA81000, 0x881400,
             0x503000, 0x007800, 0x006800, 0x005800, 0x004058, 0x000000, 0x000000, 0x000000,
             0xBCBCBC, 0x0078F8, 0x0058F8, 0x6844FC, 0xD800CC, 0xE40058, 0xF83800, 0xE45C10,
@@ -24,15 +19,14 @@ namespace dotNES
             0xFCFCFC, 0xA4E4FC, 0xB8B8F8, 0xD8B8F8, 0xF8B8F8, 0xF8A4C0, 0xF0D0B0, 0xFCE0A8,
             0xF8D878, 0xD8F878, 0xB8F8B8, 0xB8F8D8, 0x00FCFC, 0xF8D8F8, 0x000000, 0x000000
         };
-        private int ScanlineCount = 261;
-        private int CyclesPerLine = 341;
-        private int CPUSyncCounter;
-        private uint[] scanlineOAM = new uint[8 * 4];
-        private bool[] isSprite0 = new bool[8];
-        private bool[] isTallSpritePart = new bool[8];
-        private int spriteCount;
+        private int _scanlineCount = 261;
+        private int _cyclesPerLine = 341;
+        private int _cpuSyncCounter;
+        private readonly uint[] _scanlineOAM = new uint[8 * 4];
+        private readonly bool[] _isSprite0 = new bool[8];
+        private int _spriteCount;
 
-        private long tileShiftRegister;
+        private long _tileShiftRegister;
         private uint _currentNametableByte;
         private uint _currentHighTile, _currentLowTile;
         private uint _currentColor;
@@ -43,30 +37,29 @@ namespace dotNES
             if (F.DrawSprites)
                 ProcessSpritesForPixel(x, y);
 
-            if (y != -1) bufferPos++;
+            if (y != -1) _bufferPos++;
         }
 
         private void CountSpritesOnLine(int scanline)
         {
-            spriteCount = 0;
+            _spriteCount = 0;
             int height = F.TallSpritesEnabled ? 16 : 8;
 
-            for (int idx = 0; idx < OAM.Length; idx += 4)
+            for (int idx = 0; idx < _oam.Length; idx += 4)
             {
-                int y = OAM[idx] + 1;
+                int y = _oam[idx] + 1;
 
                 if (scanline >= y && scanline < y + height)
                 {
-                    isSprite0[spriteCount] = idx == 0;
-                    isTallSpritePart[spriteCount] = !(scanline < y);
-                    scanlineOAM[spriteCount * 4 + 0] = OAM[idx + 0];
-                    scanlineOAM[spriteCount * 4 + 1] = OAM[idx + 1];
-                    scanlineOAM[spriteCount * 4 + 2] = OAM[idx + 2];
-                    scanlineOAM[spriteCount * 4 + 3] = OAM[idx + 3];
-                    spriteCount++;
+                    _isSprite0[_spriteCount] = idx == 0;
+                    _scanlineOAM[_spriteCount * 4 + 0] = _oam[idx + 0];
+                    _scanlineOAM[_spriteCount * 4 + 1] = _oam[idx + 1];
+                    _scanlineOAM[_spriteCount * 4 + 2] = _oam[idx + 2];
+                    _scanlineOAM[_spriteCount * 4 + 3] = _oam[idx + 3];
+                    _spriteCount++;
                 }
 
-                if (spriteCount == 8) break;
+                if (_spriteCount == 8) break;
             }
         }
 
@@ -78,7 +71,6 @@ namespace dotNES
         private void NextTileByte(bool hi)
         {
             uint tileIdx = _currentNametableByte * 16;
-
             uint address = F.PatternTableAddress + tileIdx + FineY;
 
             if (hi)
@@ -91,7 +83,6 @@ namespace dotNES
         {
             // Bless nesdev
             uint addr = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
-
             _currentColor = (ReadByte(addr) >> (int)((CoarseX & 2) | ((CoarseY & 2) << 1))) & 0x3;
         }
 
@@ -100,7 +91,7 @@ namespace dotNES
             for (int x = 0; x < 8; x++)
             {
                 uint palette = ((_currentHighTile & 0x80) >> 6) | ((_currentLowTile & 0x80) >> 7);
-                tileShiftRegister |= (palette + _currentColor * 4) << ((7 - x) * 4);
+                _tileShiftRegister |= (palette + _currentColor * 4) << ((7 - x) * 4);
                 _currentLowTile <<= 1;
                 _currentHighTile <<= 1;
             }
@@ -115,26 +106,26 @@ namespace dotNES
                 // https://www.romhacking.net/forum/index.php?topic=20554.0
                 // Don't know if any game actually uses it, but a test ROM I wrote unexpectedly showed this
                 // corner case
-                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00 + ((V & 0x3F00) == 0x3F00 ? V & 0x001F : 0)) & 0x3F];
+                RawBitmap[_bufferPos] = _palette[ReadByte(0x3F00 + ((V & 0x3F00) == 0x3F00 ? V & 0x001F : 0)) & 0x3F];
                 return;
             }
 
-            uint paletteEntry = (uint)(tileShiftRegister >> 32 >> (int)((7 - X) * 4)) & 0x0F;
+            uint paletteEntry = (uint)(_tileShiftRegister >> 32 >> (int)((7 - X) * 4)) & 0x0F;
             if (paletteEntry % 4 == 0) paletteEntry = 0;
 
             if (scanline != -1)
             {
-                priority[bufferPos] = paletteEntry;
-                rawBitmap[bufferPos] = Palette[ReadByte(0x3F00u + paletteEntry) & 0x3F];
+                _priority[_bufferPos] = paletteEntry;
+                RawBitmap[_bufferPos] = _palette[ReadByte(0x3F00u + paletteEntry) & 0x3F];
             }
         }
 
         private void ProcessSpritesForPixel(int x, int scanline)
         {
-            for (int idx = spriteCount * 4 - 4; idx >= 0; idx -= 4)
+            for (int idx = _spriteCount * 4 - 4; idx >= 0; idx -= 4)
             {
-                uint spriteX = scanlineOAM[idx + 3];
-                uint spriteY = scanlineOAM[idx] + 1;
+                uint spriteX = _scanlineOAM[idx + 3];
+                uint spriteY = _scanlineOAM[idx] + 1;
 
                 // Don't draw this sprite if...
                 if (spriteY == 0 || // it's located at y = 0
@@ -148,11 +139,11 @@ namespace dotNES
                 // to that of the Gameboy / Gameboy Color, so I've sort of just copy/pasted
                 // handling code wholesale from my GBC emulator at
                 // https://github.com/Xyene/Nitrous-Emulator/blob/master/src/main/java/nitrous/lcd/LCD.java#L642
-                uint tileIdx = scanlineOAM[idx + 1];
+                uint tileIdx = _scanlineOAM[idx + 1];
                 if (F.TallSpritesEnabled) tileIdx &= ~0x1u;
                 tileIdx *= 16;
 
-                uint attrib = scanlineOAM[idx + 2] & 0xE3;
+                uint attrib = _scanlineOAM[idx + 2] & 0xE3;
 
                 uint palette = attrib & 0x3;
                 bool front = (attrib & 0x20) == 0;
@@ -162,7 +153,7 @@ namespace dotNES
                 int px = (int)(x - spriteX);
                 int line = (int)(scanline - spriteY);
 
-                uint tableBase = F.TallSpritesEnabled ? (scanlineOAM[idx + 1] & 1) * 0x1000 : F.SpriteTableAddress;
+                uint tableBase = F.TallSpritesEnabled ? (_scanlineOAM[idx + 1] & 1) * 0x1000 : F.SpriteTableAddress;
 
                 if (F.TallSpritesEnabled)
                 {
@@ -200,9 +191,9 @@ namespace dotNES
 
                 if (color > 0)
                 {
-                    uint backgroundPixel = priority[bufferPos];
+                    uint backgroundPixel = _priority[_bufferPos];
                     // Sprite 0 hits...
-                    if (!(!isSprite0[idx / 4] || // do not occur on not-0 sprite
+                    if (!(!_isSprite0[idx / 4] || // do not occur on not-0 sprite
                           x < 8 && !F.DrawLeftSprites || // or if left clipping is enabled
                           backgroundPixel == 0 || // or if bg pixel is transparent
                           F.Sprite0Hit || // or if it fired this frame already
@@ -212,7 +203,7 @@ namespace dotNES
                     {
                         if (scanline != -1)
                         {
-                            rawBitmap[bufferPos] = Palette[ReadByte(0x3F10 + palette * 4 + color) & 0x3F];
+                            RawBitmap[_bufferPos] = _palette[ReadByte(0x3F10 + palette * 4 + color) & 0x3F];
                         }
                     }
                 }
@@ -221,17 +212,17 @@ namespace dotNES
 
         public void ProcessFrame()
         {
-            rawBitmap.Fill(0u);
-            priority.Fill(0u);
-            bufferPos = 0;
+            RawBitmap.Fill(0u);
+            _priority.Fill(0u);
+            _bufferPos = 0;
 
-            for (int i = -1; i < ScanlineCount; i++)
+            for (int i = -1; i < _scanlineCount; i++)
                 ProcessScanline(i);
         }
 
         public void ProcessScanline(int line)
         {
-            for (int i = 0; i < CyclesPerLine; i++)
+            for (int i = 0; i < _cyclesPerLine; i++)
                 ProcessCycle(line, i);
         }
 
@@ -252,7 +243,7 @@ namespace dotNES
 
                 if (fetchCycle)
                 {
-                    tileShiftRegister <<= 4;
+                    _tileShiftRegister <<= 4;
 
                     // See https://wiki.nesdev.com/w/images/d/d1/Ntsc_timing.png
                     // Takes 8 cycles for tile to be read, 2 per "step"
@@ -309,12 +300,12 @@ namespace dotNES
                 }
             }
 
-            if (CPUSyncCounter + 1 == 3)
+            if (_cpuSyncCounter + 1 == 3)
             {
                 emulator.CPU.TickFromPPU();
-                CPUSyncCounter = 0;
+                _cpuSyncCounter = 0;
             }
-            else CPUSyncCounter++;
+            else _cpuSyncCounter++;
         }
     }
 }

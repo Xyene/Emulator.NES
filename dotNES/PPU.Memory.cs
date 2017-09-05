@@ -5,9 +5,9 @@ namespace dotNES
 {
     partial class PPU
     {
-        public byte[] OAM = new byte[0x100];
-        private byte[] VRAM = new byte[0x2000];
-        private byte[] PaletteRAM = new byte[0x20];
+        private readonly byte[] _oam = new byte[0x100];
+        private readonly byte[] _vram = new byte[0x2000];
+        private readonly byte[] _paletteRAM = new byte[0x20];
 
         private static readonly uint[][] VRAMMirrorLookup =
         {
@@ -17,9 +17,6 @@ namespace dotNES
             new uint[]{0, 0, 0, 0}, // Upper
             new uint[]{1, 1, 1, 1}, // Lower
         };
-
-        // TODO: cart-controlled modes
-        private Cartridge.VRAMMirroringMode _currentMirroringMode => emulator.Cartridge.MirroringMode;
 
         private int _lastWrittenRegister;
 
@@ -82,7 +79,7 @@ namespace dotNES
         {
             long entry;
             var table = Math.DivRem(addr - 0x2000, 0x400, out entry);
-            return VRAMMirrorLookup[(int)_currentMirroringMode][table] * 0x400 + (uint)entry;
+            return VRAMMirrorLookup[(int)emulator.Cartridge.MirroringMode][table] * 0x400 + (uint)entry;
         }
 
         public uint ReadByte(uint addr)
@@ -91,7 +88,7 @@ namespace dotNES
             {
                 if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
                     addr -= 0x10;
-                return PaletteRAM[(addr - 0x3F00) & 0x1F];
+                return _paletteRAM[(addr - 0x3F00) & 0x1F];
             }
 
             if (addr < 0x2000)
@@ -101,10 +98,10 @@ namespace dotNES
 
             if (addr < 0x3000)
             {
-                return VRAM[GetVRAMMirror(addr)];
+                return _vram[GetVRAMMirror(addr)];
             }
 
-            return VRAM[GetVRAMMirror(addr - 0x1000)];
+            return _vram[GetVRAMMirror(addr - 0x1000)];
         }
 
         public void WriteByte(uint addr, uint _val)
@@ -118,18 +115,18 @@ namespace dotNES
                     emulator.Mapper.WriteBytePPU(addr, val);
                     break;
                 case 0x2000:
-                    VRAM[GetVRAMMirror(addr)] = val;
+                    _vram[GetVRAMMirror(addr)] = val;
                     break;
                 case 0x3000:
                     if (addr <= 0x3EFF)
                     {
-                        VRAM[GetVRAMMirror(addr - 0x1000)] = val;
+                        _vram[GetVRAMMirror(addr - 0x1000)] = val;
                     }
                     else
                     {
                         if (addr % 4 == 0)
                             addr -= 0x10;
-                        PaletteRAM[(addr - 0x3F00) & 0x1F] = val;
+                        _paletteRAM[(addr - 0x3F00) & 0x1F] = val;
                     }
                     break;
                 default:
