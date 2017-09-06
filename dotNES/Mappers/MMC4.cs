@@ -6,7 +6,7 @@ namespace dotNES.Mappers
 {
     class MMC4 : AbstractMapper
     {
-        private readonly Cartridge.VRAMMirroringMode[] _mirroringModes = { Vertical, Horizontal };
+        protected readonly Cartridge.VRAMMirroringMode[] _mirroringModes = { Vertical, Horizontal };
 
         protected int _prgBankOffset;
         protected int[,] _chrBankOffsets = new int[2, 2];
@@ -14,6 +14,7 @@ namespace dotNES.Mappers
 
         public MMC4(Emulator emulator) : base(emulator)
         {
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -22,6 +23,19 @@ namespace dotNES.Mappers
             if (addr < 0x8000) return _prgRAM[addr - 0x6000];
             if (addr < 0xC000) return _prgROM[_prgBankOffset + (addr - 0x8000)];
             return _prgROM[_lastBankOffset + (addr - 0xC000)];
+        }
+
+        protected virtual void GetLatch(uint addr, out uint latch, out bool? on)
+        {
+            latch = (addr >> 12) & 0x1;
+            on = null;
+
+            addr = (addr >> 4) & 0xFF;
+
+            if (addr == 0xFE)
+                on = true;
+            else if (addr == 0xFD)
+                on = false;
         }
 
         public override uint ReadBytePPU(uint addr)
@@ -36,16 +50,12 @@ namespace dotNES.Mappers
 
             if ((addr & 0x08) > 0)
             {
-                var latch = (addr >> 12) & 0x1;
-                bool? on = null;
+                uint latch;
+                bool? on;
 
-                addr = (addr >> 4) & 0xFF;
-                if (addr == 0xFE)
-                    on = true;
-                else if (addr == 0xFD)
-                    on = false;
+                GetLatch(addr, out latch, out on);
 
-                if (on != null) _latches[latch] = (bool) on;
+                if (on != null) _latches[latch] = (bool)on;
             }
 
             return ret;

@@ -10,6 +10,7 @@ namespace dotNES
             {0, typeof(NROM)},
             {1, typeof(MMC1)},
             {2, typeof(UxROM)},
+            {9, typeof(MMC2)},
             {10, typeof(MMC4)},
             {94, typeof(Mapper094)},
             {155, typeof(Mapper155)},
