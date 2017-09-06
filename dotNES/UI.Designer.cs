@@ -32,11 +32,12 @@
             // 
             // UI
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(496, 441);
+            this.ClientSize = new System.Drawing.Size(1323, 1052);
+            this.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.Name = "UI";
-            this.Text = "UI";
+            this.Text = "Emulator.NES";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI_FormClosing);
             this.Load += new System.EventHandler(this.UI_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.UI_KeyDown);
