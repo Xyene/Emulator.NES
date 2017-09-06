@@ -106,7 +106,7 @@
                 // https://www.romhacking.net/forum/index.php?topic=20554.0
                 // Don't know if any game actually uses it, but a test ROM I wrote unexpectedly showed this
                 // corner case
-                RawBitmap[_bufferPos] = _palette[ReadByte(0x3F00 + ((V & 0x3F00) == 0x3F00 ? V & 0x001F : 0)) & 0x3F];
+                RawBitmap[_bufferPos] = _palette[ReadByte(0x3F00 + ((F.BusAddress & 0x3F00) == 0x3F00 ? F.BusAddress & 0x001F : 0)) & 0x3F];
                 return;
             }
 
