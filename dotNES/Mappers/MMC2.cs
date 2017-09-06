@@ -27,27 +27,12 @@ namespace dotNES.Mappers
                 on = null;
         }
 
-        public override void WriteByte(uint addr, uint _val)
+        public override void WriteByte(uint addr, uint val)
         {
-            if (addr < 0x6000) return;
-
-            byte val = (byte)_val;
-
-            if (addr < 0x8000)
-                _prgRAM[addr - 0x6000] = val;
-
-            if (addr < 0xA000) return;
-
-            if (addr <= 0xAFFF)
-                _prgBankOffset = (val & 0xF) * 0x2000;
-            else if (addr < 0xF000)
-            {
-                var bank = (addr - 0xB000) / 0x2000;
-                var latch = ((addr & 0x1FFF) == 0).AsByte();
-                _chrBankOffsets[bank, latch] = (val & 0x1F) * 0x1000;
-            }
+            if (0xA000 <= addr && addr <= 0xAFFF)
+                _prgBankOffset = (int) ((val & 0xF) * 0x2000);
             else
-                _emulator.Cartridge.MirroringMode = _mirroringModes[val & 0x1];
+                base.WriteByte(addr, val);
         }
     }
 }
