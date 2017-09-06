@@ -51,19 +51,19 @@ namespace dotNES
         private string activeSize = "2x";
         private Emulator emu;
         private bool suspended;
+        private bool gameStarted;
 
         public UI()
         {
             InitializeComponent();
         }
 
-        private void UI_Load(object sender, EventArgs e)
+        private void BootCartridge(string rom)
         {
+            emu = new Emulator(rom, controller);
             renderer = new Thread(() =>
             {
-                string[] args = Environment.GetCommandLineArgs();
-                string rom = args.Length > 1 ? args[1] : @"C:\dev\nes\Emulator-.NES\megaman.nes";
-                emu = new Emulator(rom, controller);
+                gameStarted = true;
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();
                 Stopwatch s0 = new Stopwatch();
@@ -92,6 +92,13 @@ namespace dotNES
             renderer.Start();
         }
 
+        private void UI_Load(object sender, EventArgs e)
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+                BootCartridge(args[1]);
+        }
+
         private void Screenshot()
         {
             var bitmap = new Bitmap(GameWidth, GameHeight, PixelFormat.Format32bppArgb);
@@ -107,7 +114,7 @@ namespace dotNES
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
             rendererRunning = false;
-            renderer.Abort();
+            renderer?.Abort();
         }
 
         private void UI_KeyDown(object sender, KeyEventArgs e)
@@ -191,6 +198,28 @@ namespace dotNES
             }
             };
             cm.Show(this, new Point(e.X, e.Y));
+        }
+
+        private void UI_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                try
+                {
+                    BootCartridge(files[0]);
+                    AllowDrop = false;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Error loading ROM file; either corrupt or unsupported");
+                }
+            }
+        }
+
+        private void UI_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
         }
     }
 }

@@ -69,7 +69,7 @@ namespace dotNES
             var bitmapProperties = new BitmapProperties(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Ignore));
             gameBitmap = new Bitmap(d2dRenderTarget, new Size2(GameWidth, GameHeight), bitmapProperties);
 
-            clientArea = new RawRectangleF()
+            clientArea = new RawRectangleF
             {
                 Left = 0,
                 Top = 0,
@@ -111,13 +111,17 @@ namespace dotNES
         public void Draw()
         {
             if (!ready) return;
+
             d2dRenderTarget.BeginDraw();
-            d2dRenderTarget.Clear(Color.Transparent);
+            d2dRenderTarget.Clear(Color.Gray);
 
-            int stride = GameWidth * 4;
-            gameBitmap.CopyFromMemory(rawBitmap, stride);
+            if (gameStarted)
+            {
+                int stride = GameWidth * 4;
+                gameBitmap.CopyFromMemory(rawBitmap, stride);
 
-            d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f, BitmapInterpolationMode.Linear);
+                d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f, BitmapInterpolationMode.Linear);
+            }
 
             d2dRenderTarget.EndDraw();
             swapChain.Present(0, PresentFlags.None);
