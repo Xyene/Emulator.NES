@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using dotNES.Mappers;
 
 namespace dotNES
@@ -17,17 +18,6 @@ namespace dotNES
             {180, typeof(Mapper180)}
         };
 
-        public Emulator(string path, NES001Controller controller)
-        {
-            Cartridge = new Cartridge(path);
-            if (!Mappers.ContainsKey(Cartridge.MapperNumber))
-                throw new NotImplementedException($"unsupported mapper {Cartridge.MapperNumber}");
-            Mapper = (AbstractMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
-            CPU = new CPU(this);
-            PPU = new PPU(this);
-            Controller = controller;
-        }
-
         public NES001Controller Controller;
 
         public readonly CPU CPU;
@@ -37,5 +27,40 @@ namespace dotNES
         public readonly AbstractMapper Mapper;
 
         public readonly Cartridge Cartridge;
+
+        private string _path;
+
+        public Emulator(string path, NES001Controller controller)
+        {
+            _path = path;
+            Cartridge = new Cartridge(path);
+            if (!Mappers.ContainsKey(Cartridge.MapperNumber))
+                throw new NotImplementedException($"unsupported mapper {Cartridge.MapperNumber}");
+            Mapper = (AbstractMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
+            CPU = new CPU(this);
+            PPU = new PPU(this);
+            Controller = controller;
+
+            Load();
+        }
+
+        public void Save()
+        {
+            using (var fs = new FileStream(_path + ".sav", FileMode.Create, FileAccess.Write))
+            {
+                Mapper.Save(fs);
+            }
+        }
+
+        public void Load()
+        {
+            var sav = _path + ".sav";
+            if (!File.Exists(sav)) return;
+
+            using (FileStream fs = new FileStream(sav, FileMode.Open, FileAccess.Read))
+            {
+                Mapper.Load(fs);
+            }
+        }
     }
 }
