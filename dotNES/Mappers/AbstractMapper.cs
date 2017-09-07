@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
@@ -17,7 +18,7 @@ namespace dotNES.Mappers
             var cart = emulator.Cartridge;
             _prgROM = cart.PRGROM;
             _chrROM = cart.CHRROM;
-            _lastBankOffset = (uint)_prgROM.Length - 0x4000;
+            _lastBankOffset = (uint) _prgROM.Length - 0x4000;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +45,20 @@ namespace dotNES.Mappers
                 _chrROM[addr] = (byte) val;
             }
             else throw new NotImplementedException();
+        }
+
+        public virtual void Save(Stream os)
+        {
+            os.Write(_prgRAM, 0, _prgRAM.Length);
+        }
+
+        public virtual void Load(Stream os)
+        {
+            using (BinaryReader binaryReader = new BinaryReader(os))
+            {
+                byte[] ram = binaryReader.ReadBytes((int)os.Length);
+                Array.Copy(ram, _prgRAM, ram.Length);
+            }
         }
     }
 }

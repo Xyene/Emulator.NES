@@ -1,5 +1,6 @@
 # Misc for this project
 *.nes
+*.sav
 *.exp
 
 ## Ignore Visual Studio temporary files, build results, and
