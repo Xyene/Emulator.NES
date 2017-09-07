@@ -4,7 +4,8 @@ using static dotNES.Cartridge.VRAMMirroringMode;
 
 namespace dotNES.Mappers
 {
-    class MMC1 : AbstractMapper
+    [MapperDef(1)]
+    class MMC1 : BaseMapper
     {
         // TODO: are MMC1 and MMC1A even different chip types?
         public enum ChipType { MMC1, MMC1A, MMC1B, MMC1C }

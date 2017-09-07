@@ -1,9 +1,7 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-namespace dotNES.Mappers
+﻿namespace dotNES.Mappers
 {
-    class NROM : AbstractMapper
+    [MapperDef(0)]
+    class NROM : BaseMapper
     {
         private readonly byte[] _addressSpace = new byte[0x2000 + 0x8000]; // Space for $2000 VRAM + $8000 PRG
 

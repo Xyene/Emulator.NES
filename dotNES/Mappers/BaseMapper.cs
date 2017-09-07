@@ -4,7 +4,25 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    abstract class AbstractMapper : IAddressable
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    public class MapperDef : Attribute
+    {
+        public int Id;
+        public string Name;
+        public string Description;
+
+        public MapperDef()
+        {
+
+        }
+
+        public MapperDef(int id)
+        {
+            Id = id;
+        }
+    }
+
+    abstract class BaseMapper : IAddressable
     {
         protected readonly Emulator _emulator;
         protected readonly byte[] _prgROM;
@@ -12,7 +30,7 @@ namespace dotNES.Mappers
         protected readonly byte[] _chrROM;
         protected readonly uint _lastBankOffset;
 
-        public AbstractMapper(Emulator emulator)
+        public BaseMapper(Emulator emulator)
         {
             _emulator = emulator;
             var cart = emulator.Cartridge;

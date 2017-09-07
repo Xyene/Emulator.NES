@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using dotNES.Mappers;
 
 namespace dotNES
 {
     class Emulator
     {
-        private static readonly Dictionary<int, Type> Mappers = new Dictionary<int, Type> {
-            {0, typeof(NROM)},
-            {1, typeof(MMC1)},
-            {2, typeof(UxROM)},
-            {9, typeof(MMC2)},
-            {10, typeof(MMC4)},
-            {94, typeof(Mapper094)},
-            {155, typeof(Mapper155)},
-            {180, typeof(Mapper180)}
-        };
+        private static readonly Dictionary<int, Type> Mappers;
+
+        static Emulator()
+        {
+            Mappers = (from type in Assembly.GetExecutingAssembly().GetTypes()
+                       let def = (MapperDef)type.GetCustomAttributes(typeof(MapperDef), true).FirstOrDefault()
+                       where def != null
+                       select new { def, type }).ToDictionary(a => a.def.Id, a => a.type);
+        }
 
         public NES001Controller Controller;
 
@@ -24,7 +25,7 @@ namespace dotNES
 
         public readonly PPU PPU;
 
-        public readonly AbstractMapper Mapper;
+        public readonly BaseMapper Mapper;
 
         public readonly Cartridge Cartridge;
 
@@ -36,7 +37,7 @@ namespace dotNES
             Cartridge = new Cartridge(path);
             if (!Mappers.ContainsKey(Cartridge.MapperNumber))
                 throw new NotImplementedException($"unsupported mapper {Cartridge.MapperNumber}");
-            Mapper = (AbstractMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
+            Mapper = (BaseMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
             CPU = new CPU(this);
             PPU = new PPU(this);
             Controller = controller;

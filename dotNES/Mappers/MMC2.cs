@@ -2,6 +2,7 @@
 
 namespace dotNES.Mappers
 {
+    [MapperDef(Id = 9, Description = "Mike Tyson's Punch-Out!!")]
     class MMC2 : MMC4
     {
         public MMC2(Emulator emulator) : base(emulator)

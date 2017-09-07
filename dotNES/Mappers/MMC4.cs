@@ -4,7 +4,8 @@ using static dotNES.Cartridge.VRAMMirroringMode;
 
 namespace dotNES.Mappers
 {
-    class MMC4 : AbstractMapper
+    [MapperDef(10)]
+    class MMC4 : BaseMapper
     {
         protected readonly Cartridge.VRAMMirroringMode[] _mirroringModes = { Vertical, Horizontal };
 

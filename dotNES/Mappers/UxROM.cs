@@ -3,7 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
-    class UxROM : AbstractMapper
+    [MapperDef(2)]
+    class UxROM : BaseMapper
     {
         protected int _bankOffset;
 

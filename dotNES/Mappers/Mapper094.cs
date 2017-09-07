@@ -2,6 +2,7 @@
 
 namespace dotNES.Mappers
 {
+    [MapperDef(Id = 94, Description = "Senjou no Ookami")]
     class Mapper094 : UxROM
     {
         public Mapper094(Emulator emulator) : base(emulator)
