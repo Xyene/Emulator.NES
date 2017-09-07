@@ -9,15 +9,11 @@ namespace dotNES
 {
     class Emulator
     {
-        private static readonly Dictionary<int, Type> Mappers;
+        private static readonly Dictionary<int, Type> Mappers = (from type in Assembly.GetExecutingAssembly().GetTypes()
+                                                                 let def = (MapperDef)type.GetCustomAttributes(typeof(MapperDef), true).FirstOrDefault()
+                                                                 where def != null
+                                                                 select new { def, type }).ToDictionary(a => a.def.Id, a => a.type);
 
-        static Emulator()
-        {
-            Mappers = (from type in Assembly.GetExecutingAssembly().GetTypes()
-                       let def = (MapperDef)type.GetCustomAttributes(typeof(MapperDef), true).FirstOrDefault()
-                       where def != null
-                       select new { def, type }).ToDictionary(a => a.def.Id, a => a.type);
-        }
 
         public NES001Controller Controller;
 
@@ -29,7 +25,7 @@ namespace dotNES
 
         public readonly Cartridge Cartridge;
 
-        private string _path;
+        private readonly string _path;
 
         public Emulator(string path, NES001Controller controller)
         {
