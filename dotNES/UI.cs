@@ -115,7 +115,7 @@ namespace dotNES
         {
             rendererRunning = false;
             renderer?.Abort();
-            emu.Save();
+            emu?.Save();
         }
 
         private void UI_KeyDown(object sender, KeyEventArgs e)
