@@ -104,11 +104,14 @@ namespace dotNES
             var bitmap = new Bitmap(GameWidth, GameHeight, PixelFormat.Format32bppArgb);
 
             for (int y = 0; y < GameHeight; y++)
+            {
                 for (int x = 0; x < GameWidth; x++)
                 {
                     bitmap.SetPixel(x, y, Color.FromArgb((int)(rawBitmap[y * GameWidth + x] | 0xff000000)));
                 }
-            bitmap.Save("screenshot.png");
+            }
+
+            Clipboard.SetImage(bitmap);
         }
 
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
