@@ -9,10 +9,10 @@ namespace dotNES
 {
     class Emulator
     {
-        private static readonly Dictionary<int, Type> Mappers = (from type in Assembly.GetExecutingAssembly().GetTypes()
+        private static readonly Dictionary<int, KeyValuePair<Type, MapperDef>> Mappers = (from type in Assembly.GetExecutingAssembly().GetTypes()
                                                                  let def = (MapperDef)type.GetCustomAttributes(typeof(MapperDef), true).FirstOrDefault()
                                                                  where def != null
-                                                                 select new { def, type }).ToDictionary(a => a.def.Id, a => a.type);
+                                                                 select new { def, type }).ToDictionary(a => a.def.Id, a => new KeyValuePair<Type, MapperDef>(a.type, a.def));
 
 
         public NES001Controller Controller;
@@ -33,7 +33,7 @@ namespace dotNES
             Cartridge = new Cartridge(path);
             if (!Mappers.ContainsKey(Cartridge.MapperNumber))
                 throw new NotImplementedException($"unsupported mapper {Cartridge.MapperNumber}");
-            Mapper = (BaseMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber], this);
+            Mapper = (BaseMapper)Activator.CreateInstance(Mappers[Cartridge.MapperNumber].Key, this);
             CPU = new CPU(this);
             PPU = new PPU(this);
             Controller = controller;
