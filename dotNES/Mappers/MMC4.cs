@@ -35,7 +35,6 @@ namespace dotNES.Mappers
 
         public override void InitializeMaps(PPU ppu)
         {
-            // TODO: CHRRAM?
             ppu.MapReadHandler(0x0000, 0x1FFF, addr =>
             {
                 var bank = addr / 0x1000;
