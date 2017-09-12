@@ -82,56 +82,61 @@ namespace dotNES
             return VRAMMirrorLookup[(int)_emulator.Cartridge.MirroringMode][table] * 0x400 + (uint)entry;
         }
 
-        public uint ReadByte(uint addr)
+        private readonly CPU.ReadDelegate[] _readMap = new CPU.ReadDelegate[16384];
+        private readonly CPU.WriteDelegate[] _writeMap = new CPU.WriteDelegate[65536];
+
+        public void InitializeMaps()
         {
-            if (0x3EFF < addr)
+            _readMap.Fill(addr => throw new NotImplementedException($"read from {addr:X4}"));
+
+            // Some games write to addresses not mapped and expect to continue afterwards
+            _writeMap.Fill((addr, val) => { });
+
+            MapReadHandler(0x2000, 0x2FFF, addr => _vram[GetVRAMMirror(addr)]);
+            MapReadHandler(0x3000, 0x3EFF, addr => _vram[GetVRAMMirror(addr - 0x1000)]);
+            MapReadHandler(0x3F00, 0x3FFF, addr =>
             {
                 if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
                     addr -= 0x10;
                 return _paletteRAM[(addr - 0x3F00) & 0x1F];
-            }
-
-            if (addr < 0x2000)
+            });
+            
+            MapWriteHandler(0x2000, 0x2FFF, (addr, val) => _vram[GetVRAMMirror(addr)] = val);
+            MapWriteHandler(0x3000, 0x3EFF, (addr, val) => _vram[GetVRAMMirror(addr - 0x1000)] = val);
+            MapWriteHandler(0x3F00, 0x3FFF, (addr, val) =>
             {
-                return _emulator.Mapper.ReadBytePPU(addr);
-            }
+                if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
+                    addr -= 0x10;
+                _paletteRAM[(addr - 0x3F00) & 0x1F] = val;
+            });
 
-            if (addr < 0x3000)
-            {
-                return _vram[GetVRAMMirror(addr)];
-            }
-
-            return _vram[GetVRAMMirror(addr - 0x1000)];
+            _emulator.Mapper.InitializeMaps(this);
         }
 
-        public void WriteByte(uint addr, uint _val)
+        public void MapReadHandler(uint start, uint end, CPU.ReadDelegate func)
         {
-            byte val = (byte)_val;
+            for (uint i = start; i <= end; i++)
+                _readMap[i] = func;
+        }
 
-            switch (addr & 0xF000)
-            {
-                case 0x0000:
-                case 0x1000:
-                    _emulator.Mapper.WriteBytePPU(addr, val);
-                    break;
-                case 0x2000:
-                    _vram[GetVRAMMirror(addr)] = val;
-                    break;
-                case 0x3000:
-                    if (addr <= 0x3EFF)
-                    {
-                        _vram[GetVRAMMirror(addr - 0x1000)] = val;
-                    }
-                    else
-                    {
-                        if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
-                            addr -= 0x10;
-                        _paletteRAM[(addr - 0x3F00) & 0x1F] = val;
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException($"{addr:X4} = {val:X2}");
-            }
+        public void MapWriteHandler(uint start, uint end, CPU.WriteDelegate func)
+        {
+            for (uint i = start; i <= end; i++)
+                _writeMap[i] = func;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public uint ReadByte(uint addr)
+        {
+            addr &= 0xFFFF;
+            return _readMap[addr](addr);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteByte(uint addr, uint val)
+        {
+            addr &= 0xFFFF;
+            _writeMap[addr](addr, (byte)val);
         }
 
         public void PerformDMA(uint from)

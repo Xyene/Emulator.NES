@@ -46,16 +46,6 @@ namespace dotNES.Mappers
             _emulator.Cartridge.MirroringMode = Horizontal;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override uint ReadBytePPU(uint addr)
-        {
-            if (addr < 0x2000)
-            {
-                return _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000];
-            }
-            throw new NotImplementedException();
-        }
-
         public override void InitializeMaps(CPU cpu)
         {
             cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
@@ -107,14 +97,10 @@ namespace dotNES.Mappers
             });
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void WriteBytePPU(uint addr, uint value)
+        public override void InitializeMaps(PPU ppu)
         {
-            if (addr < 0x2000)
-            {
-                _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000] = (byte)value;
-            }
-            else throw new NotImplementedException();
+            ppu.MapReadHandler(0x0000, 0x1FFF, addr => _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000]);
+            ppu.MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000] = val);
         }
 
         private void UpdateControl(uint value)

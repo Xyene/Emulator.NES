@@ -227,10 +227,10 @@ namespace dotNES
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
+                BootCartridge(files[0]);
+                AllowDrop = false;
                 try
                 {
-                    BootCartridge(files[0]);
-                    AllowDrop = false;
                 }
                 catch (Exception)
                 {

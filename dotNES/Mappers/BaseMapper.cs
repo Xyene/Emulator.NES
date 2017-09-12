@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace dotNES.Mappers
 {
@@ -30,7 +29,7 @@ namespace dotNES.Mappers
         protected readonly byte[] _chrROM;
         protected readonly uint _lastBankOffset;
 
-        public BaseMapper(Emulator emulator)
+        protected BaseMapper(Emulator emulator)
         {
             _emulator = emulator;
             var cart = emulator.Cartridge;
@@ -39,29 +38,15 @@ namespace dotNES.Mappers
             _lastBankOffset = (uint) _prgROM.Length - 0x4000;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual uint ReadBytePPU(uint addr)
-        {
-            if (addr < 0x2000)
-            {
-                return _chrROM[addr];
-            }
-            throw new NotImplementedException();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteBytePPU(uint addr, uint val)
-        {
-            if (addr < 0x2000)
-            {
-                _chrROM[addr] = (byte) val;
-            }
-            else throw new NotImplementedException();
-        }
-
         public virtual void InitializeMaps(CPU cpu)
         {
 
+        }
+
+        public virtual void InitializeMaps(PPU ppu)
+        {
+            ppu.MapReadHandler(0x0000, 0x1FFF, addr => _chrROM[addr]);
+            ppu.MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _chrROM[addr] = val);
         }
 
         public virtual void ProcessCycle(int scanline, int cycle)

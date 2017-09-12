@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace dotNES
+﻿namespace dotNES
 {
     partial class PPU : IAddressable
     {
@@ -9,6 +7,7 @@ namespace dotNES
         public PPU(Emulator emulator)
         {
             _emulator = emulator;
+            InitializeMaps();
         }
     }
 }

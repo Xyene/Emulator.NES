@@ -33,6 +33,26 @@ namespace dotNES.Mappers
             cpu.MapWriteHandler(0xF000, 0xFFFF, (addr, val) => _emulator.Cartridge.MirroringMode = _mirroringModes[val & 0x1]);
         }
 
+        public override void InitializeMaps(PPU ppu)
+        {
+            // TODO: CHRRAM?
+            ppu.MapReadHandler(0x0000, 0x1FFF, addr =>
+            {
+                var bank = addr / 0x1000;
+                var ret = _chrROM[_chrBankOffsets[bank, _latches[bank].AsByte()] + addr % 0x1000];
+                if ((addr & 0x08) > 0)
+                {
+                    uint latch;
+                    bool? on;
+
+                    GetLatch(addr, out latch, out on);
+
+                    if (on != null) _latches[latch] = (bool)on;
+                }
+                return ret;
+            });
+        }
+
         protected virtual void GetLatch(uint addr, out uint latch, out bool? on)
         {
             latch = (addr >> 12) & 0x1;
@@ -44,29 +64,6 @@ namespace dotNES.Mappers
                 on = true;
             else if (addr == 0xFD)
                 on = false;
-        }
-
-        public override uint ReadBytePPU(uint addr)
-        {
-            uint ret;
-            if (addr < 0x2000)
-            {
-                var bank = addr / 0x1000;
-                ret = _chrROM[_chrBankOffsets[bank, _latches[bank].AsByte()] + addr % 0x1000];
-            }
-            else throw new NotImplementedException();
-
-            if ((addr & 0x08) > 0)
-            {
-                uint latch;
-                bool? on;
-
-                GetLatch(addr, out latch, out on);
-
-                if (on != null) _latches[latch] = (bool)on;
-            }
-
-            return ret;
         }
     }
 }

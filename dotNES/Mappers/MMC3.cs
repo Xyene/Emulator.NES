@@ -49,6 +49,12 @@ namespace dotNES.Mappers
             cpu.MapWriteHandler(0x6000, 0xFFFF, WriteByte);
         }
 
+        public override void InitializeMaps(PPU ppu)
+        {
+            ppu.MapReadHandler(0x0000, 0x1FFF, addr => _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400]);
+            ppu.MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400] = val);
+        }
+
         public override void ProcessCycle(int scanline, int cycle)
         {
             if (_emulator.PPU.F.RenderingEnabled && cycle == 260 && (0 <= scanline && scanline < 240 || scanline == -1))
@@ -63,26 +69,6 @@ namespace dotNES.Mappers
                     if (_irqEnabled && _irqCounter == 0) _emulator.CPU.TriggerInterrupt(CPU.InterruptType.IRQ);
                 }
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override uint ReadBytePPU(uint addr)
-        {
-            if (addr < 0x2000)
-            {
-                return _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400];
-            }
-            throw new NotImplementedException();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void WriteBytePPU(uint addr, uint value)
-        {
-            if (addr < 0x2000)
-            {
-                _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400] = (byte)value;
-            }
-            else throw new NotImplementedException();
         }
 
         public void WriteByte(uint addr, byte value)
