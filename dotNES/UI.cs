@@ -88,7 +88,7 @@ namespace dotNES
                         rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)Draw);
                         s0.Stop();
-                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
+                        //Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
@@ -226,6 +226,7 @@ namespace dotNES
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
                 try
                 {
                     BootCartridge(files[0]);

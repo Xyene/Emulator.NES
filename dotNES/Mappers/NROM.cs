@@ -14,18 +14,10 @@
             }
         }
 
-        public override uint ReadByte(uint addr) => _addressSpace[(addr & 0xFFFF) - 0x6000];
-
-        public override void WriteByte(uint addr, uint _val)
+        public override void InitializeMaps(CPU cpu)
         {
-            byte val = (byte) _val;
-            switch (addr & 0xF000)
-            {
-                case 0x6000:
-                case 0x7000:
-                    _addressSpace[addr - 0x6000] = val;
-                    break;
-            }
+            cpu.MapReadHandler(0x6000, 0xFFFF, addr => _addressSpace[addr - 0x6000]);
+            cpu.MapWriteHandler(0x6000, 0x7FFF, (addr, val) => _addressSpace[addr - 0x6000] = val);
         }
-    }
+}
 }

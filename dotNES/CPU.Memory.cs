@@ -21,6 +21,9 @@ namespace dotNES
             IndirectY
         }
 
+        private readonly ReadDelegate[] _readMap = new ReadDelegate[65536];
+        private readonly WriteDelegate[] _writeMap = new WriteDelegate[65536];
+
         private uint? _currentMemoryAddress;
         private uint _rmwValue;
 
@@ -28,7 +31,7 @@ namespace dotNES
 
         private uint _Address()
         {
-            var def = opcodeDefs[currentInstruction];
+            var def = _opcodeDefs[currentInstruction];
             switch (def.Mode)
             {
                 case Immediate:
@@ -63,18 +66,18 @@ namespace dotNES
 
         public uint AddressRead()
         {
-            if (opcodeDefs[currentInstruction].Mode == Direct) return _rmwValue = A;
+            if (_opcodeDefs[currentInstruction].Mode == Direct) return _rmwValue = A;
             if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
             return _rmwValue = ReadByte((uint)_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(uint val)
         {
-            if (opcodeDefs[currentInstruction].Mode == Direct) A = val;
+            if (_opcodeDefs[currentInstruction].Mode == Direct) A = val;
             else
             {
                 if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
-                if (opcodeDefs[currentInstruction].RMW)
+                if (_opcodeDefs[currentInstruction].RMW)
                     WriteByte((uint)_currentMemoryAddress, _rmwValue);
                 WriteByte((uint)_currentMemoryAddress, val);
             }
@@ -116,73 +119,48 @@ namespace dotNES
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint PopWord() => Pop() | (Pop() << 8);
 
+        private void InitializeMaps()
+        {
+            _readMap.Fill(addr => throw new NotImplementedException($"read from {addr:X4}"));
+
+            // Some games write to addresses not mapped and expect to continue afterwards
+            _writeMap.Fill((addr, val) => { });
+
+            MapReadHandler(0x0000, 0x1FFF, addr => _ram[addr & 0x07FF]);
+            MapReadHandler(0x2000, 0x3FFF, addr => _emulator.PPU.ReadRegister((addr & 0x7) - 0x2000));
+            MapReadHandler(0x4000, 0x4017, ReadIORegister);
+
+            MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _ram[addr & 0x07FF] = val);
+            MapWriteHandler(0x2000, 0x3FFF, (addr, val) => _emulator.PPU.WriteRegister((addr & 0x7) - 0x2000, val));
+            MapWriteHandler(0x4000, 0x401F, WriteIORegister);
+
+            _emulator.Mapper.InitializeMaps(this);
+        }
+
+        public void MapReadHandler(uint start, uint end, ReadDelegate func)
+        {
+            for (uint i = start; i <= end; i++)
+                _readMap[i] = func;
+        }
+
+        public void MapWriteHandler(uint start, uint end, WriteDelegate func)
+        {
+            for (uint i = start; i <= end; i++)
+                _writeMap[i] = func;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint ReadByte(uint addr)
         {
             addr &= 0xFFFF;
-            /*
-             * Address range 	Size 	Device
-             * $0000-$07FF 	    $0800 	2KB internal RAM
-             * $0800-$0FFF 	    $0800 	|
-             * $1000-$17FF 	    $0800   | Mirrors of $0000-$07FF
-             * $1800-$1FFF 	    $0800   |
-             * $2000-$2007 	    $0008 	NES PPU registers
-             * $2008-$3FFF 	    $1FF8 	Mirrors of $2000-2007 (repeats every 8 bytes)
-             * $4000-$4017 	    $0018 	NES APU and I/O registers
-             * $4018-$401F 	    $0008 	APU and I/O functionality that is normally disabled. See CPU Test Mode.
-             * $4020-$FFFF 	    $BFE0 	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
-             * 
-             * https://wiki.nesdev.com/w/index.php/CPU_memory_map
-             */
-            if (0x401F < addr)
-            {
-                return ReadMapperByte(addr);
-            }
-
-            if (addr < 0x2000)
-            {
-                // Wrap every 7FFh bytes
-                return _ram[addr & 0x07FF];
-            }
-
-            if (addr < 0x4000)
-            {
-                // Wrap every 7h bytes
-                return _emulator.PPU.ReadRegister((addr & 0x7) - 0x2000);
-            }
-
-            return ReadIORegister(addr - 0x4000);
+            return _readMap[addr](addr);
         }
 
-        public void WriteByte(uint addr, uint _val)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteByte(uint addr, uint val)
         {
-            byte val = (byte)_val;
             addr &= 0xFFFF;
-            // Console.WriteLine($"Write to {addr.ToString("X")} = {val}");
-            switch (addr & 0xF000)
-            {
-                case 0x0000:
-                case 0x1000:
-                    // Wrap every 7FFh bytes
-                    _ram[addr & 0x07FF] = val;
-                    return;
-                case 0x2000:
-                case 0x3000:
-                    // Wrap every 7h bytes
-                    uint reg = (addr & 0x7) - 0x2000;
-                    _emulator.PPU.WriteRegister(reg, val);
-                    return;
-                case 0x4000:
-                    if (addr <= 0x401F)
-                    {
-                        reg = addr - 0x4000;
-                        WriteIORegister(reg, val);
-                        return;
-                    }
-                    goto default;
-                default:
-                    _emulator.Mapper.WriteByte(addr, val);
-                    return;
-            }
+            _writeMap[addr](addr, (byte)val);
         }
     }
 }

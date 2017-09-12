@@ -52,14 +52,14 @@ namespace dotNES
 
             currentInstruction = NextByte();
 
-            Cycle += opcodeDefs[currentInstruction].Cycles;
+            Cycle += _opcodeDefs[currentInstruction].Cycles;
 
             ResetInstructionAddressingMode();
             // if (_numExecuted > 10000 && PC - 1 == 0xFF61)
             //  if(_emulator.Controller.debug || 0x6E00 <= PC && PC <= 0x6EEF)
             //      Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	{opcodeNames[currentInstruction]}\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
-            Opcode op = opcodes[currentInstruction];
+            Opcode op = _opcodes[currentInstruction];
             if (op == null)
                 throw new ArgumentException(currentInstruction.ToString("X2"));
             op();

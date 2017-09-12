@@ -22,7 +22,7 @@ namespace dotNES.Mappers
         }
     }
 
-    abstract class BaseMapper : IAddressable
+    abstract class BaseMapper
     {
         protected readonly Emulator _emulator;
         protected readonly byte[] _prgROM;
@@ -40,9 +40,6 @@ namespace dotNES.Mappers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract uint ReadByte(uint addr);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual uint ReadBytePPU(uint addr)
         {
             if (addr < 0x2000)
@@ -53,9 +50,6 @@ namespace dotNES.Mappers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void WriteByte(uint addr, uint val);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void WriteBytePPU(uint addr, uint val)
         {
             if (addr < 0x2000)
@@ -63,6 +57,11 @@ namespace dotNES.Mappers
                 _chrROM[addr] = (byte) val;
             }
             else throw new NotImplementedException();
+        }
+
+        public virtual void InitializeMaps(CPU cpu)
+        {
+
         }
 
         public virtual void ProcessCycle(int scanline, int cycle)

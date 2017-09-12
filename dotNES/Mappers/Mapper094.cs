@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace dotNES.Mappers
+﻿namespace dotNES.Mappers
 {
     [MapperDef(Id = 94, Description = "Senjou no Ookami")]
     class Mapper094 : UxROM
@@ -9,16 +7,11 @@ namespace dotNES.Mappers
         {
         }
 
-        public override void WriteByte(uint addr, uint _val)
+        public override void InitializeMaps(CPU cpu)
         {
-            byte val = (byte) _val;
-
-            if (addr < 0x8000)
-                _prgRAM[addr - 0x6000] = val;
-            else if (addr >= 0x8000)
-                _bankOffset = (val & 0x1C) << 12;
-            else
-                throw new NotImplementedException(addr.ToString("X4") + " = " + val.ToString("X2"));
+            base.InitializeMaps(cpu);
+    
+            cpu.MapWriteHandler(0x8000, 0xFFFF, (addr, val) => _bankOffset = (val & 0x1C) << 12);
         }
     }
 }

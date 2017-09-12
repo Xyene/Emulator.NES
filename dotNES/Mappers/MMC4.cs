@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using static dotNES.Cartridge.VRAMMirroringMode;
 
 namespace dotNES.Mappers
@@ -15,15 +14,23 @@ namespace dotNES.Mappers
 
         public MMC4(Emulator emulator) : base(emulator)
         {
-
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override uint ReadByte(uint addr)
+        public override void InitializeMaps(CPU cpu)
         {
-            if (addr < 0x8000) return _prgRAM[addr - 0x6000];
-            if (addr < 0xC000) return _prgROM[_prgBankOffset + (addr - 0x8000)];
-            return _prgROM[(uint) _prgROM.Length - 0x4000 + (addr - 0xC000)];
+            cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
+            cpu.MapReadHandler(0x8000, 0xBFFF, addr => _prgROM[_prgBankOffset + (addr - 0x8000)]);
+            cpu.MapReadHandler(0xC000, 0xFFFF, addr => _prgROM[_prgROM.Length - 0x4000 + (addr - 0xC000)]);
+
+            cpu.MapWriteHandler(0x6000, 0x7FFF, (addr, val) => _prgRAM[addr - 0x6000] = val);
+            cpu.MapWriteHandler(0xA000, 0xAFFF, (addr, val) => _prgBankOffset = (val & 0xF) * 0x4000);
+            cpu.MapWriteHandler(0xB000, 0xEFFF, (addr, val) =>
+            {
+                var bank = (addr - 0xB000) / 0x2000;
+                var latch = ((addr & 0x1FFF) == 0).AsByte();
+                _chrBankOffsets[bank, latch] = (val & 0x1F) * 0x1000;
+            });
+            cpu.MapWriteHandler(0xF000, 0xFFFF, (addr, val) => _emulator.Cartridge.MirroringMode = _mirroringModes[val & 0x1]);
         }
 
         protected virtual void GetLatch(uint addr, out uint latch, out bool? on)
@@ -60,30 +67,6 @@ namespace dotNES.Mappers
             }
 
             return ret;
-        }
-
-        public override void WriteByte(uint addr, uint _val)
-        {
-            // Fire Emblem Gaiden writes to $4000 range
-            if (addr < 0x6000) return;
-
-            byte val = (byte)_val;
-
-            if (addr < 0x8000)
-                _prgRAM[addr - 0x6000] = val;
-
-            if (addr < 0xA000) return;
-
-            if (addr <= 0xAFFF)
-                _prgBankOffset = (val & 0xF) * 0x4000;
-            else if (addr < 0xF000)
-            {
-                var bank = (addr - 0xB000) / 0x2000;
-                var latch = ((addr & 0x1FFF) == 0).AsByte();
-                _chrBankOffsets[bank, latch] = (val & 0x1F) * 0x1000;
-            }
-            else
-                _emulator.Cartridge.MirroringMode = _mirroringModes[val & 0x1];
         }
     }
 }

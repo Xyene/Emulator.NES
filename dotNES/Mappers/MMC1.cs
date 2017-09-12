@@ -56,38 +56,18 @@ namespace dotNES.Mappers
             throw new NotImplementedException();
         }
 
-        public override uint ReadByte(uint addr)
+        public override void InitializeMaps(CPU cpu)
         {
-            if (0x6000 <= addr && addr < 0x8000)
-            {
-                return _prgRAM[addr - 0x6000];
-            }
-            if (addr >= 0x8000)
-            {
-                return _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x4000] + addr % 0x4000];
-            }
-            throw new NotImplementedException();
-        }
+            cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
+            cpu.MapReadHandler(0x8000, 0xFFFF, addr => _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x4000] + addr % 0x4000]);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void WriteBytePPU(uint addr, uint value)
-        {
-            if (addr < 0x2000)
-            {
-                _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000] = (byte)value;
-            }
-            else throw new NotImplementedException();
-        }
-
-        public override void WriteByte(uint addr, uint value)
-        {
-            if (0x6000 <= addr && addr < 0x8000)
+            cpu.MapWriteHandler(0x6000, 0x7FFF, (addr, val) =>
             {
                 // PRG RAM is always enabled on MMC1A
                 if (_type == ChipType.MMC1A || _prgRAMEnabled)
-                    _prgRAM[addr - 0x6000] = (byte)value;
-            }
-            else if (addr >= 0x8000)
+                    _prgRAM[addr - 0x6000] = val;
+            });
+            cpu.MapWriteHandler(0x8000, 0xFFFF, (addr, val) =>
             {
                 // Explicitly ignore the second write happening on consecutive cycles
                 // of an RMW instruction
@@ -96,7 +76,7 @@ namespace dotNES.Mappers
                     return;
                 _lastWritePC = cycle;
 
-                if ((value & 0x80) > 0)
+                if ((val & 0x80) > 0)
                 {
                     _serialData = 0;
                     _serialPos = 0;
@@ -104,7 +84,7 @@ namespace dotNES.Mappers
                 }
                 else
                 {
-                    _serialData |= (value & 0x1) << _serialPos;
+                    _serialData |= (uint)((val & 0x1) << _serialPos);
                     _serialPos++;
 
                     if (_serialPos == 5)
@@ -124,7 +104,17 @@ namespace dotNES.Mappers
                         _serialPos = 0;
                     }
                 }
+            });
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void WriteBytePPU(uint addr, uint value)
+        {
+            if (addr < 0x2000)
+            {
+                _chrROM[_chrBankOffsets[addr / 0x1000] + addr % 0x1000] = (byte)value;
             }
+            else throw new NotImplementedException();
         }
 
         private void UpdateControl(uint value)

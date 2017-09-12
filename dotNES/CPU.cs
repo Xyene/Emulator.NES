@@ -11,41 +11,46 @@ namespace dotNES
         public int Cycle;
         private uint currentInstruction;
 
-        delegate void Opcode();
+        public delegate void Opcode();
 
-        private Opcode[] opcodes = new Opcode[256];
-        private string[] opcodeNames = new string[256];
-        private OpcodeDef[] opcodeDefs = new OpcodeDef[256];
+        public delegate uint ReadDelegate(uint addr);
 
-        private readonly Func<uint, uint> ReadMapperByte;
+        public delegate void WriteDelegate(uint addr, byte val);
+
+        private readonly Opcode[] _opcodes = new Opcode[256];
+        private readonly string[] _opcodeNames = new string[256];
+        private readonly OpcodeDef[] _opcodeDefs = new OpcodeDef[256];
 
         public CPU(Emulator emulator)
         {
             _emulator = emulator;
 
-            ReadMapperByte = emulator.Mapper.ReadByte;
+            InitializeOpcodes();
+            InitializeMaps();
+            Initialize();
+        }
 
-            var opcodeDefs = from opcode in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                             let defs = opcode.GetCustomAttributes(typeof(OpcodeDef), false)
-                             where defs.Length > 0
-                             select new
-                             {
-                                 binding = (Opcode)Delegate.CreateDelegate(typeof(Opcode), this, opcode.Name),
-                                 name = opcode.Name,
-                                 defs = (from d in defs select (OpcodeDef)d)
-                             };
+        private void InitializeOpcodes()
+        {
+            var opcodeBindings = from opcode in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                                 let defs = opcode.GetCustomAttributes(typeof(OpcodeDef), false)
+                                 where defs.Length > 0
+                                 select new
+                                 {
+                                     binding = (Opcode)Delegate.CreateDelegate(typeof(Opcode), this, opcode.Name),
+                                     name = opcode.Name,
+                                     defs = (from d in defs select (OpcodeDef)d)
+                                 };
 
-            foreach (var opcode in opcodeDefs)
+            foreach (var opcode in opcodeBindings)
             {
                 foreach (var def in opcode.defs)
                 {
-                    opcodes[def.Opcode] = opcode.binding;
-                    opcodeNames[def.Opcode] = opcode.name;
-                    this.opcodeDefs[def.Opcode] = def;
+                    _opcodes[def.Opcode] = opcode.binding;
+                    _opcodeNames[def.Opcode] = opcode.name;
+                    this._opcodeDefs[def.Opcode] = def;
                 }
             }
-
-            Initialize();
         }
 
         public void Execute()
@@ -55,15 +60,15 @@ namespace dotNES
                 ExecuteSingleInstruction();
             }
 
-            
+
             uint w;
             ushort x = 6000;
             string z = "";
             while ((w = ReadByte(x)) != '\0')
             {
-               z += (char) w;
+                z += (char)w;
             }
-            
+
             Console.WriteLine(">>> " + ReadByte(0x02));
         }
     }

@@ -41,6 +41,14 @@ namespace dotNES.Mappers
             _prgBankOffsets = new uint[] { 0, 0x2000, _lastBankOffset, _lastBankOffset + 0x2000 };
         }
 
+        public override void InitializeMaps(CPU cpu)
+        {
+            cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
+            cpu.MapReadHandler(0x8000, 0xFFFF, addr => _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x2000] + addr % 0x2000]);
+
+            cpu.MapWriteHandler(0x6000, 0xFFFF, WriteByte);
+        }
+
         public override void ProcessCycle(int scanline, int cycle)
         {
             if (_emulator.PPU.F.RenderingEnabled && cycle == 260 && (0 <= scanline && scanline < 240 || scanline == -1))
@@ -67,19 +75,6 @@ namespace dotNES.Mappers
             throw new NotImplementedException();
         }
 
-        public override uint ReadByte(uint addr)
-        {
-            if (0x6000 <= addr && addr < 0x8000)
-            {
-                return _prgRAM[addr - 0x6000];
-            }
-            if(addr >= 0x8000)
-            {
-                return _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x2000] + addr % 0x2000];
-            }
-            throw new NotImplementedException();
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void WriteBytePPU(uint addr, uint value)
         {
@@ -90,20 +85,20 @@ namespace dotNES.Mappers
             else throw new NotImplementedException();
         }
 
-        public override void WriteByte(uint addr, uint value)
+        public void WriteByte(uint addr, byte value)
         {
             bool even = (addr & 0x1) == 0;
 
             if (addr < 0x8000)
             {
                 if (_prgRAMEnabled)
-                    _prgRAM[addr - 0x6000] = (byte)value;
+                    _prgRAM[addr - 0x6000] = value;
             }
             else if (addr < 0xA000)
             {
                 if (even)
                 {
-                    _currentBank = value & 0x7;
+                    _currentBank = (uint) (value & 0x7);
                     _prgBankingMode = (PRGBankingMode)((value >> 6) & 0x1);
                     _chrBankingMode = (CHRBankingMode)((value >> 7) & 0x1);
                 }

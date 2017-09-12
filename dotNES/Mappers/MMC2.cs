@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace dotNES.Mappers
+﻿namespace dotNES.Mappers
 {
     [MapperDef(Id = 9, Description = "Mike Tyson's Punch-Out!!")]
     class MMC2 : MMC4
@@ -10,12 +8,14 @@ namespace dotNES.Mappers
 
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override uint ReadByte(uint addr)
+        public override void InitializeMaps(CPU cpu)
         {
-            if (addr < 0x8000) return _prgRAM[addr - 0x6000];
-            if (addr < 0xA000) return _prgROM[_prgBankOffset + (addr - 0x8000)];
-            return _prgROM[(uint) _prgROM.Length - 0x4000 - 0x2000 + (addr - 0xA000)];
+            base.InitializeMaps(cpu);
+
+            cpu.MapReadHandler(0x8000, 0xBFFF, addr => _prgROM[_prgBankOffset + (addr - 0x8000)]);
+            cpu.MapReadHandler(0xA000, 0xFFFF, addr => _prgROM[_prgROM.Length - 0x4000 - 0x2000 + (addr - 0xA000)]);
+
+            cpu.MapWriteHandler(0xA000, 0xAFFF, (addr, val) => _prgBankOffset = (val & 0xF) * 0x2000);
         }
 
         protected override void GetLatch(uint addr, out uint latch, out bool? on)
@@ -26,14 +26,6 @@ namespace dotNES.Mappers
             // not the whole range like in MMC4
             if (latch == 0 && (addr & 0x3) != 0)
                 on = null;
-        }
-
-        public override void WriteByte(uint addr, uint val)
-        {
-            if (0xA000 <= addr && addr <= 0xAFFF)
-                _prgBankOffset = (int) ((val & 0xF) * 0x2000);
-            else
-                base.WriteByte(addr, val);
         }
     }
 }
