@@ -52,7 +52,7 @@ namespace dotNES.Mappers
                 else
                 {
                     _irqCounter--;
-                    if (_irqEnabled && _irqCounter == 0) _emulator.CPU.TriggerIRQ();
+                    if (_irqEnabled && _irqCounter == 0) _emulator.CPU.TriggerInterrupt(CPU.InterruptType.IRQ);
                 }
             }
         }

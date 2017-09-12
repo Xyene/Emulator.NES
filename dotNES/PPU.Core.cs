@@ -288,7 +288,7 @@
                 {
                     F.VBlankStarted = true;
                     if (F.NMIEnabled)
-                        _emulator.CPU.TriggerNMI();
+                        _emulator.CPU.TriggerInterrupt(CPU.InterruptType.NMI);
                 }
 
                 // Happens at the same time as 1st cycle of NT byte fetch

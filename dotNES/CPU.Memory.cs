@@ -81,6 +81,9 @@ namespace dotNES
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint ReadWord(uint addr) => ReadByte(addr) | (ReadByte(addr + 1) << 8);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint NextByte() => ReadByte(PC++);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

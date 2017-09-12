@@ -4,8 +4,13 @@ namespace dotNES
 {
     partial class CPU
     {
-        private bool _nmi;
-        private bool _irq;
+        public enum InterruptType
+        {
+            NMI, IRQ, RESET
+        }
+
+        private readonly uint[] _interruptHandlerOffsets = { 0xFFFA, 0xFFFE, 0xFFFC };
+        private readonly bool[] _interrupts = new bool[2];
 
         public void Initialize()
         {
@@ -15,7 +20,7 @@ namespace dotNES
             SP = 0xFD;
             P = 0x24;
 
-            PC = ReadByte(0xFFFC) | (ReadByte(0xFFFD) << 8);
+            PC = ReadWord(_interruptHandlerOffsets[(int) InterruptType.RESET]);
         }
 
         public void Reset()
@@ -32,24 +37,17 @@ namespace dotNES
 
         public void ExecuteSingleInstruction()
         {
-            if (_nmi)
+            for (int i = 0; i < _interrupts.Length; i++)
             {
-                PushWord(PC);
-                Push(P);
-                PC = ReadByte(0xFFFA) | (ReadByte(0xFFFB) << 8);
-                F.InterruptsDisabled = true;
-                _nmi = false;
-                return;
-            }
-
-            if (_irq)
-            {
-                PushWord(PC);
-                Push(P);
-                PC = ReadByte(0xFFFE) | (ReadByte(0xFFFF) << 8);
-                F.InterruptsDisabled = true;
-                _irq = false;
-                return;
+                if (_interrupts[i])
+                {
+                    PushWord(PC);
+                    Push(P);
+                    PC = ReadWord(_interruptHandlerOffsets[i]);
+                    F.InterruptsDisabled = true;
+                    _interrupts[i] = false;
+                    return;
+                }
             }
 
             currentInstruction = NextByte();
@@ -67,15 +65,10 @@ namespace dotNES
             op();
         }
 
-        public void TriggerNMI()
+        public void TriggerInterrupt(InterruptType type)
         {
-            _nmi = true;
-        }
-
-        public void TriggerIRQ()
-        {
-            if (!F.InterruptsDisabled)
-                _irq = true;
+            if (!F.InterruptsDisabled || type == InterruptType.NMI)
+                _interrupts[(int)type] = true;
         }
     }
 }

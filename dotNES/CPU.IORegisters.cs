@@ -21,7 +21,7 @@ namespace dotNES
                     _emulator.Controller.Strobe(val == 1);
                     break;
             }
-            if (0x0000 <= reg && reg <= 0x0017) return; // APU write
+            if (reg <= 0x0017) return; // APU write
             throw new NotImplementedException($"{reg.ToString("X4")} = {val.ToString("X2")}");
         }
 
