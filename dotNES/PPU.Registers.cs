@@ -55,6 +55,8 @@ namespace dotNES
             public uint ScrollX;
             [Obsolete]
             public uint ScrollY;
+
+            public bool RenderingEnabled => DrawBackground || DrawSprites;
         }
 
         public PPUFlags F = new PPUFlags();

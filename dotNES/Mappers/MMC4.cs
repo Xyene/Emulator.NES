@@ -23,7 +23,7 @@ namespace dotNES.Mappers
         {
             if (addr < 0x8000) return _prgRAM[addr - 0x6000];
             if (addr < 0xC000) return _prgROM[_prgBankOffset + (addr - 0x8000)];
-            return _prgROM[_lastBankOffset + (addr - 0xC000)];
+            return _prgROM[(uint) _prgROM.Length - 0x4000 + (addr - 0xC000)];
         }
 
         protected virtual void GetLatch(uint addr, out uint latch, out bool? on)

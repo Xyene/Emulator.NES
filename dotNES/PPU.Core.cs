@@ -300,6 +300,8 @@
                 }
             }
 
+            _emulator.Mapper.ProcessCycle(scanline, cycle);
+
             if (_cpuSyncCounter + 1 == 3)
             {
                 _emulator.CPU.TickFromPPU();

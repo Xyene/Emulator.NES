@@ -5,6 +5,7 @@ namespace dotNES
     partial class CPU
     {
         private bool _nmi;
+        private bool _irq;
 
         public void Initialize()
         {
@@ -40,14 +41,25 @@ namespace dotNES
                 _nmi = false;
                 return;
             }
+
+            if (_irq)
+            {
+                PushWord(PC);
+                Push(P);
+                PC = ReadByte(0xFFFE) | (ReadByte(0xFFFF) << 8);
+                F.InterruptsDisabled = true;
+                _irq = false;
+                return;
+            }
+
             currentInstruction = NextByte();
 
             Cycle += opcodeDefs[currentInstruction].Cycles;
 
             ResetInstructionAddressingMode();
             // if (_numExecuted > 10000 && PC - 1 == 0xFF61)
-          //  if(_emulator.Controller.debug || 0x6E00 <= PC && PC <= 0x6EEF)
-          //      Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	{opcodeNames[currentInstruction]}\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
+            //  if(_emulator.Controller.debug || 0x6E00 <= PC && PC <= 0x6EEF)
+            //      Console.WriteLine($"{(PC - 1).ToString("X4")}  {currentInstruction.ToString("X2")}	{opcodeNames[currentInstruction]}\t\t\tA:{A.ToString("X2")} X:{X.ToString("X2")} Y:{Y.ToString("X2")} P:{P.ToString("X2")} SP:{SP.ToString("X2")}");
 
             Opcode op = opcodes[currentInstruction];
             if (op == null)
@@ -58,6 +70,12 @@ namespace dotNES
         public void TriggerNMI()
         {
             _nmi = true;
+        }
+
+        public void TriggerIRQ()
+        {
+            if (!F.InterruptsDisabled)
+                _irq = true;
         }
     }
 }

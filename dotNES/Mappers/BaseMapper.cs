@@ -65,6 +65,11 @@ namespace dotNES.Mappers
             else throw new NotImplementedException();
         }
 
+        public virtual void ProcessCycle(int scanline, int cycle)
+        {
+
+        }
+
         public virtual void Save(Stream os)
         {
             os.Write(_prgRAM, 0, _prgRAM.Length);

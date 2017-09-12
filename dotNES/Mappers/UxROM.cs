@@ -17,7 +17,7 @@ namespace dotNES.Mappers
         {
             if (addr < 0x8000) return _prgRAM[addr - 0x6000];
             if (addr < 0xC000) return _prgROM[_bankOffset + (addr - 0x8000)];
-            return _prgROM[_lastBankOffset + (addr - 0xC000)];
+            return _prgROM[(uint) _prgROM.Length - 0x4000 + (addr - 0xC000)];
         }
 
         public override void WriteByte(uint addr, uint _val)
