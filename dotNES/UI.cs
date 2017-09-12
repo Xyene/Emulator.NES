@@ -20,6 +20,13 @@ namespace dotNES
         private Thread renderer;
         private NES001Controller controller = new NES001Controller();
 
+        private enum FilterMode
+        {
+            NearestNeighbor, Linear
+        }
+
+        private FilterMode _filterMode = FilterMode.Linear;
+
         class SeparatorItem : MenuItem
         {
             public SeparatorItem() : base("-") { }
@@ -43,8 +50,6 @@ namespace dotNES
             }
         }
 
-        private string[] filters = { "Linear", "Bilinear" };
-        private string activeFilter = "Linear";
         private string[] speeds = { "1x", "2x", "4x", "8x", "16x" };
         private string activeSpeed = "1x";
         private string[] sizes = { "1x", "2x", "4x", "8x" };
@@ -162,15 +167,27 @@ namespace dotNES
                 }),
                 new Item("Filter", x =>
                 {
+                    var filters = new Dictionary<string, FilterMode>()
+                    {
+                        {"None", FilterMode.NearestNeighbor},
+                        {"Linear", FilterMode.Linear},
+                    };
                     foreach (var filter in filters)
-                        x.Add(new RadioItem(filter, y =>
+                        x.Add(new RadioItem(filter.Key, y =>
                         {
-                            y.Checked = filter == activeFilter;
-                            y.Click += delegate { activeFilter = filter; };
+                            y.Checked = filter.Value == _filterMode;
+                            y.Click += delegate { _filterMode = filter.Value; };
                         }));
                 }),
                 new SeparatorItem(),
-                new Item("&Pause"),
+                new Item("&Screenshot (F12)", x =>
+                {
+                    x.Click += delegate { Screenshot(); };
+                }),
+                new Item(suspended ? "&Play (F2)" : "&Pause (F3)", x =>
+                {
+                    x.Click += delegate { suspended ^= true; };
+                }),
                 new Item("Speed", x =>
                 {
                     foreach (var speed in speeds)

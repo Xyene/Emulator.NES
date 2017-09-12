@@ -120,7 +120,7 @@ namespace dotNES
                 int stride = GameWidth * 4;
                 gameBitmap.CopyFromMemory(rawBitmap, stride);
 
-                d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f, BitmapInterpolationMode.Linear);
+                d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f, _filterMode == FilterMode.Linear ? BitmapInterpolationMode.Linear : BitmapInterpolationMode.NearestNeighbor);
             }
 
             d2dRenderTarget.EndDraw();
