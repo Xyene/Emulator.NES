@@ -175,7 +175,7 @@ namespace dotNES.Mappers
                     break;
             }
 
-            for (int i = 0; i < 7; i++) _chrBankOffsets[i] *= 0x400;
+            for (int i = 0; i < 8; i++) _chrBankOffsets[i] *= 0x400;
         }
     }
 }
