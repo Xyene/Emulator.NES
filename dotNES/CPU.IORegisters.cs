@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace dotNES
 {
-    partial class CPU
+    sealed partial class CPU
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteIORegister(uint reg, byte val)

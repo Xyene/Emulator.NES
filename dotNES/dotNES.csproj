@@ -107,7 +107,7 @@
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
     <Compile Include="Emulator.cs" />
-    <Compile Include="IAddressable.cs" />
+    <Compile Include="Addressable.cs" />
     <Compile Include="Mappers\BaseMapper.cs" />
     <Compile Include="Mappers\Mapper155.cs" />
     <Compile Include="Mappers\MMC1.cs" />

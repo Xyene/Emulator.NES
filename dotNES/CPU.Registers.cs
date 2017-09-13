@@ -2,7 +2,7 @@
 
 namespace dotNES
 {
-    partial class CPU
+    sealed partial class CPU
     {
         private const int CarryBit = 0x1;
         private const int ZeroBit = 0x2;

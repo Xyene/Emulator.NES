@@ -4,29 +4,22 @@ using System.Reflection;
 
 namespace dotNES
 {
-    partial class CPU : IAddressable
+    sealed partial class CPU : Addressable
     {
-        private readonly Emulator _emulator;
         private readonly byte[] _ram = new byte[0x800];
         public int Cycle;
         private uint currentInstruction;
 
         public delegate void Opcode();
 
-        public delegate uint ReadDelegate(uint addr);
-
-        public delegate void WriteDelegate(uint addr, byte val);
-
         private readonly Opcode[] _opcodes = new Opcode[256];
         private readonly string[] _opcodeNames = new string[256];
         private readonly OpcodeDef[] _opcodeDefs = new OpcodeDef[256];
 
-        public CPU(Emulator emulator)
+        public CPU(Emulator emulator) : base(emulator, addressSpace: 65536)
         {
-            _emulator = emulator;
-
             InitializeOpcodes();
-            InitializeMaps();
+            InitializeMemoryMap();
             Initialize();
         }
 

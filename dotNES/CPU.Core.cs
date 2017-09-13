@@ -2,7 +2,7 @@
 
 namespace dotNES
 {
-    partial class CPU
+    sealed partial class CPU
     {
         public enum InterruptType
         {

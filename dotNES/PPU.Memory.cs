@@ -82,15 +82,9 @@ namespace dotNES
             return VRAMMirrorLookup[(int)_emulator.Cartridge.MirroringMode][table] * 0x400 + (uint)entry;
         }
 
-        private readonly CPU.ReadDelegate[] _readMap = new CPU.ReadDelegate[16384];
-        private readonly CPU.WriteDelegate[] _writeMap = new CPU.WriteDelegate[65536];
-
-        public void InitializeMaps()
+        protected override void InitializeMemoryMap()
         {
-            _readMap.Fill(addr => throw new NotImplementedException($"read from {addr:X4}"));
-
-            // Some games write to addresses not mapped and expect to continue afterwards
-            _writeMap.Fill((addr, val) => { });
+            base.InitializeMemoryMap();
 
             MapReadHandler(0x2000, 0x2FFF, addr => _vram[GetVRAMMirror(addr)]);
             MapReadHandler(0x3000, 0x3EFF, addr => _vram[GetVRAMMirror(addr - 0x1000)]);
@@ -111,32 +105,6 @@ namespace dotNES
             });
 
             _emulator.Mapper.InitializeMaps(this);
-        }
-
-        public void MapReadHandler(uint start, uint end, CPU.ReadDelegate func)
-        {
-            for (uint i = start; i <= end; i++)
-                _readMap[i] = func;
-        }
-
-        public void MapWriteHandler(uint start, uint end, CPU.WriteDelegate func)
-        {
-            for (uint i = start; i <= end; i++)
-                _writeMap[i] = func;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint ReadByte(uint addr)
-        {
-            addr &= 0xFFFF;
-            return _readMap[addr](addr);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void WriteByte(uint addr, uint val)
-        {
-            addr &= 0xFFFF;
-            _writeMap[addr](addr, (byte)val);
         }
 
         public void PerformDMA(uint from)

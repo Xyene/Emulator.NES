@@ -3,7 +3,7 @@ using static dotNES.CPU.AddressingMode;
 
 namespace dotNES
 {
-    partial class CPU
+    sealed partial class CPU
     {
         [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
         public class OpcodeDef : Attribute

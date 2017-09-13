@@ -1,13 +1,10 @@
 ﻿namespace dotNES
 {
-    partial class PPU : IAddressable
-    {
-        private readonly Emulator _emulator;
-
-        public PPU(Emulator emulator)
+    sealed partial class PPU : Addressable
+    {   
+        public PPU(Emulator emulator) : base(emulator, 0x4000)
         {
-            _emulator = emulator;
-            InitializeMaps();
+            InitializeMemoryMap();
         }
     }
 }
