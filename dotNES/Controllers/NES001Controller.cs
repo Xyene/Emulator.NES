@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace dotNES
+namespace dotNES.Controllers
 {
-    class NES001Controller
+    class NES001Controller : IController
     {
         private int data;
         private int serialData;

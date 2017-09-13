@@ -11,14 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using dotNES.Controllers;
 
 namespace dotNES
 {
     public partial class UI : Form
     {
-        private bool rendererRunning = true;
-        private Thread renderer;
-        private NES001Controller controller = new NES001Controller();
+        private bool _rendererRunning = true;
+        private Thread _renderer;
+        private IController _controller = new NES001Controller();
 
         private enum FilterMode
         {
@@ -65,14 +66,14 @@ namespace dotNES
 
         private void BootCartridge(string rom)
         {
-            emu = new Emulator(rom, controller);
-            renderer = new Thread(() =>
+            emu = new Emulator(rom, _controller);
+            _renderer = new Thread(() =>
             {
                 gameStarted = true;
                 Console.WriteLine(emu.Cartridge);
                 Stopwatch s = new Stopwatch();
                 Stopwatch s0 = new Stopwatch();
-                while (rendererRunning)
+                while (_rendererRunning)
                 {
                     if (suspended)
                     {
@@ -88,13 +89,13 @@ namespace dotNES
                         rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)Draw);
                         s0.Stop();
-                        //Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
+                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
                 }
             });
-            renderer.Start();
+            _renderer.Start();
         }
 
         private void UI_Load(object sender, EventArgs e)
@@ -121,8 +122,8 @@ namespace dotNES
 
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
-            rendererRunning = false;
-            renderer?.Abort();
+            _rendererRunning = false;
+            _renderer?.Abort();
             emu?.Save();
         }
 
@@ -140,14 +141,14 @@ namespace dotNES
                     suspended = true;
                     break;
                 default:
-                    controller.PressKey(e);
+                    _controller.PressKey(e);
                     break;
             }
         }
 
         private void UI_KeyUp(object sender, KeyEventArgs e)
         {
-            controller.ReleaseKey(e);
+            _controller.ReleaseKey(e);
         }
 
         private void UI_MouseClick(object sender, MouseEventArgs e)
