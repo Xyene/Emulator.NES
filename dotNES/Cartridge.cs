@@ -37,7 +37,7 @@ namespace dotNES
             MirroringMode = (Raw[6] & 0x1) > 0 ? VRAMMirroringMode.Vertical : VRAMMirroringMode.Horizontal;
             if ((Raw[6] & 0x8) > 0) MirroringMode = VRAMMirroringMode.All;
 
-            MapperNumber = (Raw[6] >> 4) | (Raw[7] & 0xF0);
+            MapperNumber = 206;//(Raw[6] >> 4) | (Raw[7] & 0xF0);
 
             PRGROM = new byte[PRGROMSize];
             Array.Copy(Raw, PRGROMOffset, PRGROM, 0, PRGROMSize);

@@ -15,18 +15,18 @@ namespace dotNES.Mappers
         private readonly Cartridge.VRAMMirroringMode[] _mirroringModes = { Vertical, Horizontal };
 
         private readonly ChipType _type;
-        private CHRBankingMode _chrBankingMode;
-        private PRGBankingMode _prgBankingMode;
-        
+        protected CHRBankingMode _chrBankingMode;
+        protected PRGBankingMode _prgBankingMode;
 
-        private readonly uint[] _chrBankOffsets = new uint[8];
-        private readonly uint[] _prgBankOffsets;
-        private readonly uint[] _banks = new uint[8];
-        private uint _currentBank;
+
+        protected readonly uint[] _chrBankOffsets = new uint[8];
+        protected uint[] _prgBankOffsets;
+        protected readonly uint[] _banks = new uint[8];
+        protected uint _currentBank;
 
         private uint _irqReloadValue;
         private uint _irqCounter;
-        private bool _irqEnabled;
+        protected bool _irqEnabled;
 
         private bool _prgRAMEnabled;
 
@@ -71,7 +71,7 @@ namespace dotNES.Mappers
             }
         }
 
-        public void WriteByte(uint addr, byte value)
+        protected void WriteByte(uint addr, byte value)
         {
             bool even = (addr & 0x1) == 0;
 
@@ -84,7 +84,7 @@ namespace dotNES.Mappers
             {
                 if (even)
                 {
-                    _currentBank = (uint) (value & 0x7);
+                    _currentBank = value & 0x7u;
                     _prgBankingMode = (PRGBankingMode)((value >> 6) & 0x1);
                     _chrBankingMode = (CHRBankingMode)((value >> 7) & 0x1);
                 }
@@ -114,7 +114,7 @@ namespace dotNES.Mappers
             }
         }
 
-        void UpdateOffsets()
+        protected void UpdateOffsets()
         {
             switch (_prgBankingMode)
             {
@@ -156,7 +156,11 @@ namespace dotNES.Mappers
                     break;
             }
 
-            for (int i = 0; i < 8; i++) _chrBankOffsets[i] *= 0x400;
+            for (int i = 0; i < _prgBankOffsets.Length; i++)
+                _prgBankOffsets[i] %= (uint)_prgROM.Length;
+
+            for (int i = 0; i < _chrBankOffsets.Length; i++)
+                _chrBankOffsets[i] = (uint) (_chrBankOffsets[i] * 0x400 % _chrROM.Length);
         }
     }
 }
