@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using dotNES.Controllers;
 using dotNES.Mappers;
 
 namespace dotNES
@@ -15,7 +16,7 @@ namespace dotNES
                                                                  select new { def, type }).ToDictionary(a => a.def.Id, a => new KeyValuePair<Type, MapperDef>(a.type, a.def));
 
 
-        public NES001Controller Controller;
+        public IController Controller;
 
         public readonly CPU CPU;
 
@@ -27,7 +28,7 @@ namespace dotNES
 
         private readonly string _path;
 
-        public Emulator(string path, NES001Controller controller)
+        public Emulator(string path, IController controller)
         {
             _path = path;
             Cartridge = new Cartridge(path);

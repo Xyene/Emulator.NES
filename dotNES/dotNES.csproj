@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cartridge.cs" />
+    <Compile Include="Controllers\IController.cs" />
     <Compile Include="CPU.Core.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
@@ -109,6 +110,7 @@
     <Compile Include="Emulator.cs" />
     <Compile Include="Addressable.cs" />
     <Compile Include="Mappers\BaseMapper.cs" />
+    <Compile Include="Mappers\Camerica.cs" />
     <Compile Include="Mappers\Mapper155.cs" />
     <Compile Include="Mappers\MMC1.cs" />
     <Compile Include="Mappers\DxROM.cs" />
@@ -118,7 +120,7 @@
     <Compile Include="Mappers\AxROM.cs" />
     <Compile Include="Mappers\CNROM.cs" />
     <Compile Include="Mappers\ColorDreams.cs" />
-    <Compile Include="NES001Controller.cs" />
+    <Compile Include="Controllers\NES001Controller.cs" />
     <Compile Include="Mappers\Mapper180.cs" />
     <Compile Include="Mappers\Mapper094.cs" />
     <Compile Include="Mappers\UxROM.cs" />
