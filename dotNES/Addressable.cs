@@ -10,15 +10,16 @@ namespace dotNES
         public delegate void WriteDelegate(uint addr, byte val);
 
         protected readonly Emulator _emulator;
-        protected readonly CPU.ReadDelegate[] _readMap;
-        protected readonly CPU.WriteDelegate[] _writeMap;
+        protected readonly ReadDelegate[] _readMap;
+        protected readonly WriteDelegate[] _writeMap;
         protected readonly uint _addressSize;
+
         protected Addressable(Emulator emulator, uint addressSpace)
         {
             _emulator = emulator;
             _addressSize = addressSpace;
-            _readMap = new CPU.ReadDelegate[addressSpace];
-            _writeMap = new CPU.WriteDelegate[addressSpace];
+            _readMap = new ReadDelegate[addressSpace];
+            _writeMap = new WriteDelegate[addressSpace];
         }
 
         protected virtual void InitializeMemoryMap()
