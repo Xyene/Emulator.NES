@@ -26,6 +26,7 @@ Currently, the following mappers are implemented:
 * 7 - AxROM
 * 9 - MMC2 (Mike Tyson's Punch-Out!!)
 * 10 - MMC4
+* 11 - Color Dreams
 * 94 - Senjou no Ookami
 * 155 - MMC1A
 * 180 - Crazy Climber
