@@ -111,10 +111,11 @@ namespace dotNES
         {
             //Console.WriteLine("OAM DMA");
             from <<= 8;
-            uint OAMADDR = F.OAMAddress;
             for (uint i = 0; i <= 0xFF; i++)
             {
-                _oam[i] = (byte)_emulator.CPU.ReadByte(from | ((i + OAMADDR) & 0xFF));
+                _oam[F.OAMAddress] = (byte)_emulator.CPU.ReadByte(from);
+                from++;
+                F.OAMAddress++;
             }
             _emulator.CPU.Cycle += 513;
         }
