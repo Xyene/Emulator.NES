@@ -117,7 +117,7 @@ namespace dotNES
                 from++;
                 F.OAMAddress++;
             }
-            _emulator.CPU.Cycle += 513;
+            _emulator.CPU.Cycle += 513 + _emulator.CPU.Cycle % 2;
         }
     }
 }
