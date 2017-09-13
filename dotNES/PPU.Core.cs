@@ -310,8 +310,8 @@ namespace dotNES
                 // Happens at the same time as 1st cycle of NT byte fetch
                 if (scanline == -1)
                 {
-                        Console.WriteLine(_ppuClocksSinceVBL);
-                        _ppuClocksSinceVBL = 0;
+                    // Console.WriteLine(_ppuClocksSinceVBL);
+                    _ppuClocksSinceVBL = 0;
                     F.VBlankStarted = false;
                     F.Sprite0Hit = false;
                     F.SpriteOverflow = false;

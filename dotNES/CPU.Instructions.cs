@@ -25,12 +25,18 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x40, Cycles = 6)]
         private void RTI()
         {
+            // TODO: this dummy fetch should happen for all single-byte instructions
+            NextByte();
             P = Pop();
             PC = PopWord();
         }
 
         [OpcodeDef(Opcode = 0x60, Cycles = 6)]
-        private void RTS() => PC = PopWord() + 1;
+        private void RTS()
+        {
+            NextByte();
+            PC = PopWord() + 1;
+        }
 
         [OpcodeDef(Opcode = 0xC8, Cycles = 2)]
         private void INY() => Y++;
