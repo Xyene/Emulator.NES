@@ -21,6 +21,7 @@ Currently, the following mappers are implemented:
 * 0 - NROM
 * 1 - MMC1
 * 2 - UxROM
+* 3 - CNROM
 * 4 - MMC3
 * 7 - AxROM
 * 9 - MMC2 (Mike Tyson's Punch-Out!!)
