@@ -29,6 +29,7 @@ Currently, the following mappers are implemented:
 * 94 - Senjou no Ookami
 * 155 - MMC1A
 * 180 - Crazy Climber
+* 206 - DxROM
 
 ## More Title Screens
 Title screens are pretty, so below are some more title screens of games running in Emulator.NES.
