@@ -229,12 +229,15 @@ namespace dotNES
         }
 
         private int _cpuClocksSinceVBL;
+        private int _ppuClocksSinceVBL;
 
         public void ProcessCycle(int scanline, int cycle)
         {
             bool visibleCycle = 1 <= cycle && cycle <= 256;
             bool prefetchCycle = 321 <= cycle && cycle <= 336;
             bool fetchCycle = visibleCycle || prefetchCycle;
+
+            if (F.VBlankStarted) _ppuClocksSinceVBL++;
 
             if (0 <= scanline && scanline < 240 || scanline == -1)
             {
@@ -307,6 +310,8 @@ namespace dotNES
                 // Happens at the same time as 1st cycle of NT byte fetch
                 if (scanline == -1)
                 {
+                        Console.WriteLine(_ppuClocksSinceVBL);
+                        _ppuClocksSinceVBL = 0;
                     F.VBlankStarted = false;
                     F.Sprite0Hit = false;
                     F.SpriteOverflow = false;
