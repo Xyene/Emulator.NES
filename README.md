@@ -32,7 +32,8 @@ Currently, the following mappers are implemented:
 * 180 - Crazy Climber
 * 206 - DxROM
 
-These mappers provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777). 
+These mappers theoretically provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777).
+Whether a game runs or not is more dependent on how well the CPU and PPU support it.
 
 ## More Title Screens
 Title screens are pretty, so below are some more title screens of games running in Emulator.NES.
