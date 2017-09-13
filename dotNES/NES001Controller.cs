@@ -17,12 +17,12 @@ namespace dotNES
         // bit:   	 7     6     5     4     3     2     1     0
         // button:	 A B  Select Start  Up Down  Left 
 
-        private Dictionary<Keys, int> keyMapping = new Dictionary<Keys, int>()
+        private readonly Dictionary<Keys, int> _keyMapping = new Dictionary<Keys, int>
         {
             {Keys.A, 7},
-            {Keys.B, 6},
-            {Keys.R, 5},
-            {Keys.T, 4},
+            {Keys.S, 6},
+            {Keys.RShiftKey, 5},
+            {Keys.Enter, 4},
             {Keys.Up, 3},
             {Keys.Down, 2},
             {Keys.Left, 1},
@@ -49,14 +49,14 @@ namespace dotNES
         public void PressKey(KeyEventArgs e)
         {
             if (e.KeyCode == Keys.P) debug ^= true;
-            if (!keyMapping.ContainsKey(e.KeyCode)) return;
-            data |= 1 << keyMapping[e.KeyCode];
+            if (!_keyMapping.ContainsKey(e.KeyCode)) return;
+            data |= 1 << _keyMapping[e.KeyCode];
         }
 
         public void ReleaseKey(KeyEventArgs e)
         {
-            if (!keyMapping.ContainsKey(e.KeyCode)) return;
-            data &= ~(1 << keyMapping[e.KeyCode]);
+            if (!_keyMapping.ContainsKey(e.KeyCode)) return;
+            data &= ~(1 << _keyMapping[e.KeyCode]);
         }
     }
 }
