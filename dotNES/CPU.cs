@@ -8,7 +8,7 @@ namespace dotNES
     {
         private readonly byte[] _ram = new byte[0x800];
         public int Cycle;
-        private uint currentInstruction;
+        private uint _currentInstruction;
 
         public delegate void Opcode();
 
