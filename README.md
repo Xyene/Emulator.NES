@@ -24,12 +24,13 @@ Currently, the following mappers are implemented:
 * 3 - CNROM
 * 4 - MMC3
 * 7 - AxROM
-* 9 - MMC2 (Mike Tyson's Punch-Out!!)
+* 9 - MMC2 (*Mike Tyson's Punch-Out!!*)
 * 10 - MMC4
 * 11 - Color Dreams
-* 94 - Senjou no Ookami
+* 71 - Camerica
+* 94 - *Senjou no Ookami*
 * 155 - MMC1A
-* 180 - Crazy Climber
+* 180 - *Crazy Climber*
 * 206 - DxROM
 
 These mappers theoretically provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777).
