@@ -1,4 +1,6 @@
-﻿namespace dotNES
+﻿using System;
+
+namespace dotNES
 {
     partial class PPU
     {
@@ -226,6 +228,8 @@
                 ProcessCycle(line, i);
         }
 
+        private int _cpuClocksSinceVBL;
+
         public void ProcessCycle(int scanline, int cycle)
         {
             bool visibleCycle = 1 <= cycle && cycle <= 256;
@@ -282,6 +286,15 @@
                 }
             }
 
+            // TODO: this is a hack; VBlank should be cleared on dot 1 of the pre-render line,
+            // but for some reason we're at 2272-2273 CPU clocks at that time
+            // (i.e., our PPU timing is off somewhere by 6-9 PPU cycles per frame)
+            if (F.VBlankStarted && _cpuClocksSinceVBL == 2270)
+            {
+                F.VBlankStarted = false;
+                _cpuClocksSinceVBL = 0;
+            }
+
             if (cycle == 1)
             {
                 if (scanline == 241)
@@ -304,6 +317,7 @@
 
             if (_cpuSyncCounter + 1 == 3)
             {
+                if (F.VBlankStarted) _cpuClocksSinceVBL++;
                 _emulator.CPU.TickFromPPU();
                 _cpuSyncCounter = 0;
             }
