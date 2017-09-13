@@ -8,9 +8,9 @@
 
         }
 
-        public override void InitializeMaps(CPU cpu)
+        public override void InitializeMemoryMap(CPU cpu)
         {
-            base.InitializeMaps(cpu);
+            base.InitializeMemoryMap(cpu);
 
             cpu.MapReadHandler(0x8000, 0xBFFF, addr => _prgROM[_prgBankOffset + (addr - 0x8000)]);
             cpu.MapReadHandler(0xA000, 0xFFFF, addr => _prgROM[_prgROM.Length - 0x4000 - 0x2000 + (addr - 0xA000)]);

@@ -16,7 +16,7 @@ namespace dotNES.Mappers
         {
         }
 
-        public override void InitializeMaps(CPU cpu)
+        public override void InitializeMemoryMap(CPU cpu)
         {
             cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
             cpu.MapReadHandler(0x8000, 0xBFFF, addr => _prgROM[_prgBankOffset + (addr - 0x8000)]);
@@ -33,7 +33,7 @@ namespace dotNES.Mappers
             cpu.MapWriteHandler(0xF000, 0xFFFF, (addr, val) => _emulator.Cartridge.MirroringMode = _mirroringModes[val & 0x1]);
         }
 
-        public override void InitializeMaps(PPU ppu)
+        public override void InitializeMemoryMap(PPU ppu)
         {
             ppu.MapReadHandler(0x0000, 0x1FFF, addr =>
             {

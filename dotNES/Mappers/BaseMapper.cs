@@ -38,12 +38,12 @@ namespace dotNES.Mappers
             _lastBankOffset = (uint) _prgROM.Length - 0x4000;
         }
 
-        public virtual void InitializeMaps(CPU cpu)
+        public virtual void InitializeMemoryMap(CPU cpu)
         {
 
         }
 
-        public virtual void InitializeMaps(PPU ppu)
+        public virtual void InitializeMemoryMap(PPU ppu)
         {
             ppu.MapReadHandler(0x0000, 0x1FFF, addr => _chrROM[addr]);
             ppu.MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _chrROM[addr] = val);

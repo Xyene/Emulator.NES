@@ -18,8 +18,8 @@ namespace dotNES
         {
             _emulator = emulator;
             _addressSize = addressSpace;
-            _readMap = new ReadDelegate[addressSpace];
-            _writeMap = new WriteDelegate[addressSpace];
+            _readMap = new ReadDelegate[addressSpace + 1];
+            _writeMap = new WriteDelegate[addressSpace + 1];
         }
 
         protected virtual void InitializeMemoryMap()
@@ -33,14 +33,14 @@ namespace dotNES
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint ReadByte(uint addr)
         {
-            addr &= _addressSize;
+            addr &= 0xFFFF;
             return _readMap[addr](addr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteByte(uint addr, uint val)
         {
-            addr &= _addressSize;
+            addr &= 0xFFFF;
             _writeMap[addr](addr, (byte)val);
         }
 

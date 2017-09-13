@@ -129,7 +129,7 @@ namespace dotNES
             MapWriteHandler(0x2000, 0x3FFF, (addr, val) => _emulator.PPU.WriteRegister((addr & 0x7) - 0x2000, val));
             MapWriteHandler(0x4000, 0x401F, WriteIORegister);
 
-            _emulator.Mapper.InitializeMaps(this);
+            _emulator.Mapper.InitializeMemoryMap(this);
         }
     }
 }

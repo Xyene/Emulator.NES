@@ -41,7 +41,7 @@ namespace dotNES.Mappers
             _prgBankOffsets = new uint[] { 0, 0x2000, _lastBankOffset, _lastBankOffset + 0x2000 };
         }
 
-        public override void InitializeMaps(CPU cpu)
+        public override void InitializeMemoryMap(CPU cpu)
         {
             cpu.MapReadHandler(0x6000, 0x7FFF, addr => _prgRAM[addr - 0x6000]);
             cpu.MapReadHandler(0x8000, 0xFFFF, addr => _prgROM[_prgBankOffsets[(addr - 0x8000) / 0x2000] + addr % 0x2000]);
@@ -49,7 +49,7 @@ namespace dotNES.Mappers
             cpu.MapWriteHandler(0x6000, 0xFFFF, WriteByte);
         }
 
-        public override void InitializeMaps(PPU ppu)
+        public override void InitializeMemoryMap(PPU ppu)
         {
             ppu.MapReadHandler(0x0000, 0x1FFF, addr => _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400]);
             ppu.MapWriteHandler(0x0000, 0x1FFF, (addr, val) => _chrROM[_chrBankOffsets[addr / 0x400] + addr % 0x400] = val);

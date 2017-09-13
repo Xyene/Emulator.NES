@@ -8,9 +8,9 @@
         {
         }
 
-        public override void InitializeMaps(CPU cpu)
+        public override void InitializeMemoryMap(CPU cpu)
         {
-            base.InitializeMaps(cpu);
+            base.InitializeMemoryMap(cpu);
 
             // $8000-$C000 is fixed to *first* bank
             cpu.MapReadHandler(0x8000, 0xBFFF, addr => _prgROM[addr - 0x8000]);

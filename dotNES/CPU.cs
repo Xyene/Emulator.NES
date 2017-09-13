@@ -16,7 +16,7 @@ namespace dotNES
         private readonly string[] _opcodeNames = new string[256];
         private readonly OpcodeDef[] _opcodeDefs = new OpcodeDef[256];
 
-        public CPU(Emulator emulator) : base(emulator, addressSpace: 65536)
+        public CPU(Emulator emulator) : base(emulator, addressSpace: 0xFFFF)
         {
             InitializeOpcodes();
             InitializeMemoryMap();

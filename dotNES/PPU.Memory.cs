@@ -104,7 +104,7 @@ namespace dotNES
                 _paletteRAM[(addr - 0x3F00) & 0x1F] = val;
             });
 
-            _emulator.Mapper.InitializeMaps(this);
+            _emulator.Mapper.InitializeMemoryMap(this);
         }
 
         public void PerformDMA(uint from)

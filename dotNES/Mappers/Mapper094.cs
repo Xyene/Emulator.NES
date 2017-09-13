@@ -7,9 +7,9 @@
         {
         }
 
-        public override void InitializeMaps(CPU cpu)
+        public override void InitializeMemoryMap(CPU cpu)
         {
-            base.InitializeMaps(cpu);
+            base.InitializeMemoryMap(cpu);
     
             cpu.MapWriteHandler(0x8000, 0xFFFF, (addr, val) => _bankOffset = (val & 0x1C) << 12);
         }
