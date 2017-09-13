@@ -114,6 +114,7 @@
     <Compile Include="Mappers\MMC3.cs" />
     <Compile Include="Mappers\MMC2.cs" />
     <Compile Include="Mappers\MMC4.cs" />
+    <Compile Include="Mappers\AxROM.cs" />
     <Compile Include="NES001Controller.cs" />
     <Compile Include="Mappers\Mapper180.cs" />
     <Compile Include="Mappers\Mapper094.cs" />

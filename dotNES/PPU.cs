@@ -2,7 +2,7 @@
 {
     sealed partial class PPU : Addressable
     {   
-        public PPU(Emulator emulator) : base(emulator, addressSpace: 0x4000)
+        public PPU(Emulator emulator) : base(emulator, 0x3FFF)
         {
             InitializeMemoryMap();
         }

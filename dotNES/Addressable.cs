@@ -33,14 +33,14 @@ namespace dotNES
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint ReadByte(uint addr)
         {
-            addr &= 0xFFFF;
+            addr &= _addressSize;
             return _readMap[addr](addr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteByte(uint addr, uint val)
         {
-            addr &= 0xFFFF;
+            addr &= _addressSize;
             _writeMap[addr](addr, (byte)val);
         }
 
