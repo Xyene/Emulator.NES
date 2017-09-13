@@ -32,12 +32,20 @@ Currently, the following mappers are implemented:
 * 180 - Crazy Climber
 * 206 - DxROM
 
+These mappers provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777). 
+
 ## More Title Screens
 Title screens are pretty, so below are some more title screens of games running in Emulator.NES.
 
 ![](http://i.imgur.com/9nF1RF0.png) <!-- Tetris -->
+![](https://i.imgur.com/mFTLSVo.png) <!-- Super Mario Bros. 3 -->
 ![](http://i.imgur.com/ot4FOwH.png) <!-- Castlevania -->
+![](https://i.imgur.com/4MXMFnw.png) <!-- Battletoads -->
 ![](http://i.imgur.com/KGrhRwt.png) <!-- Senjou no Ookami -->
 ![](http://i.imgur.com/aMmF3dM.png) <!-- Crazy Climber -->
 ![](http://i.imgur.com/elm1Vpx.png) <!-- Mega Man -->
 ![](http://i.imgur.com/T5k2ctD.png) <!-- Fire Emblem Gaiden -->
+![](https://i.imgur.com/iLn7Puq.png) <!-- Challenge of the Dragon -->
+![](https://i.imgur.com/nQYxowh.png) <!-- Babel no Tou -->
+![](https://i.imgur.com/8BArNlT.png) <!-- Captain Sky Hawk -->
+![](https://i.imgur.com/g0UsJDz.png) <!-- Mike Tyson's Punch-Out!! -->
