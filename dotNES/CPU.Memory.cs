@@ -29,7 +29,7 @@ namespace dotNES
 
         private uint _Address()
         {
-            var def = _opcodeDefs[currentInstruction];
+            var def = _opcodeDefs[_currentInstruction];
             switch (def.Mode)
             {
                 case Immediate:
@@ -64,18 +64,18 @@ namespace dotNES
 
         public uint AddressRead()
         {
-            if (_opcodeDefs[currentInstruction].Mode == Direct) return _rmwValue = A;
+            if (_opcodeDefs[_currentInstruction].Mode == Direct) return _rmwValue = A;
             if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
             return _rmwValue = ReadByte((uint)_currentMemoryAddress) & 0xFF;
         }
 
         public void AddressWrite(uint val)
         {
-            if (_opcodeDefs[currentInstruction].Mode == Direct) A = val;
+            if (_opcodeDefs[_currentInstruction].Mode == Direct) A = val;
             else
             {
                 if (_currentMemoryAddress == null) _currentMemoryAddress = _Address();
-                if (_opcodeDefs[currentInstruction].RMW)
+                if (_opcodeDefs[_currentInstruction].RMW)
                     WriteByte((uint)_currentMemoryAddress, _rmwValue);
                 WriteByte((uint)_currentMemoryAddress, val);
             }

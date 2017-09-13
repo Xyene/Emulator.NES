@@ -66,7 +66,7 @@ namespace dotNES
         private void PHP() => Push(P | BreakSourceBit);
 
         [OpcodeDef(Opcode = 0x28, Cycles = 4)]
-        private void PLP() => P = (uint) (Pop() & ~BreakSourceBit);
+        private void PLP() => P = (uint)(Pop() & ~BreakSourceBit);
 
         [OpcodeDef(Opcode = 0x68, Cycles = 4)]
         private void PLA() => A = Pop();
@@ -86,7 +86,7 @@ namespace dotNES
 
         private void Branch(bool cond)
         {
-            uint nPC = (uint) (PC + NextSByte() + 1);
+            uint nPC = (uint)(PC + NextSByte() + 1);
             if (cond)
             {
                 PC = nPC;
@@ -98,9 +98,9 @@ namespace dotNES
         [OpcodeDef(Opcode = 0x6C, Cycles = 5)]
         private void JMP()
         {
-            if (currentInstruction == 0x4C)
+            if (_currentInstruction == 0x4C)
                 PC = NextWord();
-            else if (currentInstruction == 0x6C)
+            else if (_currentInstruction == 0x6C)
             {
                 uint off = NextWord();
                 // AN INDIRECT JUMP MUST NEVER USE A VECTOR BEGINNING ON THE LAST BYTE OF A PAGE
@@ -185,80 +185,88 @@ namespace dotNES
         private void SED() => F.DecimalMode = true;
 
         [OpcodeDef(Opcode = 0xEA, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x1A, Cycles = 2)] // Unofficial
+        [OpcodeDef(Opcode = 0x3A, Cycles = 2)] // Unofficial
+        [OpcodeDef(Opcode = 0x5A, Cycles = 2)] // Unofficial
+        [OpcodeDef(Opcode = 0x7A, Cycles = 2)] // Unofficial
+        [OpcodeDef(Opcode = 0xDA, Cycles = 2)] // Unofficial
+        [OpcodeDef(Opcode = 0xFA, Cycles = 2)] // Unofficial
         private void NOP() { }
 
         [OpcodeDef(Opcode = 0xA1, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0xA5, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0xA9, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0xAD, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xB1, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xB1, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0xB5, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xB9, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0xBD, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xB9, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0xBD, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void LDA() => A = AddressRead();
 
         [OpcodeDef(Opcode = 0xA0, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0xA4, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0xAC, Mode = Absolute, Cycles = 4)]
         [OpcodeDef(Opcode = 0xB4, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xBC, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xBC, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void LDY() => Y = AddressRead();
 
         [OpcodeDef(Opcode = 0xA2, Mode = Immediate, Cycles = 2, RMW = true)]
         [OpcodeDef(Opcode = 0xA6, Mode = ZeroPage, Cycles = 3, RMW = true)]
         [OpcodeDef(Opcode = 0xAE, Mode = Absolute, Cycles = 4, RMW = true)]
         [OpcodeDef(Opcode = 0xB6, Mode = ZeroPageY, Cycles = 4, RMW = true)]
-        [OpcodeDef(Opcode = 0xBE, Mode = AbsoluteY, Cycles = 4, PageBoundary=true, RMW = true)]
+        [OpcodeDef(Opcode = 0xBE, Mode = AbsoluteY, Cycles = 4, PageBoundary = true, RMW = true)]
         private void LDX() => X = AddressRead();
 
         [OpcodeDef(Opcode = 0x01, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0x05, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0x09, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0x0D, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x11, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x11, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0x15, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x19, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0x1D, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x19, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0x1D, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void ORA() => A |= AddressRead();
 
         [OpcodeDef(Opcode = 0x21, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0x25, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0x29, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0x2D, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x31, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x31, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0x35, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x39, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0x3D, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x39, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0x3D, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void AND() => A &= AddressRead();
 
         [OpcodeDef(Opcode = 0x41, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0x45, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0x49, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0x4D, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x51, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x51, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0x55, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x59, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0x5D, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x59, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0x5D, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void EOR() => A ^= AddressRead();
 
         [OpcodeDef(Opcode = 0xE1, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0xE5, Mode = ZeroPage, Cycles = 3)]
-        [OpcodeDef(Opcode = 0xE9, Mode = Immediate, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x69, Mode = Immediate, Cycles = 2)]
+        [OpcodeDef(Opcode = 0xE9, Mode = Immediate, Cycles = 2)] // Official duplicate of $69
+        [OpcodeDef(Opcode = 0xEB, Mode = Immediate, Cycles = 2)] // Unofficial duplicate of $69
         [OpcodeDef(Opcode = 0xED, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xF1, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xF1, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0xF5, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xF9, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0xFD, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xF9, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0xFD, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void SBC() => ADCImpl((byte)~AddressRead());
 
         [OpcodeDef(Opcode = 0x61, Mode = IndirectX, Cycles = 6)]
         [OpcodeDef(Opcode = 0x65, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0x69, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0x6D, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x71, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x71, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0x75, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0x79, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0x7D, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0x79, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0x7D, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void ADC() => ADCImpl(AddressRead());
 
         private void ADCImpl(uint val)
@@ -282,10 +290,10 @@ namespace dotNES
         [OpcodeDef(Opcode = 0xC5, Mode = ZeroPage, Cycles = 3)]
         [OpcodeDef(Opcode = 0xC9, Mode = Immediate, Cycles = 2)]
         [OpcodeDef(Opcode = 0xCD, Mode = Absolute, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xD1, Mode = IndirectY, Cycles = 5, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xD1, Mode = IndirectY, Cycles = 5, PageBoundary = true)]
         [OpcodeDef(Opcode = 0xD5, Mode = ZeroPageX, Cycles = 4)]
-        [OpcodeDef(Opcode = 0xD9, Mode = AbsoluteY, Cycles = 4, PageBoundary=true)]
-        [OpcodeDef(Opcode = 0xDD, Mode = AbsoluteX, Cycles = 4, PageBoundary=true)]
+        [OpcodeDef(Opcode = 0xD9, Mode = AbsoluteY, Cycles = 4, PageBoundary = true)]
+        [OpcodeDef(Opcode = 0xDD, Mode = AbsoluteX, Cycles = 4, PageBoundary = true)]
         private void CMP() => CMPImpl(A);
 
         [OpcodeDef(Opcode = 0xE0, Mode = Immediate, Cycles = 2)]
@@ -388,5 +396,54 @@ namespace dotNES
             _F(D);
             AddressWrite(D);
         }
+
+        #region Unofficial Opcodes
+
+        [OpcodeDef(Opcode = 0x80, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x82, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x89, Cycles = 2)]
+        [OpcodeDef(Opcode = 0xC2, Cycles = 2)]
+        [OpcodeDef(Opcode = 0xE2, Cycles = 2)]
+        private void SKB() => NextByte(); // Essentially a 2-byte NOP
+
+        [OpcodeDef(Opcode = 0x0B, Mode = Immediate, Cycles = 2)]
+        [OpcodeDef(Opcode = 0x2B, Mode = Immediate, Cycles = 2)]
+        private void ANC()
+        {
+            A &= AddressRead();
+            F.Carry = F.Negative;
+        }
+
+        [OpcodeDef(Opcode = 0x4B, Mode = Immediate, Cycles = 2)]
+        private void ALR()
+        {
+            A &= AddressRead();
+            F.Carry = (A & 0x1) > 0;
+            A >>= 1;
+            _F(A);
+        }
+
+        [OpcodeDef(Opcode = 0x6B, Mode = Immediate, Cycles = 2)]
+        private void ARR()
+        {
+            A &= AddressRead();
+            bool c = F.Carry;
+            F.Carry = (A & 0x1) > 0;
+            A >>= 1;
+            if (c) A |= 0x80;
+            _F(A);
+        }
+
+        [OpcodeDef(Opcode = 0xAB, Mode = Immediate, Cycles = 2)]
+        private void ATX()
+        {
+            // This opcode ORs the A register with #$EE, ANDs the result with an immediate 
+            // value, and then stores the result in both A and X.
+            A |= ReadByte(0xEE);
+            A &= AddressRead();
+            X = A;
+        }
+
+        #endregion
     }
 }
