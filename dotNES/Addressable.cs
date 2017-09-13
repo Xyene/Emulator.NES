@@ -24,7 +24,7 @@ namespace dotNES
 
         protected virtual void InitializeMemoryMap()
         {
-            _readMap.Fill(addr => throw new NotImplementedException($"read from {addr:X4}"));
+            _readMap.Fill(addr => 0);
 
             // Some games write to addresses not mapped and expect to continue afterwards
             _writeMap.Fill((addr, val) => { });
