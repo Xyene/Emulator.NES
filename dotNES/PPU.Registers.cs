@@ -212,6 +212,11 @@ namespace dotNES
                     _readBuffer = ret;
                     ret = temp;
                 }
+                else
+                {
+                    // Palette read should also read VRAM into read buffer
+                    _readBuffer = ReadByte(F.BusAddress - 0x1000);
+                }
                 F.BusAddress += F.VRAMIncrement;
                 return ret;
             }

@@ -92,9 +92,7 @@ namespace dotNES
             {
                 if (addr == 0x3F10 || addr == 0x3F14 || addr == 0x3F18 || addr == 0x3F0C)
                     addr -= 0x10;
-                // Palette read should also read VRAM into read buffer
-                _readBuffer = ReadByte(addr - 0x1000);
-                return  _paletteRAM[(addr - 0x3F00) & 0x1F];
+                return _paletteRAM[(addr - 0x3F00) & 0x1F];
             });
             
             MapWriteHandler(0x2000, 0x2FFF, (addr, val) => _vram[GetVRAMMirror(addr)] = val);
