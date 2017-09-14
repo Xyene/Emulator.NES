@@ -21,20 +21,20 @@ For a list of games known to be playable, visit [the wiki page](https://github.c
 
 Currently, the following mappers are implemented:
 
-* 0 - NROM
-* 1 - MMC1
-* 2 - UxROM
-* 3 - CNROM
-* 4 - MMC3
-* 7 - AxROM
-* 9 - MMC2 (*Mike Tyson's Punch-Out!!*)
-* 10 - MMC4
-* 11 - Color Dreams
-* 71 - Camerica
-* 94 - *Senjou no Ookami*
-* 155 - MMC1A
-* 180 - *Crazy Climber*
-* 206 - DxROM
+* 0 - [NROM](http://bootgod.dyndns.org:7777/search.php?ines=0)
+* 1 - [MMC1](http://bootgod.dyndns.org:7777/search.php?ines=1)
+* 2 - [UxROM](http://bootgod.dyndns.org:7777/search.php?ines=2)
+* 3 - [CNROM](http://bootgod.dyndns.org:7777/search.php?ines=3)
+* 4 - [MMC3](http://bootgod.dyndns.org:7777/search.php?ines=4)
+* 7 - [AxROM](http://bootgod.dyndns.org:7777/search.php?ines=7)
+* 9 - [MMC2](http://bootgod.dyndns.org:7777/search.php?ines=9) (*Mike Tyson's Punch-Out!!*)
+* 10 - [MMC4](http://bootgod.dyndns.org:7777/search.php?ines=10)
+* 11 - [Color Dreams](http://bootgod.dyndns.org:7777/search.php?ines=11)
+* 71 - [Camerica](http://bootgod.dyndns.org:7777/search.php?ines=71)
+* 94 - [*Senjou no Ookami*](http://bootgod.dyndns.org:7777/search.php?ines=94)
+* 155 - [MMC1A](http://bootgod.dyndns.org:7777/search.php?ines=155)
+* 180 - [*Crazy Climber*](http://bootgod.dyndns.org:7777/search.php?ines=180)
+* 206 - [DxROM](http://bootgod.dyndns.org:7777/search.php?ines=206)
 
 These mappers theoretically provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777).
 Whether a game runs or not is more dependent on how well the CPU and PPU support it.
