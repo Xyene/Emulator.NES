@@ -13,7 +13,6 @@ namespace dotNES
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             UI ui = new UI();
-            ui.InitRendering();
             Application.Run(ui);
             //Emulator emu = new Emulator();
             //Console.WriteLine(emu.Cartridge);

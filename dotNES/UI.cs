@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using dotNES.Controllers;
+using dotNES.Drawers;
 
 namespace dotNES
 {
@@ -21,12 +22,18 @@ namespace dotNES
         private Thread _renderer;
         private IController _controller = new NES001Controller();
 
-        private enum FilterMode
+        public const int GameWidth = 256;
+        public const int GameHeight = 240;
+        public uint[] rawBitmap = new uint[GameWidth * GameHeight];
+        public bool ready;
+        public IRenderer renderer;
+
+        public enum FilterMode
         {
             NearestNeighbor, Linear
         }
 
-        private FilterMode _filterMode = FilterMode.Linear;
+        public FilterMode _filterMode = FilterMode.Linear;
 
         class SeparatorItem : MenuItem
         {
@@ -57,11 +64,16 @@ namespace dotNES
         private string activeSize = "2x";
         private Emulator emu;
         private bool suspended;
-        private bool gameStarted;
+        public bool gameStarted;
 
         public UI()
         {
             InitializeComponent();
+            renderer = new Direct3DRenderer();
+            renderer.InitRendering(this);
+
+            Controls.Add(renderer);
+            renderer.Dock = DockStyle.Fill;
         }
 
         private void BootCartridge(string rom)
@@ -87,7 +99,7 @@ namespace dotNES
                         s0.Restart();
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.RawBitmap;
-                        Invoke((MethodInvoker)Draw);
+                        Invoke((MethodInvoker)renderer.Draw);
                         s0.Stop();
                         Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }

@@ -107,6 +107,9 @@
     <Compile Include="CPU.Registers.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drawers\IRenderer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Emulator.cs" />
     <Compile Include="Addressable.cs" />
     <Compile Include="Mappers\BaseMapper.cs" />
@@ -143,9 +146,8 @@
     <Compile Include="UI.Designer.cs">
       <DependentUpon>UI.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI.GameCanvas.cs">
-      <SubType>Form</SubType>
-      <DependentUpon>UI.cs</DependentUpon>
+    <Compile Include="Drawers\Direct3DRenderer.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utility.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
