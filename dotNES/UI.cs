@@ -69,11 +69,12 @@ namespace dotNES
         public UI()
         {
             InitializeComponent();
-            renderer = new Direct3DRenderer();
-            renderer.InitRendering(this);
+            renderer = new SoftwareRenderer();
 
             Controls.Add(renderer);
             renderer.Dock = DockStyle.Fill;
+            renderer.TabStop = false;
+            renderer.InitRendering(this);
         }
 
         private void BootCartridge(string rom)
@@ -255,6 +256,11 @@ namespace dotNES
         private void UI_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Copy;
+        }
+
+        private void UI_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            e.IsInputKey = true;
         }
     }
 }

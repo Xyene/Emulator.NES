@@ -31,6 +31,7 @@ namespace dotNES.Drawers
 
         public override void InitRendering(UI ui)
         {
+            if (ui == null) return;
             _ui = ui;
             ResizeRedraw = true;
             var desc = new SwapChainDescription

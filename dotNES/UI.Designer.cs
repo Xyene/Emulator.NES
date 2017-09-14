@@ -39,6 +39,7 @@
             this.ClientSize = new System.Drawing.Size(1323, 1052);
             this.ForeColor = System.Drawing.Color.Black;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.Name = "UI";
             this.Text = "Emulator.NES";
@@ -49,6 +50,7 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.UI_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.UI_KeyUp);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.UI_MouseClick);
+            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.UI_PreviewKeyDown);
             this.ResumeLayout(false);
 
         }

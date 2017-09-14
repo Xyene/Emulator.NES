@@ -110,6 +110,9 @@
     <Compile Include="Drawers\IRenderer.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Drawers\SoftwareRenderer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Emulator.cs" />
     <Compile Include="Addressable.cs" />
     <Compile Include="Mappers\BaseMapper.cs" />

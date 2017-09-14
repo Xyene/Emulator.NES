@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace dotNES.Drawers
 {
-    public abstract class IRenderer : Panel
+    public abstract class IRenderer : Control
     {
         public abstract void Draw();
         public abstract void InitRendering(UI ui);
