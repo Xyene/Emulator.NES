@@ -61,6 +61,12 @@
       <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="OpenGL.Net, Version=0.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenGL.Net.0.5.2\lib\net35\OpenGL.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net.WinForms, Version=0.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenGL.Net.WinForms.0.5.2\lib\net35\OpenGL.Net.WinForms.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
     </Reference>
@@ -107,9 +113,10 @@
     <Compile Include="CPU.Registers.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
-    <Compile Include="Renderers\IRenderer.cs">
-      <SubType>Component</SubType>
+    <Compile Include="Renderers\OpenGLRenderer.cs">
+      <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Renderers\IRenderer.cs" />
     <Compile Include="Renderers\SoftwareRenderer.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -61,7 +61,7 @@ namespace dotNES
         private bool suspended;
         public bool gameStarted;
 
-        private Type[] possibleRenderers = { typeof(SoftwareRenderer), typeof(Direct3DRenderer) };
+        private Type[] possibleRenderers = { typeof(SoftwareRenderer), typeof(OpenGLRenderer), typeof(Direct3DRenderer) };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
 
         public UI()
@@ -77,15 +77,22 @@ namespace dotNES
 
             if (_renderer != null)
             {
+                var oldCtrl = (Control)renderer;
+                oldCtrl.MouseClick -= UI_MouseClick;
+                oldCtrl.KeyUp -= UI_KeyUp;
+                oldCtrl.KeyDown -= UI_KeyDown;
                 _renderer.EndRendering();
-                Controls.Remove(_renderer);
+                Controls.Remove((Control)_renderer);
             }
             _renderer = renderer;
-            Controls.Add(renderer);
-            renderer.Dock = DockStyle.Fill;
-            renderer.TabStop = false;
+            var ctrl = (Control)renderer;
+            ctrl.Dock = DockStyle.Fill;
+            ctrl.TabStop = false;
+            ctrl.MouseClick += UI_MouseClick;
+            ctrl.KeyUp += UI_KeyUp;
+            ctrl.KeyDown += UI_KeyDown;
+            Controls.Add(ctrl);
             renderer.InitRendering(this);
-            renderer.MouseClick += UI_MouseClick;
         }
 
         private void FindRenderers()
@@ -131,7 +138,7 @@ namespace dotNES
                         rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)_renderer.Draw);
                         s0.Stop();
-                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
+                        //Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");

@@ -6,14 +6,14 @@ using System.Windows.Forms;
 
 namespace dotNES.Renderers
 {
-    class SoftwareRenderer : IRenderer
+    class SoftwareRenderer : Control, IRenderer
     {
         private UI _ui;
         private Bitmap _gameBitmap;
 
-        public override string RendererName => "Software";
+        public string RendererName => "Software";
 
-        public override void InitRendering(UI ui)
+        public void InitRendering(UI ui)
         {
             if (ui == null) return;
             _ui = ui;
@@ -24,7 +24,7 @@ namespace dotNES.Renderers
             DoubleBuffered = true;
         }
 
-        public override void EndRendering()
+        public void EndRendering()
         {
         }
 
@@ -34,7 +34,7 @@ namespace dotNES.Renderers
             base.OnResize(e);
         }
 
-        public override unsafe void Draw()
+        public unsafe void Draw()
         {
             BitmapData _frameData = _gameBitmap.LockBits(new Rectangle(0, 0, 256, 240), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 

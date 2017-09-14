@@ -13,7 +13,7 @@ using Resource = SharpDX.Direct3D11.Resource;
 
 namespace dotNES.Renderers
 {
-    class Direct3DRenderer : IRenderer
+    class Direct3DRenderer : Control, IRenderer
     {
         Device device;
         SwapChain swapChain;
@@ -22,76 +22,83 @@ namespace dotNES.Renderers
         RawRectangleF clientArea;
 
         private UI _ui;
+        private readonly Object _drawLock = new Object();
 
-        public override string RendererName => "Direct3D";
+        public string RendererName => "Direct3D";
 
-        public override void InitRendering(UI ui)
+        public void InitRendering(UI ui)
         {
-            if (ui == null) return;
-            _ui = ui;
-            ResizeRedraw = true;
-            var desc = new SwapChainDescription
+            lock (_drawLock)
             {
-                BufferCount = 1,
-                ModeDescription = new ModeDescription(ClientSize.Width, ClientSize.Height, new Rational(60, 1),
-                    Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = Handle,
-                SampleDescription = new SampleDescription(1, 0),
-                SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
-            };
+                if (ui == null) return;
+                _ui = ui;
+                ResizeRedraw = true;
+                var desc = new SwapChainDescription
+                {
+                    BufferCount = 1,
+                    ModeDescription = new ModeDescription(ClientSize.Width, ClientSize.Height, new Rational(60, 1),
+                        Format.R8G8B8A8_UNorm),
+                    IsWindowed = true,
+                    OutputHandle = Handle,
+                    SampleDescription = new SampleDescription(1, 0),
+                    SwapEffect = SwapEffect.Discard,
+                    Usage = Usage.RenderTargetOutput
+                };
 
-            Device.CreateWithSwapChain(DriverType.Hardware,
-                DeviceCreationFlags.BgraSupport,
-                new[] {SharpDX.Direct3D.FeatureLevel.Level_10_0},
-                desc,
-                out device,
-                out swapChain);
+                Device.CreateWithSwapChain(DriverType.Hardware,
+                    DeviceCreationFlags.BgraSupport,
+                    new[] {SharpDX.Direct3D.FeatureLevel.Level_10_0},
+                    desc,
+                    out device,
+                    out swapChain);
 
-            var d2dFactory = new SharpDX.Direct2D1.Factory();
+                var d2dFactory = new SharpDX.Direct2D1.Factory();
 
-            Factory factory = swapChain.GetParent<Factory>();
-            factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
+                Factory factory = swapChain.GetParent<Factory>();
+                factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
 
-            Texture2D backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
+                Texture2D backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
-            Surface surface = backBuffer.QueryInterface<Surface>();
+                Surface surface = backBuffer.QueryInterface<Surface>();
 
-            d2dRenderTarget = new RenderTarget(d2dFactory, surface,
-                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+                d2dRenderTarget = new RenderTarget(d2dFactory, surface,
+                    new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
 
-            var bitmapProperties = new BitmapProperties(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Ignore));
-            gameBitmap = new Bitmap(d2dRenderTarget, new Size2(UI.GameWidth, UI.GameHeight), bitmapProperties);
+                var bitmapProperties = new BitmapProperties(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Ignore));
+                gameBitmap = new Bitmap(d2dRenderTarget, new Size2(UI.GameWidth, UI.GameHeight), bitmapProperties);
 
-            clientArea = new RawRectangleF
-            {
-                Left = 0,
-                Top = 0,
-                Bottom = ClientSize.Height,
-                Right = ClientSize.Width
-            };
+                clientArea = new RawRectangleF
+                {
+                    Left = 0,
+                    Top = 0,
+                    Bottom = ClientSize.Height,
+                    Right = ClientSize.Width
+                };
 
-            factory.Dispose();
-            surface.Dispose();
-            backBuffer.Dispose();
-            _ui.ready = true;
+                factory.Dispose();
+                surface.Dispose();
+                backBuffer.Dispose();
+                _ui.ready = true;
+            }
         }
 
-        public override void EndRendering()
+        public void EndRendering()
         {
             DisposeDirect3D();
         }
 
         private void DisposeDirect3D()
         {
-            if (_ui != null && _ui.ready)
+            lock (_drawLock)
             {
-                _ui.ready = false;
-                d2dRenderTarget.Dispose();
-                swapChain.Dispose();
-                device.Dispose();
-                gameBitmap.Dispose();
+                if (_ui != null && _ui.ready)
+                {
+                    _ui.ready = false;
+                    d2dRenderTarget.Dispose();
+                    swapChain.Dispose();
+                    device.Dispose();
+                    gameBitmap.Dispose();
+                }
             }
         }
 
@@ -102,26 +109,28 @@ namespace dotNES.Renderers
             base.OnResize(e);
         }
 
-        public override void Draw()
+        public void Draw()
         {
-            if (_ui == null || !_ui.ready) return;
-
-            d2dRenderTarget.BeginDraw();
-            d2dRenderTarget.Clear(Color.Gray);
-
-            if (_ui.gameStarted)
+            lock (_drawLock)
             {
-                int stride = UI.GameWidth * 4;
-                gameBitmap.CopyFromMemory(_ui.rawBitmap, stride);
+                if (_ui == null || d2dRenderTarget == null || !_ui.ready) return;
+                d2dRenderTarget.BeginDraw();
+                d2dRenderTarget.Clear(Color.Gray);
 
-                d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f,
-                    _ui._filterMode == UI.FilterMode.Linear
-                        ? BitmapInterpolationMode.Linear
-                        : BitmapInterpolationMode.NearestNeighbor);
+                if (_ui.gameStarted)
+                {
+                    int stride = UI.GameWidth * 4;
+                    gameBitmap.CopyFromMemory(_ui.rawBitmap, stride);
+
+                    d2dRenderTarget.DrawBitmap(gameBitmap, clientArea, 1f,
+                        _ui._filterMode == UI.FilterMode.Linear
+                            ? BitmapInterpolationMode.Linear
+                            : BitmapInterpolationMode.NearestNeighbor);
+                }
+
+                d2dRenderTarget.EndDraw();
+                swapChain.Present(0, PresentFlags.None);
             }
-
-            d2dRenderTarget.EndDraw();
-            swapChain.Present(0, PresentFlags.None);
         }
 
         protected override void OnPaint(PaintEventArgs e)
