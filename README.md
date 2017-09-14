@@ -30,6 +30,7 @@ Currently, the following mappers are implemented:
 * 9 - [MMC2](http://bootgod.dyndns.org:7777/search.php?ines=9) (*Mike Tyson's Punch-Out!!*)
 * 10 - [MMC4](http://bootgod.dyndns.org:7777/search.php?ines=10)
 * 11 - [Color Dreams](http://bootgod.dyndns.org:7777/search.php?ines=11)
+* 66 - [GxROM](http://bootgod.dyndns.org:7777/search.php?ines=66)
 * 71 - [Camerica](http://bootgod.dyndns.org:7777/search.php?ines=71)
 * 94 - [*Senjou no Ookami*](http://bootgod.dyndns.org:7777/search.php?ines=94)
 * 155 - [MMC1A](http://bootgod.dyndns.org:7777/search.php?ines=155)
