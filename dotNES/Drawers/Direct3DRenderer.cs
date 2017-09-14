@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
 using System.Windows.Forms;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -13,7 +8,6 @@ using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Device = SharpDX.Direct3D11.Device;
 using Factory = SharpDX.DXGI.Factory;
-using System.Runtime.InteropServices;
 using SharpDX.Mathematics.Interop;
 using Resource = SharpDX.Direct3D11.Resource;
 

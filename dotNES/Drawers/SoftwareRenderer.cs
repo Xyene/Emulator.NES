@@ -48,7 +48,7 @@ namespace dotNES.Drawers
                     ptr[bufferPos + 0] = (byte)((raw >> 0) & 0xFF);
                     ptr[bufferPos + 1] = (byte)((raw >> 8) & 0xFF);
                     ptr[bufferPos + 2] = (byte)((raw >> 16) & 0xFF);
-                    
+
                     bufferPos += 3;
                 }
             _gameBitmap.UnlockBits(_frameData);
