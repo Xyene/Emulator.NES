@@ -11,6 +11,8 @@ namespace dotNES.Drawers
         private UI _ui;
         private Bitmap _gameBitmap;
 
+        public override string RendererName => "Software";
+
         public override void InitRendering(UI ui)
         {
             if (ui == null) return;
@@ -20,6 +22,10 @@ namespace dotNES.Drawers
 
             BackColor = Color.Gray;
             DoubleBuffered = true;
+        }
+
+        public override void EndRendering()
+        {
         }
 
         protected override void OnResize(EventArgs e)

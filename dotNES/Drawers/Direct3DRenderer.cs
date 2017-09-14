@@ -29,6 +29,8 @@ namespace dotNES.Drawers
 
         private UI _ui;
 
+        public override string RendererName => "Direct3D";
+
         public override void InitRendering(UI ui)
         {
             if (ui == null) return;
@@ -82,6 +84,11 @@ namespace dotNES.Drawers
             _ui.ready = true;
         }
 
+        public override void EndRendering()
+        {
+            DisposeDirect3D();
+        }
+
         private void DisposeDirect3D()
         {
             if (_ui != null && _ui.ready)
@@ -92,11 +99,6 @@ namespace dotNES.Drawers
                 device.Dispose();
                 gameBitmap.Dispose();
             }
-        }
-
-        public void OnClosing(CancelEventArgs e)
-        {
-            DisposeDirect3D();
         }
 
         protected override void OnResize(EventArgs e)

@@ -19,14 +19,14 @@ namespace dotNES
     public partial class UI : Form
     {
         private bool _rendererRunning = true;
-        private Thread _renderer;
+        private Thread _renderThread;
         private IController _controller = new NES001Controller();
 
         public const int GameWidth = 256;
         public const int GameHeight = 240;
         public uint[] rawBitmap = new uint[GameWidth * GameHeight];
         public bool ready;
-        public IRenderer renderer;
+        public IRenderer _renderer;
 
         public enum FilterMode
         {
@@ -66,21 +66,55 @@ namespace dotNES
         private bool suspended;
         public bool gameStarted;
 
+        private Type[] possibleRenderers = { typeof(SoftwareRenderer), typeof(Direct3DRenderer) };
+        private List<IRenderer> availableRenderers = new List<IRenderer>();
+
         public UI()
         {
             InitializeComponent();
-            renderer = new SoftwareRenderer();
+            FindRenderers();
+            SetRenderer(availableRenderers.Last());
+        }
 
+        private void SetRenderer(IRenderer renderer)
+        {
+            if (_renderer == renderer) return;
+
+            if (_renderer != null)
+            {
+                _renderer.EndRendering();
+                Controls.Remove(_renderer);
+            }
+            _renderer = renderer;
             Controls.Add(renderer);
             renderer.Dock = DockStyle.Fill;
             renderer.TabStop = false;
             renderer.InitRendering(this);
+            renderer.MouseClick += UI_MouseClick;
+        }
+
+        private void FindRenderers()
+        {
+            foreach (var renderType in possibleRenderers)
+            {
+                try
+                {
+                    var renderer = (IRenderer)Activator.CreateInstance(renderType);
+                    renderer.InitRendering(this);
+                    renderer.EndRendering();
+                    availableRenderers.Add(renderer);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine($"{renderType} failed to initialize");
+                }
+            }
         }
 
         private void BootCartridge(string rom)
         {
             emu = new Emulator(rom, _controller);
-            _renderer = new Thread(() =>
+            _renderThread = new Thread(() =>
             {
                 gameStarted = true;
                 Console.WriteLine(emu.Cartridge);
@@ -100,7 +134,7 @@ namespace dotNES
                         s0.Restart();
                         emu.PPU.ProcessFrame();
                         rawBitmap = emu.PPU.RawBitmap;
-                        Invoke((MethodInvoker)renderer.Draw);
+                        Invoke((MethodInvoker)_renderer.Draw);
                         s0.Stop();
                         Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }
@@ -108,7 +142,7 @@ namespace dotNES
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
                 }
             });
-            _renderer.Start();
+            _renderThread.Start();
         }
 
         private void UI_Load(object sender, EventArgs e)
@@ -136,7 +170,7 @@ namespace dotNES
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
             _rendererRunning = false;
-            _renderer?.Abort();
+            _renderThread?.Abort();
             emu?.Save();
         }
 
@@ -174,10 +208,13 @@ namespace dotNES
             {
                 new Item("Renderer", self =>
                 {
-                    self.Add(new RadioItem("Direct3D")
+                    foreach (var renderer in availableRenderers)
                     {
-                        Checked = true
-                    });
+                        self.Add(new RadioItem(renderer.RendererName, y => {
+                            y.Checked = renderer == _renderer;
+                            y.Click += delegate { SetRenderer(renderer); };
+                        }));
+                    }
                 }),
                 new Item("Filter", x =>
                 {
