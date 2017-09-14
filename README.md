@@ -13,6 +13,9 @@
 You can pick up the latest build [from AppVeyor](https://ci.appveyor.com/project/Xyene/emulator-nes/build/artifacts).
 Simply drag & drop an NES ROM file into it to start. Right click the window for options.
 
+Emulator.NES will render video with OpenGL or Direct3D, depending on your platform. A slower software-only renderer
+is also included for systems that support neither.
+
 ## Compatibility
 For a list of games known to be playable, visit [the wiki page](https://github.com/Xyene/Emulator.NES/wiki/Games-Known-to-Work).
 
