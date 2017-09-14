@@ -2,7 +2,6 @@
 using System.Drawing;
 using OpenGL;
 
-
 namespace dotNES.Renderers
 {
     class OpenGLRenderer : GlControl, IRenderer
@@ -84,7 +83,7 @@ namespace dotNES.Renderers
         {
 
         }
-        
+
         protected override void OnResize(EventArgs e)
         {
             InitRendering(_ui);

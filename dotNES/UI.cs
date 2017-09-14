@@ -61,12 +61,13 @@ namespace dotNES
         private bool suspended;
         public bool gameStarted;
 
-        private Type[] possibleRenderers = { typeof(SoftwareRenderer), typeof(OpenGLRenderer), typeof(Direct3DRenderer) };
+        private Type[] possibleRenderers = { typeof(SoftwareRenderer), /* typeof(OpenGLRenderer), */ typeof(Direct3DRenderer) };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
 
         public UI()
         {
             InitializeComponent();
+
             FindRenderers();
             SetRenderer(availableRenderers.Last());
         }
@@ -138,7 +139,7 @@ namespace dotNES
                         rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)_renderer.Draw);
                         s0.Stop();
-                        //Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
+                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
