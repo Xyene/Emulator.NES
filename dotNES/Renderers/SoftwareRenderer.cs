@@ -4,7 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 
-namespace dotNES.Drawers
+namespace dotNES.Renderers
 {
     class SoftwareRenderer : IRenderer
     {

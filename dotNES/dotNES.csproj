@@ -107,10 +107,10 @@
     <Compile Include="CPU.Registers.cs">
       <DependentUpon>CPU.cs</DependentUpon>
     </Compile>
-    <Compile Include="Drawers\IRenderer.cs">
+    <Compile Include="Renderers\IRenderer.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Drawers\SoftwareRenderer.cs">
+    <Compile Include="Renderers\SoftwareRenderer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Emulator.cs" />
@@ -149,7 +149,7 @@
     <Compile Include="UI.Designer.cs">
       <DependentUpon>UI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Drawers\Direct3DRenderer.cs">
+    <Compile Include="Renderers\Direct3DRenderer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utility.cs" />

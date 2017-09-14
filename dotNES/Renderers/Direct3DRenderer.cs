@@ -11,7 +11,7 @@ using Factory = SharpDX.DXGI.Factory;
 using SharpDX.Mathematics.Interop;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace dotNES.Drawers
+namespace dotNES.Renderers
 {
     class Direct3DRenderer : IRenderer
     {

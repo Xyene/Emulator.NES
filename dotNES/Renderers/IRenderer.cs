@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace dotNES.Drawers
+namespace dotNES.Renderers
 {
     public abstract class IRenderer : Control
     {
