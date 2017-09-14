@@ -53,8 +53,8 @@ namespace dotNES
             }
         }
 
-        private string[] speeds = { "1x", "2x", "4x", "8x", "16x" };
-        private string activeSpeed = "1x";
+        private int[] speeds = { 1, 2, 4, 8, 16 };
+        private int activeSpeed = 1;
         private string[] sizes = { "1x", "2x", "4x", "8x" };
         private string activeSize = "2x";
         private Emulator emu;
@@ -139,7 +139,7 @@ namespace dotNES
                         rawBitmap = emu.PPU.RawBitmap;
                         Invoke((MethodInvoker)_renderer.Draw);
                         s0.Stop();
-                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0));
+                        Thread.Sleep(Math.Max((int)(980 / 60.0 - s0.ElapsedMilliseconds), 0) / activeSpeed);
                     }
                     s.Stop();
                     Console.WriteLine($"60 frames in {s.ElapsedMilliseconds}ms");
@@ -234,7 +234,7 @@ namespace dotNES
                         }));
                 }),
                 new SeparatorItem(),
-                new Item("&Screenshot (F12)", x =>
+                new Item("Screenshot (F12)", x =>
                 {
                     x.Click += delegate { Screenshot(); };
                 }),
@@ -242,34 +242,16 @@ namespace dotNES
                 {
                     x.Click += delegate { suspended ^= true; };
                 }),
-                new Item("Speed", x =>
+                new Item("&Speed", x =>
                 {
                     foreach (var speed in speeds)
-                        x.Add(new RadioItem(speed, y =>
+                        x.Add(new RadioItem($"{speed}x", y =>
                         {
                             y.Checked = speed == activeSpeed;
                             y.Click += delegate { activeSpeed = speed; };
                         }));
                 }),
-                new Item("&Mute"),
-                new Item("Volume")
-                {
-                    MenuItems = {"TODO"}
-                },
-                new Item("&Fullscreen"),
-                new Item("Magnification", x =>
-                {
-                    foreach (var size in sizes)
-                    {
-                        x.Add(new RadioItem(size, y =>
-                        {
-                            y.Checked = size == activeSize;
-                            y.Click += delegate { activeSize = size; };
-                        }));
-                    }
-                }),
                 new Item("&Reset..."),
-                new Item("Keybindings...")
             }
             };
             cm.Show(this, new Point(e.X, e.Y));
