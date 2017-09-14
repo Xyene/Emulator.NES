@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace dotNES.Renderers
@@ -18,8 +19,6 @@ namespace dotNES.Renderers
             if (ui == null) return;
             _ui = ui;
 
-            _gameBitmap = new Bitmap(UI.GameWidth, UI.GameHeight, PixelFormat.Format24bppRgb);
-
             BackColor = Color.Gray;
             DoubleBuffered = true;
         }
@@ -34,24 +33,13 @@ namespace dotNES.Renderers
             base.OnResize(e);
         }
 
-        public unsafe void Draw()
+        public void Draw()
         {
-            BitmapData _frameData = _gameBitmap.LockBits(new Rectangle(0, 0, 256, 240), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            var locked = GCHandle.Alloc(_ui.rawBitmap, GCHandleType.Pinned);
 
-            byte* ptr = (byte*)_frameData.Scan0;
+            _gameBitmap?.Dispose();
+            _gameBitmap = new Bitmap(UI.GameWidth, UI.GameHeight, UI.GameWidth * 4, PixelFormat.Format32bppPArgb, locked.AddrOfPinnedObject());
 
-            int bufferPos = 0;
-            for (int y = 0; y < UI.GameHeight; y++)
-                for (int x = 0; x < UI.GameWidth; x++)
-                {
-                    uint raw = _ui.rawBitmap[bufferPos / 3];
-                    ptr[bufferPos + 0] = (byte)((raw >> 0) & 0xFF);
-                    ptr[bufferPos + 1] = (byte)((raw >> 8) & 0xFF);
-                    ptr[bufferPos + 2] = (byte)((raw >> 16) & 0xFF);
-
-                    bufferPos += 3;
-                }
-            _gameBitmap.UnlockBits(_frameData);
             Invalidate();
             Update();
         }
@@ -59,7 +47,7 @@ namespace dotNES.Renderers
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (_ui == null || !_ui.gameStarted) return;
+            if (_gameBitmap == null || _ui == null || !_ui.gameStarted) return;
 
             Graphics _renderTarget = e.Graphics;
             _renderTarget.CompositingMode = CompositingMode.SourceCopy;
