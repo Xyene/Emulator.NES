@@ -208,51 +208,51 @@ namespace dotNES
             ContextMenu cm = new ContextMenu
             {
                 MenuItems =
-            {
-                new Item("Renderer", self =>
                 {
-                    foreach (var renderer in availableRenderers)
+                    new Item("Renderer", self =>
                     {
-                        self.Add(new RadioItem(renderer.RendererName, y => {
-                            y.Checked = renderer == _renderer;
-                            y.Click += delegate { SetRenderer(renderer); };
-                        }));
-                    }
-                }),
-                new Item("Filter", x =>
-                {
-                    var filters = new Dictionary<string, FilterMode>()
+                        foreach (var renderer in availableRenderers)
+                        {
+                            self.Add(new RadioItem(renderer.RendererName, y => {
+                                y.Checked = renderer == _renderer;
+                                y.Click += delegate { SetRenderer(renderer); };
+                            }));
+                        }
+                    }),
+                    new Item("Filter", x =>
                     {
-                        {"None", FilterMode.NearestNeighbor},
-                        {"Linear", FilterMode.Linear},
-                    };
-                    foreach (var filter in filters)
-                        x.Add(new RadioItem(filter.Key, y =>
+                        var filters = new Dictionary<string, FilterMode>()
                         {
-                            y.Checked = filter.Value == _filterMode;
-                            y.Click += delegate { _filterMode = filter.Value; };
-                        }));
-                }),
-                new SeparatorItem(),
-                new Item("Screenshot (F12)", x =>
-                {
-                    x.Click += delegate { Screenshot(); };
-                }),
-                new Item(suspended ? "&Play (F2)" : "&Pause (F3)", x =>
-                {
-                    x.Click += delegate { suspended ^= true; };
-                }),
-                new Item("&Speed", x =>
-                {
-                    foreach (var speed in speeds)
-                        x.Add(new RadioItem($"{speed}x", y =>
-                        {
-                            y.Checked = speed == activeSpeed;
-                            y.Click += delegate { activeSpeed = speed; };
-                        }));
-                }),
-                new Item("&Reset..."),
-            }
+                            {"None", FilterMode.NearestNeighbor},
+                            {"Linear", FilterMode.Linear},
+                        };
+                        foreach (var filter in filters)
+                            x.Add(new RadioItem(filter.Key, y =>
+                            {
+                                y.Checked = filter.Value == _filterMode;
+                                y.Click += delegate { _filterMode = filter.Value; };
+                            }));
+                    }),
+                    new SeparatorItem(),
+                    new Item("Screenshot (F12)", x =>
+                    {
+                        x.Click += delegate { Screenshot(); };
+                    }),
+                    new Item(suspended ? "&Play (F2)" : "&Pause (F3)", x =>
+                    {
+                        x.Click += delegate { suspended ^= true; };
+                    }),
+                    new Item("&Speed", x =>
+                    {
+                        foreach (var speed in speeds)
+                            x.Add(new RadioItem($"{speed}x", y =>
+                            {
+                                y.Checked = speed == activeSpeed;
+                                y.Click += delegate { activeSpeed = speed; };
+                            }));
+                    }),
+                    new Item("&Reset..."),
+                }
             };
             cm.Show(this, new Point(e.X, e.Y));
         }
@@ -263,13 +263,14 @@ namespace dotNES
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                BootCartridge(files[0]);
-                AllowDrop = false;
                 try
                 {
+                    BootCartridge(files[0]);
+                    AllowDrop = false;
                 }
-                catch (Exception)
+                catch (Exception ex) 
                 {
+                    Console.WriteLine(ex);
                     MessageBox.Show("Error loading ROM file; either corrupt or unsupported");
                 }
             }
