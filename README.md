@@ -33,6 +33,7 @@ Currently, the following mappers are implemented:
 * 66 - [GxROM](http://bootgod.dyndns.org:7777/search.php?ines=66)
 * 71 - [Camerica](http://bootgod.dyndns.org:7777/search.php?ines=71)
 * 94 - [*Senjou no Ookami*](http://bootgod.dyndns.org:7777/search.php?ines=94)
+* 140 - [Jaleco](http://bootgod.dyndns.org:7777/search.php?ines=140)
 * 155 - [MMC1A](http://bootgod.dyndns.org:7777/search.php?ines=155)
 * 180 - [*Crazy Climber*](http://bootgod.dyndns.org:7777/search.php?ines=180)
 * 206 - [DxROM](http://bootgod.dyndns.org:7777/search.php?ines=206)
