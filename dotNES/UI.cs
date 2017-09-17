@@ -61,7 +61,7 @@ namespace dotNES
         private bool suspended;
         public bool gameStarted;
 
-        private Type[] possibleRenderers = { typeof(SoftwareRenderer) /*, typeof(OpenGLRenderer),  typeof(Direct3DRenderer)*/ };
+        private Type[] possibleRenderers = { typeof(SoftwareRenderer), /* typeof(OpenGLRenderer),  */ typeof(Direct3DRenderer) };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
 
         public UI()
