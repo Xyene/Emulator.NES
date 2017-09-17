@@ -61,7 +61,7 @@ namespace dotNES
         private bool suspended;
         public bool gameStarted;
 
-        private Type[] possibleRenderers = { typeof(SoftwareRenderer), /* typeof(OpenGLRenderer), */ typeof(Direct3DRenderer) };
+        private Type[] possibleRenderers = { typeof(SoftwareRenderer) /*, typeof(OpenGLRenderer),  typeof(Direct3DRenderer)*/ };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
 
         public UI()
@@ -82,6 +82,7 @@ namespace dotNES
                 oldCtrl.MouseClick -= UI_MouseClick;
                 oldCtrl.KeyUp -= UI_KeyUp;
                 oldCtrl.KeyDown -= UI_KeyDown;
+                oldCtrl.PreviewKeyDown -= UI_PreviewKeyDown;
                 _renderer.EndRendering();
                 Controls.Remove((Control)_renderer);
             }
@@ -92,6 +93,7 @@ namespace dotNES
             ctrl.MouseClick += UI_MouseClick;
             ctrl.KeyUp += UI_KeyUp;
             ctrl.KeyDown += UI_KeyDown;
+            ctrl.PreviewKeyDown += UI_PreviewKeyDown;
             Controls.Add(ctrl);
             renderer.InitRendering(this);
         }
