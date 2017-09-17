@@ -20,7 +20,6 @@ namespace dotNES.Renderers
             if (ui == null) return;
             _ui = ui;
 
-            _rawBitmap = GCHandle.Alloc(_ui.rawBitmap, GCHandleType.Pinned);
 
             BackColor = Color.Gray;
             DoubleBuffered = true;
@@ -28,7 +27,7 @@ namespace dotNES.Renderers
 
         public void EndRendering()
         {
-            _rawBitmap.Free();
+            if (_rawBitmap.IsAllocated) _rawBitmap.Free();
         }
 
         protected override void OnResize(EventArgs e)
@@ -40,6 +39,10 @@ namespace dotNES.Renderers
         public void Draw()
         {
             _gameBitmap?.Dispose();
+
+            if(_rawBitmap.IsAllocated) _rawBitmap.Free();
+
+            _rawBitmap = GCHandle.Alloc(_ui.rawBitmap, GCHandleType.Pinned);
             _gameBitmap = new Bitmap(UI.GameWidth, UI.GameHeight, UI.GameWidth * 4, PixelFormat.Format32bppPArgb, _rawBitmap.AddrOfPinnedObject());
 
             Invalidate();
