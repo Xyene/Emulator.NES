@@ -62,6 +62,7 @@ new enough to have C# 7 support (or may not have `msbuild`). Instead, [install a
 
 Then, to compile:
 ```
+$ nuget update -self
 $ nuget restore
 $ msbuild /property:Configuration=Release dotNES.sln
 ```
