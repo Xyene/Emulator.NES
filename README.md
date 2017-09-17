@@ -49,8 +49,8 @@ Emulator.NES uses C# 7 language features, so requires a compiler that supports t
 Visual Studio 2017 is sufficient to compile.
 
 ### Linux
-`xbuild` from Mono should be used to build, but the version included in most distro repositories is not
-new enough to have C# 7 support. Instead, [install a Mono version directly from the Mono site](http://www.mono-project.com/download/#download-lin).
+`msbuild` from Mono should be used to build, but the version included in most distro repositories is not
+new enough to have C# 7 support (or may not have `msbuild`). Instead, [install a Mono version directly from the Mono site](http://www.mono-project.com/download/#download-lin).
 
 Then, to compile:
 ```
