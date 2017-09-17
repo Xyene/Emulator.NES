@@ -32,6 +32,7 @@ Currently, the following mappers are implemented:
 * 11 - [Color Dreams](http://bootgod.dyndns.org:7777/search.php?ines=11)
 * 66 - [GxROM](http://bootgod.dyndns.org:7777/search.php?ines=66)
 * 71 - [Camerica](http://bootgod.dyndns.org:7777/search.php?ines=71)
+* 79 - [NINA-003-006](http://bootgod.dyndns.org:7777/search.php?ines=79)
 * 94 - [*Senjou no Ookami*](http://bootgod.dyndns.org:7777/search.php?ines=94)
 * 140 - [Jaleco](http://bootgod.dyndns.org:7777/search.php?ines=140)
 * 155 - [MMC1A](http://bootgod.dyndns.org:7777/search.php?ines=155)
