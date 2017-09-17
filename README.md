@@ -42,6 +42,22 @@ Currently, the following mappers are implemented:
 These mappers theoretically provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777).
 Whether a game runs or not is more dependent on how well the CPU and PPU support it.
 
+## Compilation
+Emulator.NES uses C# 7 language features, so requires a compiler that supports them.
+
+### Windows
+Visual Studio 2017 is sufficient to compile.
+
+### Linux
+`xbuild` from Mono should be used to build, but the version included in most distro repositories is not
+new enough to have C# 7 support. Instead, [install a Mono version directly from the Mono site](http://www.mono-project.com/download/#download-lin).
+
+Then, to compile:
+```
+$ nuget restore
+$ xbuild /property:Configuration=Release dotNES.sln
+```
+
 ## More Title Screens
 Title screens are pretty, so below are some more title screens of games running in Emulator.NES.
 
