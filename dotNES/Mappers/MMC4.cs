@@ -41,10 +41,7 @@ namespace dotNES.Mappers
                 var ret = _chrROM[_chrBankOffsets[bank, _latches[bank].AsByte()] + addr % 0x1000];
                 if ((addr & 0x08) > 0)
                 {
-                    uint latch;
-                    bool? on;
-
-                    GetLatch(addr, out latch, out on);
+                    GetLatch(addr, out uint latch, out bool? on);
 
                     if (on != null) _latches[latch] = (bool)on;
                 }
