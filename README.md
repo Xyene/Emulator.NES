@@ -55,7 +55,7 @@ new enough to have C# 7 support. Instead, [install a Mono version directly from 
 Then, to compile:
 ```
 $ nuget restore
-$ xbuild /property:Configuration=Release dotNES.sln
+$ msbuild /property:Configuration=Release dotNES.sln
 ```
 
 ## More Title Screens
