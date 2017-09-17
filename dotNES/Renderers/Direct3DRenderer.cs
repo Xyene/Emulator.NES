@@ -104,9 +104,19 @@ namespace dotNES.Renderers
 
         protected override void OnResize(EventArgs e)
         {
-            DisposeDirect3D();
-            InitRendering(_ui);
-            base.OnResize(e);
+            try
+            {
+                DisposeDirect3D();
+                InitRendering(_ui);
+                base.OnResize(e);
+            }
+            catch
+            {
+                // This is pretty stupid, but Mono will send a resize event to this component
+                // even when it's not added to a frame, so this will fail horribly
+                // during the renderer self-test procedure, which detects this type of failure...
+                // on different thread.
+            }
         }
 
         public void Draw()
