@@ -50,6 +50,8 @@ Currently, the following mappers are implemented:
 These mappers theoretically provide support for ~90% of all games ever published, largely according to [this list](http://tuxnes.sourceforge.net/nesmapper.txt) and [NesCartDB](http://bootgod.dyndns.org:7777).
 Whether a game runs or not is more dependent on how well the CPU and PPU support it.
 
+The APU is currently not implemented, which means no games output audio.
+
 ## Compilation
 Emulator.NES uses C# 7 language features, so requires a compiler that supports them.
 
