@@ -59,7 +59,6 @@ namespace dotNES
         private Emulator emu;
         private bool suspended;
         public bool gameStarted;
-        private ContextMenu contextMenu;
 
         private Type[] possibleRenderers = { typeof(SoftwareRenderer), /* typeof(OpenGLRenderer),  */ typeof(Direct3DRenderer) };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
@@ -226,7 +225,7 @@ namespace dotNES
         {
             if (e.Button != MouseButtons.Right) return;
 
-            contextMenu = new ContextMenu
+            ContextMenu cm = new ContextMenu
             {
                 MenuItems =
                 {
@@ -279,7 +278,7 @@ namespace dotNES
                     new Item("&Reset", x => x.Click += Reset)
                 }
             };
-            contextMenu.Show(this, new Point(e.X, e.Y));
+            cm.Show(this, new Point(e.X, e.Y));
         }
 
         private void LoadRom(object sender, EventArgs e)
