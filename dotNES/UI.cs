@@ -253,10 +253,16 @@ namespace dotNES
                                 y.Click += delegate { activeSpeed = speed; };
                             }));
                     }),
-                    new Item("&Reset..."),
+                    new Item("&Reset",x=>x.Click+=Reset),
                 }
             };
             cm.Show(this, new Point(e.X, e.Y));
+        }
+
+        private void Reset(object sender, EventArgs e)
+        {
+            Process.Start(Application.ExecutablePath);
+            Close();
         }
 
         private void UI_DragDrop(object sender, DragEventArgs e)
@@ -270,7 +276,7 @@ namespace dotNES
                     BootCartridge(files[0]);
                     AllowDrop = false;
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                     MessageBox.Show("Error loading ROM file; either corrupt or unsupported");
