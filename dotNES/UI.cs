@@ -172,6 +172,22 @@ namespace dotNES
             Clipboard.SetImage(bitmap);
         }
 
+        private void OnEscPress()
+        {
+            if (gameStarted)
+            {
+                var result = MessageBox.Show(
+                    "Are you sure to reset?",
+                    "Warning",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    Reset(this, null);
+                }
+            }
+        }
+
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
             _rendererRunning = false;
@@ -183,6 +199,9 @@ namespace dotNES
         {
             switch (e.KeyCode)
             {
+                case Keys.Escape:
+                    OnEscPress();
+                    break;
                 case Keys.F12:
                     Screenshot();
                     break;
