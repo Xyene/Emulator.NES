@@ -56,10 +56,10 @@ namespace dotNES
         private int[] speeds = { 1, 2, 4, 8, 16 };
         private int activeSpeed = 1;
         private string[] sizes = { "1x", "2x", "4x", "8x" };
-        private string activeSize = "2x";
         private Emulator emu;
         private bool suspended;
         public bool gameStarted;
+        private ContextMenu contextMenu;
 
         private Type[] possibleRenderers = { typeof(SoftwareRenderer), /* typeof(OpenGLRenderer),  */ typeof(Direct3DRenderer) };
         private List<IRenderer> availableRenderers = new List<IRenderer>();
@@ -172,6 +172,22 @@ namespace dotNES
             Clipboard.SetImage(bitmap);
         }
 
+        private void OnEscPress()
+        {
+            if (gameStarted)
+            {
+                var result = MessageBox.Show(
+                    "Are you sure to reset?",
+                    "Warning",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    Reset(this, null);
+                }
+            }
+        }
+
         private void UI_FormClosing(object sender, FormClosingEventArgs e)
         {
             _rendererRunning = false;
@@ -183,6 +199,9 @@ namespace dotNES
         {
             switch (e.KeyCode)
             {
+                case Keys.Escape:
+                    OnEscPress();
+                    break;
                 case Keys.F12:
                     Screenshot();
                     break;
@@ -207,10 +226,14 @@ namespace dotNES
         {
             if (e.Button != MouseButtons.Right) return;
 
-            ContextMenu cm = new ContextMenu
+            contextMenu = new ContextMenu
             {
                 MenuItems =
                 {
+                    new Item("Load Rom", x => x.Click += LoadRom)
+                    {
+                        Enabled = !gameStarted
+                    },
                     new Item("Renderer", self =>
                     {
                         foreach (var renderer in availableRenderers)
@@ -225,8 +248,8 @@ namespace dotNES
                     {
                         var filters = new Dictionary<string, FilterMode>()
                         {
-                            {"None", FilterMode.NearestNeighbor},
-                            {"Linear", FilterMode.Linear},
+                            { "None", FilterMode.NearestNeighbor },
+                            { "Linear", FilterMode.Linear },
                         };
                         foreach (var filter in filters)
                             x.Add(new RadioItem(filter.Key, y =>
@@ -253,10 +276,29 @@ namespace dotNES
                                 y.Click += delegate { activeSpeed = speed; };
                             }));
                     }),
-                    new Item("&Reset..."),
+                    new Item("&Reset", x => x.Click += Reset)
                 }
             };
-            cm.Show(this, new Point(e.X, e.Y));
+            contextMenu.Show(this, new Point(e.X, e.Y));
+        }
+
+        private void LoadRom(object sender, EventArgs e)
+        {
+            var ofd = new OpenFileDialog
+            {
+                Filter = "rom|*.nes"
+            };
+            if (DialogResult.OK == ofd.ShowDialog())
+            {
+                BootCartridge(ofd.FileName);
+                AllowDrop = false;
+            }
+        }
+
+        private void Reset(object sender, EventArgs e)
+        {
+            Process.Start(Application.ExecutablePath);
+            Close();
         }
 
         private void UI_DragDrop(object sender, DragEventArgs e)
@@ -270,7 +312,7 @@ namespace dotNES
                     BootCartridge(files[0]);
                     AllowDrop = false;
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                     MessageBox.Show("Error loading ROM file; either corrupt or unsupported");
